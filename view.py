@@ -1,26 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Usage:
-    blobtools.py view   --i <BLOBDB> [--taxrule <TAXRULE>] [--rank <TAXRANK>...] [--hits]
-                        [--list <LIST>] [--out <OUT>] [--sep <SEP>]
-                        [--h|--help] 
+"""usage: blobtools view    --i <BLOBDB> [--taxrule <TAXRULE>] [--rank <TAXRANK>...] [--hits]
+                            [--list <LIST>] [--out <OUT>]
+                            [--h|--help] 
     
     Options:
         --h --help              show this
         --blobdb <BLOBDB>       BlobDB file (created with "blobtools forge")
         --out <OUT>             Output file [default: STDOUT]
-        --sep <SEP>             Separator used for "table" output [default: \t]
-        --list <LIST>           List of sequence names (comma-separated or file). If comma-separated, no whitespaces allowed.
+        --list <LIST>           List of sequence names (comma-separated or file). 
+                                If comma-separated, no whitespaces allowed.
         --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
                                 [default: bestsum]
-        --rank <TAXRANK>...     Taxonomic rank(s) at which output will be written, if output format is "table". 
-                                (supported: 'species', 'genus', 'family', 'order', 'phylum', 'superkingdom', 'all')
-                                [default: phylum]
+        --rank <TAXRANK>...     Taxonomic rank(s) at which output will be written. 
+                                (supported: 'species', 'genus', 'family', 'order', 
+                                'phylum', 'superkingdom', 'all') [default: phylum]
         --hits                  Displays taxonomic hits from tax files
-
-
-    
 """
 
 from __future__ import division
@@ -38,10 +34,8 @@ if __name__ == '__main__':
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
-
     blobdb_f = args['<BLOBDB>']
     out_f = args['--out'] 
-    sep = args['--sep']
     ranks = args['--rank']
     taxrule = args['--taxrule']
     hits_flag = args['--hits']
@@ -58,7 +52,6 @@ if __name__ == '__main__':
     if 'all' in ranks:
         ranks = RANKS[0:-1]            
 
-    
     # Is list a list of sequence names or a file?
     seqs = []
     if (seq_list):
@@ -76,7 +69,7 @@ if __name__ == '__main__':
     # Is taxrule sane and was it computed?
     if (blobDB.hitLibs) and taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
-    blobDB.view(out_f, sep, ranks, taxrule, hits_flag, seqs)
+    blobDB.view(out_f, ranks, taxrule, hits_flag, seqs)
 
     # #print nodesDB['1']
     # BtLog.status('2')

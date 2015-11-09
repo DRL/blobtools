@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Usage:
-    blobtools.py plot   --i <BLOBDB> [--p <MAXTAX>] [--l <LEN>] [--c] [--n] [--x]
-                        [--o <PREFIX>] [--m] [--sort <ORDER>] [--hist <HIST>] [--title]
-                        [--rank <RANK>] [--taxrule <TAXRULE>] [--cluster <GROUPS>...] 
-                        [--h|--help] 
+"""usage: blobtools plot    --i <BLOBDB> [--p <MAXTAX>] [--l <LEN>] [--c] [--n] [--x]
+                            [--o <PREFIX>] [--m] [--sort <ORDER>] [--hist <HIST>] [--title]
+                            [--rank <RANK>] [--taxrule <TAXRULE>] [--cluster <GROUPS>...] 
+                            [--h|--help] 
 
     Options:
         --h --help                  show this
@@ -24,10 +23,12 @@
                                     span  : span-weighted histograms
                                     count : count histograms
         --title                     Add title of BlobDB [default: True]
-        --rank <RANK>               Taxonomic rank used colouring of blobs [default: phylum]
+        --rank <RANK>               Taxonomic rank used for colouring of blobs [default: phylum]
                                     (Supported: species, genus, family, order, phylum, superkingdom) 
-        --taxrule <TAXRULE>         Taxrule which has been used for computing taxonomy (Supported: bestsum, bestsumorder)
-        --cluster <GROUPS>...       Cluster taxonomic groups together, e.g. "Contaminants=Actinobacteria,Proteobacteria" 
+        --taxrule <TAXRULE>         Taxrule which has been used for computing taxonomy 
+                                    (Supported: bestsum, bestsumorder) [default: bestsum]
+        --cluster <GROUPS>...       Cluster taxonomic groups together, 
+                                    e.g. "Contaminants=Actinobacteria,Proteobacteria" 
 """
 
 from __future__ import division
@@ -36,7 +37,7 @@ import lib.BtCore as bt
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 import lib.BtPlot as BtPlot
-from os.path import basename, isfile, join, dirname
+from os.path import dirname, isfile
 
 if __name__ == '__main__':
     TAXRULES = ['bestsum', 'bestsumorder']
@@ -120,7 +121,8 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_prefix, out_f)
         if c_index:
             out_f = "%s.%s" % (out_f, "c_index")
-        if min_length:
-            out_f = "%s.%s" % (out_f, min_length)
+        if clusters:
+            out_f = "%s.%s" % (out_f, "cluster_" + "_".join(set([name for name in cluster_d.values()])))
+        out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         BtPlot.plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, max_cov, multiplot, hist_type, plot_title, out_f, ignore_contig_length, info)
         info = 0

@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-usage: blobtools.py <command> [<args>...] [--help]
+usage: blobtools <command> [<args>...] [--help]
 
 commands:
-  forge     create a BlobDb
-  view      print BlobDB to screen
+  forge     create a BlobDB
+  view      print BlobDB
   plot      plot BlobDB as a blobplot
 
 -h --help    show this

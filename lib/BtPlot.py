@@ -28,7 +28,7 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "Set1" # "Set1"
+COLOURMAP = "Set2" # "Set1"
 BLACK, GREY, BGGREY, WHITE = '#262626', '#d3d3d3', '#F0F0F5', '#ffffff'
 FIGFORMAT = 'png'
 nullfmt = NullFormatter()
@@ -107,14 +107,14 @@ def getSummaryTable(summary_dict, plot_order):
         span_visible_perc = ''
         if elem in plot_order:
             count_total = summary_dict[elem]['count_total']
-            count_visible_perc = '{0:.3%}'.format(summary_dict[elem]['count_visible']/count_total)
+            count_visible_perc = '{0:.1%}'.format(summary_dict[elem]['count_visible']/count_total)
             span_total = summary_dict[elem]['span_total']
-            span_visible_perc = '{0:.3%}'.format(summary_dict[elem]['span_visible']/span_total)
+            span_visible_perc = '{0:.1%}'.format(summary_dict[elem]['span_visible']/span_total)
         else:
             count_total = summary_dict[elem]['count_total']
-            count_visible_perc = '{0:.3%}'.format(0.0)
+            count_visible_perc = '{0:.1%}'.format(0.0)
             span_total = summary_dict[elem]['span_total']
-            span_visible_perc = '{0:.3%}'.format(0.0)
+            span_visible_perc = '{0:.1%}'.format(0.0)
         table_data.append({
                     'name' : elem, 
                     'count_total' : "{:,}".format(count_total), 

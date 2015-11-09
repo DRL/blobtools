@@ -188,7 +188,7 @@ def readTax(infile, set_of_blobs):
 def getNodesDB(**kwargs):
     '''
     Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that 
-    gets JSON/gzip'ed into blobtools/data/nodes_db.jgz if this file 
+    gets JSON'ed into blobtools/data/nodes_db.json if this file 
     does not exist. This file is used if neither "--names" and "--nodes" 
     nor "--db" is specified.
     '''
@@ -212,19 +212,15 @@ def getNodesDB(**kwargs):
                 names_col = line.split("\t")
                 if names_col[6] == "scientific name":
                    nodesDB[names_col[0]]['name'] = names_col[2]
-        nodesDB_f = kwargs['nodesDB_default']
+        nodesDB_f = kwargs['nodesDB']
         nodesDB['nodes_count'] = nodes_count
     elif(kwargs['nodesDB']):
-        print BtLog.status_d['4'] % ('custom', kwargs['nodesDB'])
+        print BtLog.status_d['4'] % (kwargs['nodesDB'])
         nodesDB = readNodesDB(kwargs['nodesDB'])
         nodesDB_f = kwargs['nodesDB']
-    elif(kwargs['nodesDB_default']):
-        print BtLog.status_d['4'] % ('local', kwargs['nodesDB_default'])
-        nodesDB = readNodesDB(kwargs['nodesDB_default'])
-        nodesDB_f = kwargs['nodesDB_default']
     else:
         BtLog.error('3')
-    return nodesDB, abspath(nodesDB_f)
+    return nodesDB, nodesDB_f
 
 def readNodesDB(nodesDB_f):
     nodesDB = {}
@@ -241,10 +237,10 @@ def readNodesDB(nodesDB_f):
                 BtLog.progress(i, 1000, nodes_count)
     return nodesDB
 
-def writeNodesDB(nodesDB, nodesDB_default):
+def writeNodesDB(nodesDB, nodesDB_f):
     nodes_count = nodesDB['nodes_count']
     i = 0
-    with open(nodesDB_default, 'w') as fh:
+    with open(nodesDB_f, 'w') as fh:
         fh.write("# nodes_count = %s\n" % nodes_count) 
         for node in nodesDB:
             if not node == "nodes_count": 

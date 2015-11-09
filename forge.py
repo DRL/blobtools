@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Usage:
-    blobtools.py forge  --i <FASTA> [--type <ASSEMBLY>] [--out <OUT>] [--title <TITLE>]
-                        [--bam <BAM>...] [--sam <SAM>...] [--cas <CAS>...] [--cov <COV>...]  
-                        [--tax <TAX>...] [--nodes <NODES>] [--names <NAMES>] [--taxrule <TAXRULE>...]
-                        [--db <NODESDB>] [--makeDB <NODESDB>]
-                        [--h|--help] 
+"""usage: blobtools forge     --i <FASTA> [--type <ASSEMBLY>] [--out <OUT>] [--title <TITLE>]
+                              [--bam <BAM>...] [--sam <SAM>...] [--cas <CAS>...] [--cov <COV>...]  
+                              [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>] 
+                              [--tax <TAX>...] [--taxrule <TAXRULE>...]
+                              [--h|--help] 
     
     Options:
         --h --help              show this
         --i <FASTA>             FASTA file of assembly 
-        --type ASSEMBLY         Assembly program used to create FASTA. If specified 
-                                coverage of sequences will be parsed from FASTA header. 
+        --type ASSEMBLY         Assembly program used to create FASTA. If specified, 
+                                coverage will be parsed from FASTA header. 
                                 (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
         --tax <TAX>...          Taxonomy file in format (qseqid\\ttaxid\\tbitscore) 
                                 (e.g. BLAST output "--outfmt '6 std'")
@@ -21,16 +20,15 @@
                                 "bestsumorder"  : sum bitscore across all hits for each taxonomic rank. 
                                                   - If first <TAX> file supplies hits these are used. 
                                                   - If no hit is found, the next <TAX> file is used.                                 
-        --db <NODESDB>          NodesDB file (see Documentation "Creating a NodesDB file"). 
+        --nodes <NODES>         NCBI nodes.dmp file. Not required if '--db'
+        --names <NAMES>         NCBI names.dmp file. Not required if '--db' 
+        --db <NODESDB>          NodesDB file [default: data/nodesDB.txt]. 
         --bam <BAM>...          BAM file (requires samtools in $PATH)
         --sam <SAM>...          SAM file
         --cas <CAS>...          CAS file (requires clc_mapping_info in $PATH)
         --cov <COV>...          TAB separated. (seqID\\tcoverage)
-        --nodes <NODES>         NCBI nodes.dmp file. Not required if '--db'
-        --names <NAMES>         NCBI names.dmp file. Not required if '--db' 
         --out <OUT>             BlobDB output file [default: blobDb.json]
         --title TITLE           Title of BlobDB [default: FASTA)  
-    
 """
 
 from __future__ import division
@@ -58,8 +56,7 @@ if __name__ == '__main__':
     hit_fs = args['--tax']
 
     out_f = args['--out']
-    nodesDB_default = join(main_dir, "data/nodesDB.txt")
-    nodesDB_custom = args['--db']
+    nodesDB_f = args['--db']
     names_f = args['--names']
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
@@ -67,19 +64,19 @@ if __name__ == '__main__':
 
 
     # Do files exist ?
-    files = [x for x in list([fasta_f] + sam_fs + bam_fs + cov_fs + cas_fs + [nodesDB_custom] + [names_f] + [nodes_f] + hit_fs) if x is not None]
+    files = [x for x in list([fasta_f] + sam_fs + bam_fs + cov_fs + cas_fs + [names_f] + [nodes_f] + hit_fs) if x is not None]
     for f in files:
-        print f
         if not isfile(f):
             BtLog.error('0', f)
 
     # Is taxonomy provided?
-    if not (nodesDB_custom) and not ((names_f) and (nodes_f)) and not isfile(nodesDB_default) :
+    if nodesDB_f == "data/nodesDB.txt":
+        nodesDB_f = join(main_dir, nodesDB_f)
+    if not isfile(nodesDB_f) and not ((names_f) and (nodes_f)):
         BtLog.error('3')
 
     if not (hit_fs):
         BtLog.error('18')
-
 
     # can FASTA parser deal with assemblies
     if not fasta_type in ASSEMBLY_TYPES:
@@ -104,22 +101,20 @@ if __name__ == '__main__':
 
     # Parse Tax
     hitLibs = [bt.hitLibObj('tax' + str(idx), 'tax', lib_f) for idx, lib_f in enumerate(hit_fs)]
-    if (hitLibs):
-        blobDb.parseHits(hitLibs)
-        # Parse nodesDB
-        nodesDB, nodesDB_f = BtIO.getNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_custom, nodesDB_default=nodesDB_default)
-        blobDb.nodesDB_f = nodesDB_f
+    blobDb.parseHits(hitLibs)
+    
+    # Parse nodesDB
+    nodesDB, nodesDB_f = BtIO.getNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_f)
+    blobDb.nodesDB_f = nodesDB_f
         
-        if not isfile(nodesDB_default):
-            print BtLog.status_d['5'] % nodesDB_default
-            BtIO.writeNodesDB(nodesDB, nodesDB_default)
+    if not isfile(nodesDB_f):
+        print BtLog.status_d['5'] % nodesDB_f
+        BtIO.writeNodesDB(nodesDB, nodesDB_f)
 
-        # Computing taxonomy based on taxrules
-        print BtLog.status_d['6'] % ",".join(taxrules)
-        blobDb.computeTaxonomy(taxrules, nodesDB)
+    # Computing taxonomy based on taxrules
+    print BtLog.status_d['6'] % ",".join(taxrules)
+    blobDb.computeTaxonomy(taxrules, nodesDB)
 
     # Writing BlobDB to file
     print BtLog.status_d['7'] % out_f
     BtIO.writeJson(blobDb.dump(), out_f)
-    
-

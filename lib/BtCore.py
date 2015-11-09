@@ -26,58 +26,62 @@ class BlobDb():
         self.nodesDB_f = ''
         self.taxrules = []
 
-    def view(self, out_f, sep, ranks, taxrule, hits_flag, seqs):
+    def view(self, out_f, ranks, taxrule, hits_flag, seqs):
+        sep = "\t"
         header = ''
         body = ''
         header += "##\n"
-        header += "## assembly\t: %s\n" % self.assembly_f
-        header += "%s\n" % "\n".join("## " + covLib['name'] + "\t: " + covLib["f"] for covLib in self.covLibs.values())
-        if (self.hitLibs):
-            header += "%s\n" % "\n".join("## " + hitLib['name'] + "\t: " + hitLib["f"] for hitLib in self.hitLibs.values())
-            header += "## nodesDB\t: %s\n" % self.nodesDB_f
+        header += "## assembly : %s\n" % self.assembly_f
+        header += "%s\n" % "\n".join("## " + covLib['name'] + " : " + covLib["f"] for covLib in self.covLibs.values())
+        header += "%s\n" % "\n".join("## " + hitLib['name'] + " : " + hitLib["f"] for hitLib in self.hitLibs.values())
+        header += "## nodesDB : %s\n" % self.nodesDB_f
         header += "##\n"    
         header += "# %s" % sep.join(map(str, [ "name", "length", "GC", "N"  ])) 
         header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in self.covLibs]))
-        if (self.hitLibs):
-            for rank in ranks:
-                header += "%s%s" % (sep, sep.join([rank + ".t", rank + ".s", rank + ".c"]))
-                if hits_flag:
-                    header += "%s%s" % (sep, rank + ".hits")
-            header += "\n"
-        for name in self.order_of_blobs:
-            if (seqs) and name not in seqs:
-                break
-            blob = self.dict_of_blobs[name]
-            body += "%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ])) 
-            body += sep
-            body += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs]))
-            if (self.hitLibs):
-                for rank in ranks:
-                    body += sep
-                    tax = blob['taxonomy'][taxrule][rank]['tax']
-                    score = blob['taxonomy'][taxrule][rank]['score']
-                    c_index = blob['taxonomy'][taxrule][rank]['c_index']
-                    body += "%s" % sep.join(map(str, [tax, score, c_index ]))
-                    body += sep
-                    if hits_flag:
-                        for tax_lib_name in sorted(self.hitLibs):
-                            if tax_lib_name in blob['hits']:
-                                body += "%s=" % tax_lib_name
-                                sum_dict = {}
-                                for hit in blob['hits'][tax_lib_name]:
-                                    tax_rank = self.lineages[hit['taxId']][rank] 
-                                    sum_dict[tax_rank] = sum_dict.get(tax_rank, 0.0) + hit['score']
-                                body += "%s" % "|".join([":".join(map(str, [tax_rank, sum_dict[tax_rank]])) for tax_rank in sorted(sum_dict, key=sum_dict.get, reverse=True)])
-                            else:
-                                body += "%s=no-hit:0.0" % (tax_lib_name)
-                            body += ";"
-                
-            body += "\n"
+        for rank in ranks:
+            header += "%s%s" % (sep, sep.join([rank + ".t", rank + ".s", rank + ".c"]))
+            if hits_flag:
+                header += "%s%s" % (sep, rank + ".hits")
+        if (seqs):
+            for seq in seqs:
+                blob = self.dict_of_blobs[seq]
+                body += self.getViewLine(blob, taxrule, ranks, sep, hits_flag)
+        else:
+            for name in self.order_of_blobs:
+                blob = self.dict_of_blobs[name]
+                body += self.getViewLine(blob, taxrule, ranks, sep, hits_flag)
+
         if out_f == "STDOUT":
             print header + body
         else:
             with open(out_f, 'w') as fh:
                 fh.write(header + body)
+    
+    def getViewLine(self, blob, taxrule, ranks, sep, hits_flag):
+        line = ''
+        line += "\n%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ])) 
+        line += sep
+        line += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs]))
+        for rank in ranks:
+            line += sep
+            tax = blob['taxonomy'][taxrule][rank]['tax']
+            score = blob['taxonomy'][taxrule][rank]['score']
+            c_index = blob['taxonomy'][taxrule][rank]['c_index']
+            line += "%s" % sep.join(map(str, [tax, score, c_index ]))
+            line += sep
+            if hits_flag:
+                for tax_lib_name in sorted(self.hitLibs):
+                    if tax_lib_name in blob['hits']:
+                        line += "%s=" % tax_lib_name
+                        sum_dict = {}
+                        for hit in blob['hits'][tax_lib_name]:
+                            tax_rank = self.lineages[hit['taxId']][rank] 
+                            sum_dict[tax_rank] = sum_dict.get(tax_rank, 0.0) + hit['score']
+                        line += "%s" % "|".join([":".join(map(str, [tax_rank, sum_dict[tax_rank]])) for tax_rank in sorted(sum_dict, key=sum_dict.get, reverse=True)])
+                    else:
+                        line += "%s=no-hit:0.0" % (tax_lib_name)
+                    line += ";"
+        return line
 
     def dump(self):
         dump = {'title' : self.title,
