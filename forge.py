@@ -36,12 +36,12 @@ from docopt import docopt
 import lib.BtCore as bt
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
-from os.path import basename, isfile, join, dirname
+import os.path
 
 
 if __name__ == '__main__':
     ASSEMBLY_TYPES = [None, 'spades', 'soap', 'abyss', 'velvet']
-    main_dir = dirname(__file__)
+    main_dir = os.path.dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
     #print args
@@ -60,19 +60,19 @@ if __name__ == '__main__':
     names_f = args['--names']
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
-    title = args['--title'] if (args['--title']) else basename(".".join(fasta_f.split('.')[0:-1]))
+    title = args['--title'] if (args['--title']) else os.path.basename(".".join(fasta_f.split('.')[0:-1]))
 
 
     # Do files exist ?
     files = [x for x in list([fasta_f] + sam_fs + bam_fs + cov_fs + cas_fs + [names_f] + [nodes_f] + hit_fs) if x is not None]
     for f in files:
-        if not isfile(f):
+        if not os.path.isfile(f):
             BtLog.error('0', f)
 
     # Is taxonomy provided?
     if nodesDB_f == "data/nodesDB.txt":
-        nodesDB_f = join(main_dir, nodesDB_f)
-    if not isfile(nodesDB_f) and not ((names_f) and (nodes_f)):
+        nodesDB_f = os.path.join(main_dir, nodesDB_f)
+    if not os.path.isfile(nodesDB_f) and not ((names_f) and (nodes_f)):
         BtLog.error('3')
 
     if not (hit_fs):
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     nodesDB, nodesDB_f = BtIO.getNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_f)
     blobDb.nodesDB_f = nodesDB_f
         
-    if not isfile(nodesDB_f):
+    if not os.path.isfile(nodesDB_f):
         print BtLog.status_d['5'] % nodesDB_f
         BtIO.writeNodesDB(nodesDB, nodesDB_f)
 
