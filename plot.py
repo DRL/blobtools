@@ -3,7 +3,7 @@
 
 """usage: blobtools plot    --i <BLOBDB> [--p <MAXTAX>] [--l <LEN>] [--c] [--n] [--x]
                             [--o <PREFIX>] [--m] [--sort <ORDER>] [--hist <HIST>] [--title]
-                            [--rank <RANK>] [--taxrule <TAXRULE>] [--cluster <GROUPS>...] 
+                            [--rank <RANK>] [--taxrule <TAXRULE>] [--label <GROUPS>...] 
                             [--h|--help] 
 
     Options:
@@ -27,8 +27,8 @@
                                     (Supported: species, genus, family, order, phylum, superkingdom) 
         --taxrule <TAXRULE>         Taxrule which has been used for computing taxonomy 
                                     (Supported: bestsum, bestsumorder) [default: bestsum]
-        --cluster <GROUPS>...       Cluster taxonomic groups together, 
-                                    e.g. "Contaminants=Actinobacteria,Proteobacteria" 
+        --label <GROUPS>...         Relabel taxonomic groups, 
+                                    e.g. "Bacteria=Actinobacteria,Proteobacteria" 
 """
 
 from __future__ import division
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     hist_type = args['--hist']
     plot_title = args['--title']
     ignore_contig_length = args['--x']
-    clusters = args['--cluster']
+    labels = args['--label']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -79,19 +79,19 @@ if __name__ == '__main__':
     if taxrule not in TAXRULES:
         BtLog.error('8', taxrule)
 
-    # compute clusters if supplied
-    cluster_d = {}
-    if (clusters):
+    # compute labels if supplied
+    label_d = {}
+    if (labels):
         try:
-            for cluster in clusters:
+            for cluster in labels:
                 name, groups = cluster.split("=")
                 for group in groups.split(","):
                     if (group):
-                        if group in cluster_d:
+                        if group in label_d:
                             BtLog.error('17', group)            
-                        cluster_d[group] = name
+                        label_d[group] = name
         except:
-            BtLog.error('16', clusters)
+            BtLog.error('16', labels)
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         BtLog.error('11', taxrule, blobDB.taxrules)
 
     # blobDB.getArrays(rank, c_index, min_length, multiplot, hide_nohits, out_prefix, max_taxa_plot, sort_order, taxrule, hist_type, plot_title)
-    data_array, cov_arrays, summary_dict = blobDB.getArrays(rank, min_length, hide_nohits, taxrule, c_index, cluster_d)
+    data_array, cov_arrays, summary_dict = blobDB.getArrays(rank, min_length, hide_nohits, taxrule, c_index, label_d)
     plot_order = BtPlot.getPlotOrder(summary_dict, sort_order, max_taxa_plot)
     colour_dict = BtPlot.getColourDict(plot_order)
     min_cov, max_cov = BtPlot.getMinMaxCov(cov_arrays)
@@ -121,8 +121,8 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_prefix, out_f)
         if c_index:
             out_f = "%s.%s" % (out_f, "c_index")
-        if clusters:
-            out_f = "%s.%s" % (out_f, "cluster_" + "_".join(set([name for name in cluster_d.values()])))
+        if labels:
+            out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in label_d.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         BtPlot.plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, max_cov, multiplot, hist_type, plot_title, out_f, ignore_contig_length, info)
         info = 0

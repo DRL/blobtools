@@ -115,7 +115,7 @@ class BlobDb():
         self.hitLibs = blobDict['hitLibs']
         self.taxrules = blobDict['taxrules']
 
-    def getArrays(self, rank, min_length, hide_nohits, taxrule, c_index, cluster_d):
+    def getArrays(self, rank, min_length, hide_nohits, taxrule, c_index, label_d):
         from numpy import array
         summary_dict = {}
         data_list = []
@@ -129,8 +129,8 @@ class BlobDb():
                 tax = str(blob['taxonomy'][taxrule][rank]['c_index'])
             else:
                 tax = blob['taxonomy'][taxrule][rank]['tax']
-                if cluster_d and tax in cluster_d:
-                    tax = cluster_d[tax] 
+                if label_d and tax in label_d:
+                    tax = label_d[tax] 
             if not tax in summary_dict:
                 summary_dict[tax] = {'count_total' : 0,
                                      'count_hidden' : 0,
@@ -204,8 +204,9 @@ class BlobDb():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
             elif covLib.fmt == 'cas':
-                for name, cov in BtIO.readCas(covLib.f, set(self.dict_of_blobs)):
-                    pass
+                for name, cov in BtIO.readCas(covLib.f, self.order_of_blobs):
+                    covLib.cov_sum += cov
+                    self.dict_of_blobs[name].addCov(covLib.name, cov)
             elif covLib.fmt == 'cov':
                 for name, cov in BtIO.readCov(covLib.f, set(self.dict_of_blobs)):
                     covLib.cov_sum += cov

@@ -16,7 +16,6 @@ import commands
 from os.path import basename, isfile, abspath
 import os
 import lib.BtLog as BtLog
-import lib.BtMisc as BtMisc
 
 def parseList(infile):
     with open(infile) as fh:
@@ -139,7 +138,8 @@ def readCov(infile, set_of_blobs):
                     BtLog.error('3', name, infile)
                 yield name, cov
 
-def readCas(infile, set_of_blobs):
+def readCas(infile, order_of_blobs):
+    cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
     output = ''
     if not (is_exe('clc_mapping_info')):
         BtLog.error('20')
@@ -147,8 +147,12 @@ def readCas(infile, set_of_blobs):
         command = "clc_mapping_info -s -f " + infile
         if (runCmd(command)):
             for line in runCmd(command):
-                output += line
-            print output
+                match = cas_line_re.search(line)
+                if match:
+                    idx = int(match.group(1)) - 1 # -1 because index of contig list starts with zero 
+                    name = order_of_blobs[idx]
+                    cov = float(match.group(4))
+                    yield name, cov
     #error_CAS, message = commands.getstatusoutput("clc_mapping_info -s -f " + infile)
     #if (error_CAS):
     #    sys.exit("[ERROR] - Please add clc_mapping_info to you PATH variable.") 
