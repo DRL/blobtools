@@ -125,7 +125,7 @@ def parseCovFromHeader(fasta_type, header ):
         pass
 
 def readCov(infile, set_of_blobs):
-    cov_line_re = re.compile(r"^(\S+)\t(\d+\.\d+)")
+    cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     i = 0
     with open(infile) as fh:
         for line in fh:
