@@ -166,8 +166,7 @@ class BlobDb():
         self.assembly_f = abspath(fasta_f)
         if (fasta_type):
             # Set up CovLibObj for coverage in assembly header
-            cov_lib = CovLibObj(fasta_type, fasta_type, fasta_f)
-            self.covLibs[covLib.name] = covLib
+            self.covLibs[fasta_type] = CovLibObj(fasta_type, fasta_type, fasta_f)
 
         for name, seq in BtIO.readFasta(fasta_f):
             blObj = BlObj(name, seq)
@@ -178,7 +177,7 @@ class BlobDb():
                 
                 if (fasta_type):
                     cov = BtIO.parseCovFromHeader(fasta_type, blObj.name)
-                    covLib.cov_sum += cov
+                    self.covLibs[fasta_type].cov_sum += cov
                     blObj.addCov(fasta_type, cov)
 
                 self.order_of_blobs.append(blObj.name)
