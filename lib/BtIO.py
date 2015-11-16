@@ -31,7 +31,7 @@ def readFasta(infile):
             if l[0] == '>':
                 if (header):
                     yield header, ''.join(seqs)
-                header, seqs = l[1:-1], []
+                header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
             else:
                 seqs.append(l[:-1])
         yield header, ''.join(seqs)
@@ -173,7 +173,7 @@ def readTax(infile, set_of_blobs):
         - catch matches in variables
         - add as key-value pairs to hitDict
     '''
-    hit_line_re = re.compile(r"^(\S+)\s+(\d+)\s+(\d+\.*\d*)")
+    hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
             match = hit_line_re.search(line)

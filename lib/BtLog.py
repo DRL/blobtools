@@ -51,8 +51,8 @@ error_d = {
     '13' : '[ERROR:13]\t: %s does not appear to be a comma-separated list or a file.',
     '14' : '[ERROR:14]\t: Unsupported sort order for plotting : %s. Must be either "span" or "count".',
     '15' : '[ERROR:15]\t: Unsupported histogram type for plotting : %s. Must be either "span" or "count".',
-    '16' : '[ERROR:16]\t: Cluster string "%s" seems to be in the wrong format".',
-    '17' : '[ERROR:17]\t: Group "%s" was specified in multiple clusters".',
+    '16' : '[ERROR:16]\t: Group "%s" was specified in multiple clusters.',
+    '17' : '[ERROR:17]\t: Label could not be parsed from "%s".',
     '18' : '[ERROR:18]\t: Please provide a tax file in BLAST format.',
     '19' : '[ERROR:19]\t: Sequence %s in file %s is not part of the assembly.',
     '20' : '[ERROR:20]\t: Please add "clc_mapping_info" to you PATH variable.'

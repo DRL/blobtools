@@ -80,6 +80,7 @@ def getColourDict(plot_order):
         colour_d['None'] = GREY
     else:
         pass    
+    print colour_d
     return colour_d
 
 def getMinMaxCov(cov_arrays):

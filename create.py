@@ -1,34 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools forge     --i <FASTA> [--type <ASSEMBLY>] [--out <OUT>] [--title <TITLE>]
-                              [--bam <BAM>...] [--sam <SAM>...] [--cas <CAS>...] [--cov <COV>...]  
+"""usage: blobtools create     -i FASTA [-y FASTATYPE] [-o OUTFILE] [--title TITLE]
+                              [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]  
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>] 
-                              [--tax <TAX>...] [--taxrule <TAXRULE>...]
-                              [--h|--help] 
+                              [-t TAX...] [-r TAXRULE...]
+                              [-h|--help] 
     
     Options:
-        --h --help              show this
-        --i <FASTA>             FASTA file of assembly 
-        --type ASSEMBLY         Assembly program used to create FASTA. If specified, 
-                                coverage will be parsed from FASTA header. 
-                                (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
-        --tax <TAX>...          Taxonomy file in format (qseqid\\ttaxid\\tbitscore) 
-                                (e.g. BLAST output "--outfmt '6 std'")
-        --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
-                                "bestsum"       : sum bitscore across all hits for each taxonomic rank
-                                "bestsumorder"  : sum bitscore across all hits for each taxonomic rank. 
-                                                  - If first <TAX> file supplies hits these are used. 
+        -h --help                   show this
+        -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.  
+        -y, --type FASTATYPE        Assembly program used to create FASTA. If specified, 
+                                    coverage will be parsed from FASTA header. 
+                                    (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
+        -t, --taxfile TAX...        Taxonomy file in format (qseqid\\ttaxid\\tbitscore) 
+                                    (e.g. BLAST output "--outfmt '6 std'")
+        -r, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
+                                    "bestsum"       : sum bitscore across all hits for each taxonomic rank
+                                    "bestsumorder"  : sum bitscore across all hits for each taxonomic rank. 
+                                                  - If first <TAX> file supplies hits, bestsum is calculated. 
                                                   - If no hit is found, the next <TAX> file is used.                                 
-        --nodes <NODES>         NCBI nodes.dmp file. Not required if '--db'
-        --names <NAMES>         NCBI names.dmp file. Not required if '--db' 
-        --db <NODESDB>          NodesDB file [default: data/nodesDB.txt]. 
-        --bam <BAM>...          BAM file (requires samtools in $PATH)
-        --sam <SAM>...          SAM file
-        --cas <CAS>...          CAS file (requires clc_mapping_info in $PATH)
-        --cov <COV>...          TAB separated. (seqID\\tcoverage)
-        --out <OUT>             BlobDB output file [default: blobDb.json]
-        --title TITLE           Title of BlobDB [default: FASTA)  
+        --nodes <NODES>             NCBI nodes.dmp file. Not required if '--db'
+        --names <NAMES>             NCBI names.dmp file. Not required if '--db' 
+        --db <NODESDB>              NodesDB file [default: data/nodesDB.txt]. 
+        -b, --bam <BAM>...          BAM file (requires samtools in $PATH)
+        -s, --sam <SAM>...          SAM file
+        -a, --cas <CAS>...          CAS file (requires clc_mapping_info in $PATH)
+        -c, --cov <COV>...          TAB separated. (seqID\\tcoverage)
+        -o, --out <OUT>             BlobDB output file [default: blobDb.json]
+        --title TITLE               Title of BlobDB [default: FASTA)  
 """
 
 from __future__ import division
@@ -45,15 +45,14 @@ if __name__ == '__main__':
     #print data_dir
     args = docopt(__doc__)
     #print args
-
-    fasta_f = args['--i']
+    fasta_f = args['--infile']
     fasta_type = args['--type']
     
     sam_fs = args['--sam']
     bam_fs = args['--bam']
     cov_fs = args['--cov']
     cas_fs = args['--cas']
-    hit_fs = args['--tax']
+    hit_fs = args['--taxfile']
 
     out_f = args['--out']
     nodesDB_f = args['--db']

@@ -1,34 +1,40 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools plot    --i <BLOBDB> [--p <MAXTAX>] [--l <LEN>] [--c] [--n] [--x]
-                            [--o <PREFIX>] [--m] [--sort <ORDER>] [--hist <HIST>] [--title]
-                            [--rank <RANK>] [--taxrule <TAXRULE>] [--label <GROUPS>...] 
-                            [--h|--help] 
+"""usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
+                            [-r RANK] [-t TAXRULE] [--label GROUPS...] 
+                            [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
+                            [-h|--help] 
 
     Options:
-        --h --help                  show this
-        --i <BLOBDB>                BlobDB file
-        --p <MAXTAX>                Maximum number of taxonomic groups to plot [default: 7]
-        --l <LEN>                   Minimum sequence length considered for plotting [default: 100]
-        --c                         Colour blobs by c_index [default: False]
-        --n                         Hide "no-hit" contigs [default: False]
-        --x                         Ignore contig length for plotting
-        --o <PREFIX>                Output prefix
-        --m                         Multi-plot. Print plot after addition of each taxonomic group [default: False]
+        -h --help                   show this
+        -i, --infile BLOBDB         BlobDB file
+        -p, --plotgroups INT        Number of (taxonomic) groups to plot [default: 7]
+        -l, --length INT            Minimum sequence length considered for plotting [default: 100]
+        -c, --cindex                Colour blobs by 'c index' [default: False]
+        -n, --nohit                 Hide sequences without taxonomic annotation [default: False]
+        -s, --noscale               Do not scale sequences by length [default: False]
+        -o, --out PREFIX            Output prefix
+        -m, --multiplot             Multi-plot. Print plot after addition of each (taxonomic) group 
+                                     [default: False]
         --sort <ORDER>              Sort order for plotting [default: span]
-                                    span  : plot with decreasing span
-                                    count : plot with decreasing count 
+                                     span  : plot with decreasing span
+                                     count : plot with decreasing count 
         --hist <HIST>               Data for histograms [default: span] 
-                                    span  : span-weighted histograms
-                                    count : count histograms
-        --title                     Add title of BlobDB [default: True]
-        --rank <RANK>               Taxonomic rank used for colouring of blobs [default: phylum]
-                                    (Supported: species, genus, family, order, phylum, superkingdom) 
-        --taxrule <TAXRULE>         Taxrule which has been used for computing taxonomy 
-                                    (Supported: bestsum, bestsumorder) [default: bestsum]
-        --label <GROUPS>...         Relabel taxonomic groups, 
-                                    e.g. "Bacteria=Actinobacteria,Proteobacteria" 
+                                     span  : span-weighted histograms
+                                     count : count histograms
+        --title                     Add title of BlobDB to plot [default: False]
+        -r, --rank RANK             Taxonomic rank used for colouring of blobs [default: phylum]
+                                     (Supported: species, genus, family, order, phylum, superkingdom) 
+        -t, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy 
+                                     (Supported: bestsum, bestsumorder) [default: bestsum]
+        --label GROUPS...           Relabel (taxonomic) groups, 
+                                     e.g. "Bacteria=Actinobacteria,Proteobacteria"
+        --colours COLOURFILE        File containing colours for (taxonomic) groups
+        --include GROUPS...         Include only these (taxonomic) groups,
+                                     e.g. "Actinobacteria,Proteobacteria"
+        --exclude GROUPS..          Exclude these (taxonomic) groups,
+                                     e.g. "Actinobacteria,Proteobacteria"
 """
 
 from __future__ import division
@@ -45,20 +51,19 @@ if __name__ == '__main__':
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
-    #print args
-    blobdb_f = args['--i']
+    blobdb_f = args['--infile']
     rank = args['--rank'] 
-    c_index = args['--c']
-    min_length = int(args['--l'])
-    multiplot = args['--m']
-    hide_nohits = args['--n']
-    out_prefix = args['--o']
-    max_taxa_plot = int(args['--p'])
+    c_index = args['--cindex']
+    min_length = int(args['--length'])
+    multiplot = args['--multiplot']
+    hide_nohits = args['--nohit']
+    out_prefix = args['--out']
+    max_taxa_plot = int(args['--plotgroups'])
     sort_order = args['--sort']
     taxrule = args['--taxrule']
     hist_type = args['--hist']
     plot_title = args['--title']
-    ignore_contig_length = args['--x']
+    ignore_contig_length = args['--noscale']
     labels = args['--label']
 
     # Does blobdb_f exist ?
@@ -88,10 +93,10 @@ if __name__ == '__main__':
                 for group in groups.split(","):
                     if (group):
                         if group in label_d:
-                            BtLog.error('17', group)            
+                            BtLog.error('16', group)            
                         label_d[group] = name
         except:
-            BtLog.error('16', labels)
+            BtLog.error('17', labels)
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
