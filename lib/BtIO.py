@@ -71,7 +71,7 @@ def checkBam(infile):
         output += line
     mapped_reads = int(mapped_reads_re.search(output).group(1))
     total_reads = int(total_reads_re.search(output).group(1))
-    print BtLog.status_d['11'] % (infile, '{:,}'.format(mapped_reads), '{:,}'.format(total_reads), '{0:.1%}'.format(mapped_reads/total_reads))
+    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(total_reads), '{0:.1%}'.format(mapped_reads/total_reads))
     return total_reads, mapped_reads
 
 def readSam(infile, set_of_blobs):
