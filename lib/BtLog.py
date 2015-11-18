@@ -75,8 +75,8 @@ status_d = {
     '7' : '[STATUS]\t: Writing BlobDB to file %s',
     '8' : '[STATUS]\t: Plotting %s',
     '9' : '[STATUS]\t: Reading BlobDb %s',
-    '10': '[STATUS]\t: \tChecking %s with \'samtools flagstat\'',
-    '11': '[STATUS]\t: \tmapping reads = %s, total reads = %s (mapping rate = %s)'
+    '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
+    '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)'
 }
 
 info_d = {
