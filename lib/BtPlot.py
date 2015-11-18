@@ -221,7 +221,7 @@ class PlotObj():
             self.gc_mean[group] = mean(array(group_gc))
             self.gc_std[group] = std(array(group_gc))
             group_length = self.data_dict[group]['length']
-            self.n50[group] = BtPlot.n50(group_length)
+            self.n50[group] = n50(group_length)
             for cov_lib, covs in self.data_dict[group]['covs'].items():
                 if not group in self.cov_mean:
                     self.cov_mean[group] = {}
@@ -245,7 +245,7 @@ class PlotObj():
                 self.data_dict['other']['gc'] = other_gc
                 self.gc_mean['other'] = mean(array(other_gc))
                 self.gc_std['other'] = std(array(other_gc))
-                self.n50['other'] = BtPlot.n50(other_length)
+                self.n50['other'] = n50(other_length)
                 for cov_lib, covs in other_covs.items():
                     self.data_dict['other']['covs'][cov_lib] = covs
                     if not 'other' in self.cov_mean:
@@ -260,7 +260,7 @@ class PlotObj():
             colour_dict = BtIO.parseColourDict(colour_f)
         else:
             colour_groups = self.group_order[0:max_group_plot]
-            colour_dict = BtPlot.generateColourDict(colour_groups)
+            colour_dict = generateColourDict(colour_groups)
         for idx, group in enumerate(self.group_order):
             if (label_d):
                 if group in label_d:
