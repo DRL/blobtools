@@ -266,7 +266,6 @@ class PlotObj():
                 if group in label_d:
                     self.labels[group] = label_d[group] 
                     self.colours[group] = colour_dict[group]    
-                
             if group in colour_dict and group not in self.exclude_groups:
                 self.labels[group] = group
                 self.colours[group] = colour_dict[group] 
