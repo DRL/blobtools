@@ -49,7 +49,7 @@ def n50(list_of_lengths):
             break
     return N50
 
-def getSortedGroups(filter_dict, sort_order, max_group_plot):
+def getSortedGroups(filter_dict, sort_order):
     """ Returns list of sorted groups based on span or count. """
     sorted_groups = []
     if sort_order == 'span':
@@ -255,7 +255,7 @@ class PlotObj():
                         self.cov_std['other'] = {}
                     self.cov_std['other'][cov_lib] = std(array(covs))
     
-    def relabel_and_colour(self, colour_f, label_d):
+    def relabel_and_colour(self, colour_f, label_d, max_group_plot):
         if (colour_f):
             colour_dict = BtIO.parseColourDict(colour_f)
         else:

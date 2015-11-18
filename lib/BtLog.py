@@ -72,7 +72,7 @@ status_d = {
     '4' : '[STATUS]\t: Retrieving nodesDB from %s',
     '5' : '[STATUS]\t: Store nodesDB in location %s',
     '6' : '[STATUS]\t: Computing taxonomy using taxrule(s) %s',
-    '7' : '[STATUS]\t: Writing BlobDB to file %s',
+    '7' : '[STATUS]\t: Generating BlobDB and writing to file %s',
     '8' : '[STATUS]\t: Plotting %s',
     '9' : '[STATUS]\t: Reading BlobDb %s',
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',

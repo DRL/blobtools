@@ -120,13 +120,13 @@ if __name__ == '__main__':
     plotObj.hist_type = hist_type
     plotObj.ignore_contig_length = ignore_contig_length
 
-    plotObj.group_order = BtPlot.getSortedGroups(filter_dict, sort_order, max_group_plot)
+    plotObj.group_order = BtPlot.getSortedGroups(filter_dict, sort_order)
     plotObj.labels = {group : group for group in plotObj.group_order}
     #plotObj.colours = {group : 'None' for group in plotObj.group_order}
     # sorted_groups = ALL groups sorted by visible span 
     # colours = all groups that are present in colour_dict + 'other'
     # labels = ALL groups and their labels  
-    plotObj.relabel_and_colour(colour_f, label_d)
+    plotObj.relabel_and_colour(colour_f, label_d, max_group_plot)
 
     plotObj.compute_stats()
 

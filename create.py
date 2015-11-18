@@ -114,6 +114,6 @@ if __name__ == '__main__':
     print BtLog.status_d['6'] % ",".join(taxrules)
     blobDb.computeTaxonomy(taxrules, nodesDB)
 
-    # Writing BlobDB to file
+    # Generating BlobDB and writing to file
     print BtLog.status_d['7'] % out_f
     BtIO.writeJson(blobDb.dump(), out_f)
