@@ -61,7 +61,7 @@ def which(program):
 def checkBam(infile):
     if not (which('samtools')):
         BtLog.error('7')
-    print status_d['10'] % infile
+    print BtLog.status_d['10'] % infile
     mapped_reads_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
     total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
     total_reads, mapped_reads = 0, 0
@@ -71,7 +71,7 @@ def checkBam(infile):
         output += line
     mapped_reads = mapped_reads_re.search(output).group(1)
     total_reads = total_reads_re.search(output).group(1)
-    print status_d['11'] % (infile, mapped_reads, total_reads, '{0:.1%}'.format(mapped_reads/total_reads))
+    print BtLog.status_d['11'] % (infile, mapped_reads, total_reads, '{0:.1%}'.format(mapped_reads/total_reads))
     return total_reads, mapped_reads
 
 def readSam(infile, set_of_blobs):
