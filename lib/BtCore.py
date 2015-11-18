@@ -115,46 +115,70 @@ class BlobDb():
         self.hitLibs = blobDict['hitLibs']
         self.taxrules = blobDict['taxrules']
 
-    def getArrays(self, rank, min_length, hide_nohits, taxrule, c_index, label_d):
-        from numpy import array
-        summary_dict = {}
-        data_list = []
-        cov_dict = {covLib : [] for covLib in self.covLibs}
+    def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, label_d):
+        #from numpy import array
+        filter_dict = {}
+        data_dict = {}
+        #data_list = []
+        max_cov = 0.0
+        cov_libs = self.covLibs.keys()
+        if len(cov_libs) > 1:
+            cov_libs.append('sum')
         for blob in self.dict_of_blobs.values():
-            name = blob['name']
-            gc = blob['gc']
-            length = blob['length']
-            tax = ''
-            if (c_index):
-                tax = str(blob['taxonomy'][taxrule][rank]['c_index'])
-            else:
-                tax = blob['taxonomy'][taxrule][rank]['tax']
-                if label_d and tax in label_d:
-                    tax = label_d[tax] 
-            if not tax in summary_dict:
-                summary_dict[tax] = {'count_total' : 0,
-                                     'count_hidden' : 0,
-                                     'count_visible' : 0,
-                                     'span_total': 0, 
-                                     'span_hidden' : 0, 
-                                     'span_visible' : 0}
-            if ((hide_nohits) and tax == 'no-hit') or length < min_length:
-                summary_dict[tax]['count_hidden'] = summary_dict[tax].get('count_hidden', 0) + 1
-                summary_dict[tax]['span_hidden'] = summary_dict[tax].get('span_hidden', 0) + length
-            else:
-                data_list.append([(name), (length), (gc), (tax)])
-                for covLib in self.covLibs:
-                    cov = float(blob['covs'][covLib])
-                    if cov < 0.1:
-                        cov = 0.1
-                    cov_dict[covLib].append(cov)
-                summary_dict[tax]['count_visible'] = summary_dict[tax].get('count_visible', 0) + 1
-                summary_dict[tax]['span_visible'] = summary_dict[tax].get('span_visible', 0) + int(length)
-            summary_dict[tax]['count_total'] = summary_dict[tax].get('count_total', 0) + 1
-            summary_dict[tax]['span_total'] = summary_dict[tax].get('span_total', 0) + int(length)
-        data_array = array(data_list)
-        cov_arrays = {covLib: array(cov) for covLib, cov in cov_dict.items()}
-        return data_array, cov_arrays, summary_dict
+            name, gc, length, group = blob['name'], blob['gc'], blob['length'], ''
+            
+            if (c_index): # annotation with c_index instead of taxonomic group 
+                group = str(blob['taxonomy'][taxrule][rank]['c_index'])
+            else: # annotation with taxonomic group
+                group = blob['taxonomy'][taxrule][rank]['tax']
+
+            if not group in filter_dict: # initialise filter_dict for tax 
+                filter_dict[group] = {'count' : 0,
+                                    'count_hidden' : 0,
+                                    'count_visible' : 0,
+                                    'span': 0, 
+                                    'span_hidden' : 0, 
+                                    'span_visible' : 0}
+
+            if ((hide_nohits) and group == 'no-hit') or length < min_length: # FAIL
+                filter_dict[group]['count_hidden'] = filter_dict[group].get('count_hidden', 0) + 1
+                filter_dict[group]['span_hidden'] = filter_dict[group].get('span_hidden', 0) + length
+            else: # PASS
+                filter_dict[group]['count_visible'] = filter_dict[group].get('count_visible', 0) + 1
+                filter_dict[group]['span_visible'] = filter_dict[group].get('span_visible', 0) + int(length)
+
+                #data_list.append([(name), (length), (gc), (tax)])
+                if not group in data_dict:
+                    data_dict[group] = {'name' : [], 'length' : [], 'gc' : [], 'covs' : {covLib : [] for covLib in self.covLibs} }
+                    if len(self.covLibs) > 1:
+                        data_dict[group]['covs']['sum'] = []
+
+                data_dict[group]['name'].append(name)
+                data_dict[group]['length'].append(length)
+                data_dict[group]['gc'].append(gc)
+
+                cov_sum = 0.0
+                for covLib in sorted(self.covLibs):
+                    cov = float(blob['covs'][covLib]) 
+                    cov_sum += cov
+                    cov = cov if cov > 0.02 else 0.02
+                    if cov > max_cov:
+                        max_cov = cov
+                    data_dict[group]['covs'][covLib].append(cov)
+                if 'sum' in data_dict[group]['covs']:
+                    cov_sum = cov_sum if cov_sum > 0.02 else 0.02
+                    data_dict[group]['covs']['sum'].append(cov_sum)
+                    if cov > max_cov:
+                        max_cov = cov
+
+            filter_dict[group]['count'] = filter_dict[group].get('count', 0) + 1
+            filter_dict[group]['span'] = filter_dict[group].get('span', 0) + int(length)
+
+        #data_array = array(data_dict)
+        #cov_arrays = {covLib: array(cov) for covLib, cov in cov_dict.items()}
+        
+        #return data_array, cov_arrays, filter_dict
+        return data_dict, filter_dict, max_cov, cov_libs
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib
@@ -195,13 +219,14 @@ class BlobDb():
             if covLib.fmt == 'bam' or covLib.fmt == 'sam':
                 base_cov_dict = {}
                 if covLib.fmt == 'bam':
-                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, covLib.read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
+                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
                 else:
-                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, covLib.read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))    
+                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))    
                 for name, base_cov in base_cov_dict.items():
                     cov = base_cov / self.dict_of_blobs[name].agct_count
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
+                    self.dict_of_blobs[name].read_cov = read_cov_dict[name]
             elif covLib.fmt == 'cas':
                 for name, cov in BtIO.readCas(covLib.f, self.order_of_blobs):
                     covLib.cov_sum += cov
@@ -262,6 +287,7 @@ class BlObj():
         self.agct_count = self.length - self.n_count
         self.gc = round(self.calculateGC(seq), 4)
         self.covs = {}
+        self.read_cov = 0
         self.hits = {}
         self.taxonomy = {}
         
@@ -285,7 +311,6 @@ class CovLibObj():
         self.cov_sum = 0
         self.total_reads = 0
         self.mapped_reads = 0
-        self.read_cov_dict = {} 
         self.mean_cov = 0.0
 
 class hitLibObj():

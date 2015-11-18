@@ -9,7 +9,6 @@ Bugs        : ?
 To do       : ?
 """
 from __future__ import division
-
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
 
 def noHit():
@@ -78,9 +77,6 @@ def taxRule(taxrule, hits, lineages):
 					else:
 						if (hit_lib):
 							taxonomy[rank]['c_index'] += 1  
-							
-						
-		#taxonomy = getSeqTaxonomy(taxDict, lineages)
 	else:
 		pass
 	return taxonomy 

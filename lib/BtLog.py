@@ -60,7 +60,10 @@ error_d = {
 }
 
 warn_d = {
-    '0' : '[WARN:0]\t: No tax files specified.' 
+    '0' : '[WARN:0]\t: No tax files specified.', 
+    '1' : '[WARN:1]\t: %s not in colour file %s ...',
+    '2' : '[WARN:2]\t: %s in file %s is not part of the assembly',
+    '3' : '[WARN:3]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed'
 }
 status_d = {
     '1' : '[STATUS]\t: Parsing %s - %s',

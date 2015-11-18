@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools view    --i <BLOBDB> [--taxrule <TAXRULE>] [--rank <TAXRANK>...] [--hits]
+"""usage: blobtools view    -i <BLOBDB> [--taxrule <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>]
                             [--h|--help] 
     
     Options:
-        --h --help              show this
-        --blobdb <BLOBDB>       BlobDB file (created with "blobtools forge")
-        --out <OUT>             Output file [default: STDOUT]
-        --list <LIST>           List of sequence names (comma-separated or file). 
-                                If comma-separated, no whitespaces allowed.
-        --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
-                                [default: bestsum]
-        --rank <TAXRANK>...     Taxonomic rank(s) at which output will be written. 
-                                (supported: 'species', 'genus', 'family', 'order', 
-                                'phylum', 'superkingdom', 'all') [default: phylum]
-        --hits                  Displays taxonomic hits from tax files
+        --h --help                  show this
+        -i, --input <BLOBDB>        BlobDB file (created with "blobtools forge")
+        -o, --out <OUT>             Output file [default: STDOUT]
+        -l, --list <LIST>           List of sequence names (comma-separated or file). 
+                                    If comma-separated, no whitespaces allowed.
+        -r, --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
+                                    [default: bestsum]
+        --rank <TAXRANK>...         Taxonomic rank(s) at which output will be written. 
+                                    (supported: 'species', 'genus', 'family', 'order', 
+                                    'phylum', 'superkingdom', 'all') [default: phylum]
+        -b, --hits                  Displays taxonomic hits from tax files
 """
 
 from __future__ import division

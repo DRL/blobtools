@@ -9,10 +9,11 @@ Bugs        : ?
 To do       : ?
 """
 from __future__ import division
-from numpy import amax, amin, arange, logspace, where
+from numpy import array, amax, amin, arange, logspace, where, mean, std
 import numpy as np
 import math
 import lib.BtLog as BtLog
+import lib.BtIO as BtIO
 import matplotlib as mat
 from matplotlib import cm
 from matplotlib.ticker import NullFormatter
@@ -28,7 +29,7 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "Set2" # "Set1"
+COLOURMAP = "Set1" # "Set1"
 BLACK, GREY, BGGREY, WHITE = '#262626', '#d3d3d3', '#F0F0F5', '#ffffff'
 FIGFORMAT = 'png'
 nullfmt = NullFormatter()
@@ -48,76 +49,72 @@ def n50(list_of_lengths):
             break
     return N50
 
-def getPlotOrder(summary_dict, sort_order, max_taxa_plot):
-    """ Returns list of tax of size max_taxa_plot sorted by span or count. """
-    plot_order = []
+def getSortedGroups(filter_dict, sort_order, max_group_plot):
+    """ Returns list of sorted groups based on span or count. """
+    sorted_groups = []
     if sort_order == 'span':
-        plot_order = sorted(summary_dict, key = lambda x : summary_dict[x]['span_visible'] if summary_dict[x]['span_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(filter_dict, key = lambda x : filter_dict[x]['span_visible'] if filter_dict[x]['span_visible'] > 0 else None, reverse=True)
     elif sort_order == 'count':
-        plot_order = sorted(summary_dict, key = lambda x : summary_dict[x]['count_visible'] if summary_dict[x]['count_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(filter_dict, key = lambda x : filter_dict[x]['count_visible'] if filter_dict[x]['count_visible'] > 0 else None, reverse=True)
     else:
         pass
-    if len(plot_order) > max_taxa_plot:
-        plot_order = plot_order[0:max_taxa_plot]
-    return plot_order
+    return sorted_groups
 
-def getColourDict(plot_order):
-    """ Returns colour dict, Not annotated is always grey. """
+def generateColourDict(colour_groups):
     cmap = cm.get_cmap(name=COLOURMAP)
     n_tax = 0
     tax_with_colour = []
-    if 'no-hit' in plot_order or 'None' in plot_order:
-        n_tax = len(plot_order) - 1
-        tax_with_colour = [tax for tax in plot_order if not tax == "no-hit" and not tax == 'None']
+    if 'no-hit' in colour_groups or 'None' in colour_groups:
+        n_tax = len(colour_groups) - 1
+        #colour_groups = [group for group in colour_groups if not group == "no-hit" and not group == 'None']
     else:
-        n_tax = len(plot_order)
-        tax_with_colour = [tax for tax in plot_order]
+        n_tax = len(colour_groups)
+        #tax_with_colour = [tax for tax in plot_order]
     breaks = [0.0 + x*(1.0-0.0)/n_tax for x in range(n_tax)]
-    colour_d = {tax: rgb2hex(cmap(b)) for b, tax in izip(breaks, tax_with_colour)}
-    if 'no-hit' in plot_order:
+    colour_d = {group: rgb2hex(cmap(b)) for b, group in izip(breaks, colour_groups)}
+    if 'no-hit' in colour_groups:
         colour_d['no-hit'] = GREY
-    elif 'None' in plot_order:
+    if 'None' in colour_groups: 
         colour_d['None'] = GREY
-    else:
-        pass    
+    colour_d['other'] = WHITE
     print colour_d
     return colour_d
 
-def getMinMaxCov(cov_arrays):
-    max_cov, min_cov = 100.00, 100.00
-    for cov_lib in cov_arrays:
-        lib_max_cov, lib_min_cov = amax(cov_arrays[cov_lib].astype(float)), amin(cov_arrays[cov_lib].astype(float))
-        if lib_max_cov > max_cov:
-            max_cov = lib_max_cov
-        if lib_min_cov < min_cov:
-            min_cov = lib_min_cov
-    return min_cov, max_cov
+#def getMinMaxCov(cov_arrays):
+#    max_cov, min_cov = 100.00, 100.00
+#    for cov_lib in cov_arrays:
+#        lib_max_cov, lib_min_cov = amax(cov_arrays[cov_lib].astype(float)), amin(cov_arrays[cov_lib].astype(float))
+#        if lib_max_cov > max_cov:
+#            max_cov = lib_max_cov
+#        if lib_min_cov < min_cov:
+#            min_cov = lib_min_cov
+#    return min_cov, max_cov
 
-def getSumCov(cov_arrays):
-    arrays = [cov_array for cov_array in cov_arrays.values()]
-    sum_array = np.sum(arrays, axis=0)
-    cov_arrays['sum'] = sum_array
-    return cov_arrays
+#def getSumCov(cov_arrays):
+#    arrays = [cov_array for cov_array in cov_arrays.values()]
+#    sum_array = np.sum(arrays, axis=0)
+#    cov_arrays['sum'] = sum_array
+#    return cov_arrays
 
 def getSummaryTable(summary_dict, plot_order):
     table_data = []
-    for elem in sorted(summary_dict, key = lambda x : summary_dict[x]['span_visible'], reverse=True):
+    for group in sorted(summary_dict, key = lambda x : summary_dict[x]['span_visible'], reverse=True):
         count_total = 0
         count_visible_perc = ''
         span_total = 0
         span_visible_perc = ''
-        if elem in plot_order:
-            count_total = summary_dict[elem]['count_total']
-            count_visible_perc = '{0:.1%}'.format(summary_dict[elem]['count_visible']/count_total)
-            span_total = summary_dict[elem]['span_total']
-            span_visible_perc = '{0:.1%}'.format(summary_dict[elem]['span_visible']/span_total)
+        if group in plot_order:
+            count_total = summary_dict[group]['count_total']
+            count_visible_perc = '{0:.1%}'.format(summary_dict[group]['count_visible']/count_total)
+            span_total = summary_dict[group]['span_total']
+            span_visible_perc = '{0:.1%}'.format(summary_dict[group]['span_visible']/span_total)
         else:
-            count_total = summary_dict[elem]['count_total']
+            count_total = summary_dict[group]['count_total']
             count_visible_perc = '{0:.1%}'.format(0.0)
-            span_total = summary_dict[elem]['span_total']
+            span_total = summary_dict[group]['span_total']
             span_visible_perc = '{0:.1%}'.format(0.0)
         table_data.append({
-                    'name' : elem, 
+                    'name' : group, 
                     'count_total' : "{:,}".format(count_total), 
                     'count_visible_perc' : count_visible_perc, 
                     'span_total' : "{:,}".format(span_total), 
@@ -177,24 +174,127 @@ def plot_ref_legend(axScatter):
     ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(10000/15), markerfacecolor=GREY))
     axScatter.legend([ref_1,ref_2,ref_3], ["1,000nt", "5,000nt", "10,000nt"], numpoints=1, loc = 4, fontsize=FONTSIZE)
 
-def plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, max_cov, multiplot, hist_type, plot_title, out_f, ignore_contig_length, info_flag):
+def parse_labels(labels):
+    if (labels):
+        try:
+            for cluster in labels:
+                name, groups = cluster.split("=")
+                for group in groups.split(","):
+                    if (group):
+                        if group in label_d:
+                            BtLog.error('16', group)            
+                        label_d[group] = name
+        except:
+            BtLog.error('17', labels)
+
+class PlotObj():
+    def __init__(self, data_dict, filter_dict, cov_libs):
+        self.labels = {}
+        self.cov_libs = cov_libs
+        self.data_dict = data_dict
+        self.exclude_groups = []
+        self.count = {group : filter_dict[group]['count'] for group in filter_dict.keys()}
+        self.count_visible = {group : filter_dict[group]['count_visible'] for group in filter_dict.keys()}
+        self.count_hidden = {group : filter_dict[group]['count_hidden'] for group in filter_dict.keys()}
+        self.span = {group : filter_dict[group]['span'] for group in filter_dict.keys()}
+        self.span_visible = {group : filter_dict[group]['span_visible'] for group in filter_dict.keys()}
+        self.span_hidden = {group : filter_dict[group]['span_hidden'] for group in filter_dict.keys()}
+        self.colours = {}
+        self.group_order = []
+        self.plot_order = []
+        self.min_cov = 0.01
+        self.max_cov = 0.0
+        self.out_f = ''
+        self.title = ''
+        self.n50 = {}
+        self.gc_mean = {}
+        self.gc_std = {}
+        self.cov_mean = {}
+        self.cov_std = {}
+
+    def compute_stats(self):
+        other_gc = []
+        other_length = []
+        other_covs = {cov_lib : [] for cov_lib in self.cov_libs}
+        for group, label in self.labels.items():
+            group_gc = self.data_dict[group]['gc']
+            self.gc_mean[group] = mean(array(group_gc))
+            self.gc_std[group] = std(array(group_gc))
+            group_length = self.data_dict[group]['length']
+            self.n50[group] = BtPlot.n50(group_length)
+            for cov_lib, covs in self.data_dict[group]['covs'].items():
+                if not group in self.cov_mean:
+                    self.cov_mean[group] = {}
+                self.cov_mean[group][cov_lib] = mean(array(covs))
+                if not group in self.cov_std:
+                    self.cov_std[group] = {}
+                self.cov_std[group][cov_lib] = std(array(covs))
+            if label == 'other':
+                other_gc += group_gc
+                other_length += group_length 
+                for cov_lib, covs in self.data_dict[group]['covs'].items():
+                    other_covs[cov_lib] += covs
+                self.count['other'] = self.count.get('other', 0) + self.count[group]
+                self.count_visible['other'] = self.count_visible.get('other', 0) + self.count_visible[group]
+                self.count_hidden['other'] = self.count_hidden.get('other', 0) + self.count_hidden[group]
+                self.span['other'] = self.span.get('other', 0) + self.span[group]
+                self.span_visible['other'] = self.span_visible.get('other', 0) + self.span_visible[group]
+                self.span_hidden['other'] = self.span_hidden.get('other', 0) + self.span_hidden[group]
+                self.data_dict['other'] = {'length' : [], 'gc' : [], 'covs' : {covLib : [] for covLib in self.cov_libs} }
+                self.data_dict['other']['length'] = other_length
+                self.data_dict['other']['gc'] = other_gc
+                self.gc_mean['other'] = mean(array(other_gc))
+                self.gc_std['other'] = std(array(other_gc))
+                self.n50['other'] = BtPlot.n50(other_length)
+                for cov_lib, covs in other_covs.items():
+                    self.data_dict['other']['covs'][cov_lib] = covs
+                    if not 'other' in self.cov_mean:
+                        self.cov_mean['other'] = {}
+                    self.cov_mean['other'][cov_lib] = mean(array(covs))
+                    if not 'other' in self.cov_std:
+                        self.cov_std['other'] = {}
+                    self.cov_std['other'][cov_lib] = std(array(covs))
+    
+    def relabel_and_colour(self, colour_f, label_d):
+        if (colour_f):
+            colour_dict = BtIO.parseColourDict(colour_f)
+        else:
+            colour_groups = self.group_order[0:max_group_plot]
+            colour_dict = BtPlot.generateColourDict(colour_groups)
+        for idx, group in enumerate(self.group_order):
+            if (label_d):
+                if group in label_d:
+                    self.labels[group] = label_d[group] 
+                    self.colours[group] = colour_dict[group]    
+                
+            if group in colour_dict and group not in self.exclude_groups:
+                self.labels[group] = group
+                self.colours[group] = colour_dict[group] 
+                self.plot_order.append(group)
+            elif idx > max_group_plot:
+                self.labels[group] = 'other'
+                self.colours[group] = colour_dict['other'] 
+            else:
+                self.labels[group] = 'other'
+                self.colours[group] = colour_dict['other'] 
+        self.plot_order.append('other')
+
+def plot(plotObj, cov_lib, info_flag):
     rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
     # Setting up plots and axes
     plt.figure(1, figsize=(35,35), dpi=400)
     axScatter = plt.axes(rect_scatter, axisbg=BGGREY, yscale = 'log')
-    axScatter = set_format_scatterplot(axScatter, max_cov)
+    axScatter = set_format_scatterplot(axScatter, plotObj.max_cov)
     axHistx = plt.axes(rect_histx, axisbg=BGGREY)
     axHistx = set_format_hist_x(axHistx, axScatter)
     axHisty = plt.axes(rect_histy, axisbg=BGGREY)
     axHisty = set_format_hist_y(axHisty, axScatter)
-    if hist_type == "span":
+    if plotObj.hist_type == "span":
         axHistx.set_ylabel("Span (kb)")
         axHisty.set_xlabel("Span (kb)", rotation='horizontal')
-    elif hist_type == "count":
+    else:
         axHistx.set_ylabel("Count")
         axHisty.set_xlabel("Count", rotation='horizontal')    
-    else: 
-        pass
     axScatter.yaxis.get_major_ticks()[0].label1.set_visible(False)
     axScatter.yaxis.get_major_ticks()[1].label1.set_visible(False)
     for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram 
@@ -205,11 +305,11 @@ def plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, 
     axLegend.yaxis.set_major_locator(plt.NullLocator())
     axLegend.yaxis.set_major_formatter(nullfmt)
     # Setting title
-    if (plot_title):
-        plt.suptitle(plot_title, fontsize=35, verticalalignment='top')
+    if (plotObj.title):
+        plt.suptitle(plotObj.title, fontsize=35, verticalalignment='top')
     # Setting bins for histograms
     top_bins = arange(0, 1, 0.01)
-    right_bins = logspace(-2, (int(math.log(max_cov)) + 1), 200, base=10.0)
+    right_bins = logspace(-2, (int(math.log(plotObj.max_cov)) + 1), 200, base=10.0)
     # empty handles for big legend
     legend_handles = []
     legend_labels = []
@@ -217,64 +317,61 @@ def plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, 
     i = 0
     # initiate variables for plotting
     s, lw, alpha, color = 0, 0, 0, ''
-    for elem in plot_order:
-        if (summary_dict[elem]['count_visible']):
-            i += 1
-            # get indices for those rows in data where the phylum == tax
-            idx = where(data_array[:,3].astype(str) == elem, True, False)
-            # create np_arrays for length, gc and cov for all contigs in phylum 
-            elem_length_array = data_array[idx][:,1].astype(int)
-            elem_gc_array = data_array[idx][:,2].astype(float)
-            elem_cov_array = cov_array[idx].astype(float)
-            # calculate values for legend
-            elem_span_in_mb = round(summary_dict[elem]['span_visible']/1000000, 2)
-            elem_number_of_seqs = summary_dict[elem]['count_visible']
-            elem_n50 = n50(elem_length_array)
-            # set variables for plotting
-            blob_size_array = []
-            s, lw, alpha, colour = 15, 0.5, 1, colour_dict[elem]
-            if (ignore_contig_length):
-                if not elem == "no-hit":
-                    s = 65
-                blob_size_array = [s for length in elem_length_array]
-            else:
-                blob_size_array = [length/s for length in elem_length_array]
-            if elem == "no-hit":
-                alpha = 0.5
-            weights_array = elem_length_array/1000
-            # generate label for legend
-            fmt_seqs = "{:,}".format(elem_number_of_seqs)
-            fmt_span = "{:,}".format(elem_span_in_mb)
-            fmt_n50 = "{:,}".format(elem_n50)
-            label = "%s (%s;%sMB;%snt)" % (elem, fmt_seqs, fmt_span, fmt_n50)
-            if (info_flag):
-                print BtLog.info_d['0'] % (elem, fmt_seqs, fmt_span, fmt_n50)
-            legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
-            legend_labels.append(label)
-            if (hist_type == "span"):
-                axHistx.hist(elem_gc_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-                axHisty.hist(elem_cov_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-            else:           
-                axHistx.hist(elem_gc_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-                axHisty.hist(elem_cov_array , color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-            axScatter.scatter(elem_gc_array, elem_cov_array, color = colour, s = blob_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
-            axLegend.axis('off')
-
-            if (multiplot): 
-                axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
-                plot_ref_legend(axScatter)
-                m_out_f = "%s.%s.%s.png" % (out_f, i, elem)
-                print BtLog.status_d['8'] % m_out_f
-                plt.savefig(m_out_f, format="png")
-    if not (ignore_contig_length):
+    for group in plotObj.plot_order:
+        #if (summary_dict[group]['count_visible']):
+        i += 1
+        # create np_arrays for length, gc and cov for all contigs in phylum 
+        group_length_array = np.array(plotObj.data_dict[group]['length'])
+        group_gc_array = np.array(plotObj.data_dict[group]['gc'])
+        group_cov_array = np.array(plotObj.data_dict[group]['covs'][cov_lib])
+        # calculate values for legend
+        group_span_in_mb = round(plotObj.span_visible[group]/1000000, 2)
+        group_number_of_seqs = plotObj.count_visible[group]
+        group_n50 = plotObj.n50[group]
+        # set variables for plotting
+        blob_size_array = []
+        s, lw, alpha, colour = 15, 0.5, 1, plotObj.colours[group]
+        if (plotObj.ignore_contig_length):
+            if not group == "no-hit":
+                s = 65
+            blob_size_array = [s for length in group_length_array]
+        else:
+            blob_size_array = [length/s for length in group_length_array]
+        if group == "no-hit":
+            alpha = 0.5
+        weights_array = group_length_array/1000
+        # generate label for legend
+        fmt_seqs = "{:,}".format(group_number_of_seqs)
+        fmt_span = "{:,}".format(group_span_in_mb)
+        fmt_n50 = "{:,}".format(group_n50)
+        label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
+        if (info_flag):
+            print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
+        legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
+        legend_labels.append(label)
+        if (plotObj.hist_type == "span"):
+            axHistx.hist(group_gc_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
+            axHisty.hist(group_cov_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
+        else:           
+            axHistx.hist(group_gc_array, color = colour, bins = top_bins, histtype='step', lw = 3)
+            axHisty.hist(group_cov_array , color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
+        axScatter.scatter(group_gc_array, group_cov_array, color = colour, s = blob_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
+        axLegend.axis('off')
+        if (plotObj.multiplot): 
+            axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
+            plot_ref_legend(axScatter)
+            m_out_f = "%s.%s.%s.png" % (plotObj.out_f, i, group)
+            print BtLog.status_d['8'] % m_out_f
+            plt.savefig(m_out_f, format="png")
+    if not (plotObj.ignore_contig_length):
         plot_ref_legend(axScatter)
     axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-    table_data = getSummaryTable(summary_dict, plot_order)
+    #table_data = getSummaryTable(summary_dict, plot_order)
     # writing data table for plot
-    writeTableData(table_data, out_f)
-    out_f = "%s.png" % out_f
-    print BtLog.status_d['8'] % out_f
-    plt.savefig(out_f, format="png") 
+    #writeTableData(table_data, out_f)
+    plotObj.out_f = "%s.png" % plotObj.out_f
+    print BtLog.status_d['8'] % plotObj.out_f
+    plt.savefig(plotObj.out_f, format="png") 
     plt.close()  
     
     

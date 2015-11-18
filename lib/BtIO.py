@@ -43,11 +43,23 @@ def runCmd(command):
                          stderr=subprocess.STDOUT)
     return iter(p.stdout.readline, b'')
 
-def is_exe(fpath):
+def which(program):
+    def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
 
 def checkBam(infile):
-    if not (is_exe(samtools)):
+    if not (which('samtools')):
         BtLog.error('7')
     mapped_reads_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
     total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
@@ -70,15 +82,15 @@ def readSam(infile, set_of_blobs):
             match = line.split("\t")
             if match >= 11:
                 total_reads += 1
-                contig_name = match[2]
-                if not contig_name == '*':  
-                    if contig_name not in set_of_blobs:
-                        error(errorMessage['4'] % (contig_name, infile))
+                seq_name = match[2]
+                if not seq_name == '*':  
+                    if seq_name not in set_of_blobs:
+                        print BtLog.warn_d['2'] % (seq_name, infile)
                     base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
                     if (base_cov):
                         mapped_reads += 1
-                        base_cov_dict[contig_name] = base_cov_dict.get(contig_name, 0) + base_cov 
-                        read_cov_dict[contig_name] = read_cov_dict.get(contig_name, 0) + 1 
+                        base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                        read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
     return base_cov_dict, total_reads, mapped_reads, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
@@ -94,19 +106,19 @@ def readBam(infile, set_of_blobs):
     for line in runCmd(command):
         match = line.split("\t")
         if match >= 11:
-            contig_name = match[2]
+            seq_name = match[2]
             base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
             if (base_cov):
                 parsed_reads += 1
-                if contig_name not in set_of_blobs:
-                    error('3', contig_name, infile)
+                if seq_name not in set_of_blobs:
+                    print BtLog.warn_d['2'] % (seq_name, infile)
                 else:
-                    base_cov_dict[contig_name] = base_cov_dict.get(contig_name, 0) + base_cov 
-                    read_cov_dict[contig_name] = read_cov_dict.get(contig_name, 0) + 1 
+                    base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                    read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
         BtLog.progress(parsed_reads, progress_unit, total_reads)
     BtLog.progress(total_reads, progress_unit, total_reads)
     if not int(mapped_reads) == int(parsed_reads):
-        print "mapped_reads != parsed_reads", mapped_reads, parsed_reads
+        print warn_d['3'] % (mapped_reads, parsed_reads)
     return base_cov_dict, total_reads, parsed_reads, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header ):
@@ -141,7 +153,7 @@ def readCov(infile, set_of_blobs):
 def readCas(infile, order_of_blobs):
     cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
     output = ''
-    if not (is_exe('clc_mapping_info')):
+    if not (which('clc_mapping_info')):
         BtLog.error('20')
     else:
         command = "clc_mapping_info -s -f " + infile
@@ -187,7 +199,14 @@ def readTax(infile, set_of_blobs):
                     BtLog.error('19', hitDict['name'], infile)
                 yield hitDict
 
-
+def parseColourDict(infile):
+    colour_dict = {}
+    with open(infile) as fh:
+        for line in fh:
+            colour, group = line.rstrip("\n").split("=")
+            if colour.startswith("#"):
+                colour_dict[group] = colour
+    return colour_dict
 
 def getNodesDB(**kwargs):
     '''
