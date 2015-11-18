@@ -61,6 +61,7 @@ def which(program):
 def checkBam(infile):
     if not (which('samtools')):
         BtLog.error('7')
+    print status_d['10'] % infile
     mapped_reads_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
     total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
     total_reads, mapped_reads = 0, 0

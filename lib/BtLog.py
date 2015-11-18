@@ -74,8 +74,8 @@ status_d = {
     '6' : '[STATUS]\t: Computing taxonomy using taxrule(s) %s',
     '7' : '[STATUS]\t: Writing BlobDB to file %s',
     '8' : '[STATUS]\t: Plotting %s',
-    '9' : '[STATUS]\t: Reading BlobDb %s'
-
+    '9' : '[STATUS]\t: Reading BlobDb %s',
+    '10': '[STATUS]\t: checking %s with \'samtools flagstat\''
 }
 
 info_d = {
