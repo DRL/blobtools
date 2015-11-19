@@ -225,7 +225,8 @@ class PlotObj():
                 stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib]))
                 stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib]))
         self.stats = stats
-        print stats
+        for label in stats:
+            print label, stats[label]
     
     def relabel_and_colour(self, colour_f, main_labels, user_labels):
         if (colour_f):
