@@ -170,7 +170,7 @@ def checkCas(infile):
         output += line
     seqs_total = int(seqs_total_re.search(output).group(1))
     mapped_reads = int(reads_mapping_re.search(output).group(1))
-    mapping_rate = int(reads_mapping_re.search(output).group(2))
+    mapping_rate = float(reads_mapping_re.search(output).group(2))
     reads_total = int(reads_total_re.search(output).group(1))
     print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(mapping_rate))
     return seqs_total, reads_total, mapped_reads
