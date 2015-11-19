@@ -204,8 +204,9 @@ class PlotObj():
 
         # gather data
         for group, labels in self.group_labels.items():
+            print group, labels
             for label in labels:
-                stats[label][groups].add(group)
+                stats[label][groups].update(group)
                 stats[label]['gc'] += self.data_dict[group]['gc'] 
                 stats[label]['length'] += self.data_dict[group]['length'] 
                 stats[label]['count_visible'] += self.count_visible[group]
