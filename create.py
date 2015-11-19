@@ -14,7 +14,7 @@
                                     coverage will be parsed from FASTA header. 
                                     (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
         -t, --taxfile TAX...        Taxonomy file in format (qseqid\\ttaxid\\tbitscore) 
-                                    (e.g. BLAST output "--outfmt '6 std'")
+                                    (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
         -r, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
                                     "bestsum"       : sum bitscore across all hits for each taxonomic rank
                                     "bestsumorder"  : sum bitscore across all hits for each taxonomic rank. 

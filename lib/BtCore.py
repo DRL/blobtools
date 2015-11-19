@@ -107,7 +107,7 @@ class BlobDb():
         self.lineages = blobDict['lineages']
         self.set_of_taxIds = blobDict['lineages'].keys()
         self.order_of_blobs = blobDict['order_of_blobs']
-        self.dict_of_blobs = blobDict['dict_of_blobs'] # this will probably not work
+        self.dict_of_blobs = blobDict['dict_of_blobs'] 
         self.length = int(blobDict['length'])
         self.seqs = int(blobDict['seqs'])
         self.n_count = int(blobDict['n_count'])
@@ -116,10 +116,9 @@ class BlobDb():
         self.taxrules = blobDict['taxrules']
 
     def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, label_d):
-        #from numpy import array
         filter_dict = {}
         data_dict = {}
-        #data_list = []
+        read_cov_dict = {}
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
         if len(cov_libs) > 1:
@@ -165,20 +164,21 @@ class BlobDb():
                     if cov > max_cov:
                         max_cov = cov
                     data_dict[group]['covs'][covLib].append(cov)
+                    # Read cov for read_cov_plot if read cov provided
+                    if covLib in blob['read_cov']:
+                        read_cov_dict['name'] = {cov_lib : blob['read_cov'][covLib]} 
+
                 if 'sum' in data_dict[group]['covs']:
                     cov_sum = cov_sum if cov_sum > 0.02 else 0.02
                     data_dict[group]['covs']['sum'].append(cov_sum)
                     if cov > max_cov:
                         max_cov = cov
 
+
             filter_dict[group]['count'] = filter_dict[group].get('count', 0) + 1
             filter_dict[group]['span'] = filter_dict[group].get('span', 0) + int(length)
 
-        #data_array = array(data_dict)
-        #cov_arrays = {covLib: array(cov) for covLib, cov in cov_dict.items()}
-        
-        #return data_array, cov_arrays, filter_dict
-        return data_dict, filter_dict, max_cov, cov_libs
+        return data_dict, filter_dict, max_cov, cov_libs, read_cov_dict
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib
@@ -226,7 +226,7 @@ class BlobDb():
                     cov = base_cov / self.dict_of_blobs[name].agct_count
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
-                    self.dict_of_blobs[name].read_cov = read_cov_dict[name]
+                    self.dict_of_blobs[name].read_cov = {covLib.name : read_cov_dict[name]}
             elif covLib.fmt == 'cas':
                 for name, cov in BtIO.readCas(covLib.f, self.order_of_blobs):
                     covLib.cov_sum += cov
@@ -287,7 +287,7 @@ class BlObj():
         self.agct_count = self.length - self.n_count
         self.gc = round(self.calculateGC(seq), 4)
         self.covs = {}
-        self.read_cov = 0
+        self.read_cov = {}
         self.hits = {}
         self.taxonomy = {}
         

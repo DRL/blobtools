@@ -35,7 +35,8 @@
         --colours COLOURFILE        File containing colours for (taxonomic) groups
         --exclude GROUPS..          Place these (taxonomic) groups in 'other',
                                      e.g. "Actinobacteria,Proteobacteria"
-        --format FORMAT             Figure format for plot (png, pdf)
+        --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
+                                        ps, svg, svgz, tiff) [default: png]
 """
 
 from __future__ import division
@@ -113,8 +114,9 @@ if __name__ == '__main__':
 
     # Get arrays and filter_dict (filter_dict lists, span/count passing filter) for those groups passing min_length, rank, hide_nohits ...
     # make it part of core , get data by group ... should be used by stats, generalise ...
-    data_dict, filter_dict, max_cov, cov_libs = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, label_d)
+    data_dict, filter_dict, max_cov, cov_libs, read_cov_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, label_d)
     plotObj = BtPlot.PlotObj(data_dict, filter_dict, cov_libs)
+    plotObj.read_cov = read_cov_dict
     plotObj.exclude_groups = exclude_groups
     plotObj.format = format
     plotObj.max_cov = max_cov
@@ -122,14 +124,14 @@ if __name__ == '__main__':
     plotObj.multiplot = multiplot
     plotObj.hist_type = hist_type
     plotObj.ignore_contig_length = ignore_contig_length
-
+    plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(filter_dict, sort_order)
     plotObj.labels = {group : group for group in plotObj.group_order}
     #plotObj.colours = {group : 'None' for group in plotObj.group_order}
     # sorted_groups = ALL groups sorted by visible span 
     # colours = all groups that are present in colour_dict + 'other'
     # labels = ALL groups and their labels  
-    plotObj.relabel_and_colour(colour_f, label_d, max_group_plot)
+    plotObj.relabel_and_colour(colour_f, label_d)
 
     plotObj.compute_stats()
 
@@ -147,6 +149,7 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in label_d.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
-        plotObj.plot(cov_lib, info_flag)
+        plotObj.plotBlobs(cov_lib, info_flag)
         info_flag = 0
     plotObj.writePlotSummaryTable()
+    plotObj.plotReadCov()

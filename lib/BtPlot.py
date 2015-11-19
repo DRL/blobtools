@@ -9,8 +9,7 @@ Bugs        : ?
 To do       : ?
 """
 from __future__ import division
-from numpy import array, amax, amin, arange, logspace, where, mean, std
-import numpy as np
+from numpy import array, arange, logspace, mean, std
 import math
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
@@ -65,10 +64,8 @@ def generateColourDict(colour_groups):
     tax_with_colour = []
     if 'no-hit' in colour_groups or 'None' in colour_groups:
         n_tax = len(colour_groups) - 1
-        #colour_groups = [group for group in colour_groups if not group == "no-hit" and not group == 'None']
     else:
         n_tax = len(colour_groups)
-        #tax_with_colour = [tax for tax in plot_order]
     breaks = [0.0 + x*(1.0-0.0)/n_tax for x in range(n_tax)]
     colour_d = {group: rgb2hex(cmap(b)) for b, group in izip(breaks, colour_groups)}
     if 'no-hit' in colour_groups:
@@ -142,6 +139,7 @@ class PlotObj():
         self.labels = {}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
+        self.read_cov = {}
         self.exclude_groups = []
         self.count = {group : filter_dict[group]['count'] for group in filter_dict.keys()}
         self.count_visible = {group : filter_dict[group]['count_visible'] for group in filter_dict.keys()}
@@ -161,6 +159,32 @@ class PlotObj():
         self.gc_std = {}
         self.cov_mean = {}
         self.cov_std = {}
+        self.max_group_plot = 0
+
+    def stats(self):
+        stats_data = []
+        for idx, group in enumerate(self.group_order):
+            table_data.append({
+                        'name' : group, 
+                        'label' : self.labels[group],
+                        'count_total' : "{:,}".format(self.count[group]), 
+                        'count_visible_perc' : '{0:.1%}'.format(self.count_visible[group]/self.count[group]), 
+                        'span_total' : "{:,}".format(self.span[group]), 
+                        'span_visible_perc' : '{0:.1%}'.format(self.span_visible[group]/self.span[group]),
+                        'colour' : self.colours[group],
+                        'n50' : self.n50[group],
+                        'gc_mean' : self.gc_mean[group],
+                        'gc_std' : self.gc_std[group],
+                        'cov_mean' : {cov_lib : cov_mean for cov_lib, cov_mean in self.cov_mean[group].items()},
+                        'cov_std' : {cov_lib : cov_std for cov_lib, cov_std in self.cov_std[group].items()},
+                        'read_cov' : {cov_lib : read_cov for cov_lib, cov_std in self.read_cov[group].items() if not read_cov == 0 else pass}
+                        })
+        
+        out_f = "%s.plot.txt" % self.out_f
+        with open(out_f,'w') as fh:
+            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group", "label", "colour"))
+            for d in table_data:
+                fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
 
     def compute_stats(self):
         other_gc = []
@@ -205,11 +229,11 @@ class PlotObj():
                         self.cov_std['other'] = {}
                     self.cov_std['other'][cov_lib] = std(array(covs))
     
-    def relabel_and_colour(self, colour_f, label_d, max_group_plot):
+    def relabel_and_colour(self, colour_f, label_d):
         if (colour_f):
             colour_dict = BtIO.parseColourDict(colour_f)
         else:
-            colour_groups = self.group_order[0:max_group_plot]
+            colour_groups = self.group_order[0:self.max_group_plot]
             colour_dict = generateColourDict(colour_groups)
             
         for idx, group in enumerate(self.group_order):
@@ -225,7 +249,7 @@ class PlotObj():
                 self.labels[group] = group
                 self.colours[group] = colour_dict[group] 
                 self.plot_order.append(group)
-            elif idx > max_group_plot:
+            elif idx > self.max_group_plot:
                 self.labels[group] = 'other'
                 self.colours[group] = colour_dict['other'] 
             else:
@@ -236,22 +260,24 @@ class PlotObj():
 
     def writePlotSummaryTable(self):
         table_data = []
-        for group in sorted(self.span_visible, key = lambda x : self.span_visible[x], reverse=True):
+        for group in self.group_order:
             table_data.append({
                         'name' : group, 
+                        'label' : self.labels[group],
                         'count_total' : "{:,}".format(self.count[group]), 
                         'count_visible_perc' : '{0:.1%}'.format(self.count_visible[group]/self.count[group]), 
                         'span_total' : "{:,}".format(self.span[group]), 
-                        'span_visible_perc' : '{0:.1%}'.format(self.span_visible[group]/self.span[group])
+                        'span_visible_perc' : '{0:.1%}'.format(self.span_visible[group]/self.span[group]),
+                        'colour' : self.colours[group]
                         })
         
-        out_f = "%s.txt" % self.out_f
+        out_f = "%s.plot.txt" % self.out_f
         with open(out_f,'w') as fh:
-            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group"))
+            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group", "label", "colour"))
             for d in table_data:
-                fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'] ))
+                fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
 
-    def plot(self, cov_lib, info_flag):
+    def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
         # Setting up plots and axes
         plt.figure(1, figsize=(35,35), dpi=400)
@@ -289,9 +315,9 @@ class PlotObj():
         i = 0
         for group in self.plot_order:
             i += 1
-            group_length_array = np.array(self.data_dict[group]['length'])
-            group_gc_array = np.array(self.data_dict[group]['gc'])
-            group_cov_array = np.array(self.data_dict[group]['covs'][cov_lib])
+            group_length_array = array(self.data_dict[group]['length'])
+            group_gc_array = array(self.data_dict[group]['gc'])
+            group_cov_array = array(self.data_dict[group]['covs'][cov_lib])
             # calculate values for legend
             group_span_in_mb = round(self.span_visible[group]/1000000, 2)
             group_number_of_seqs = self.count_visible[group]
@@ -340,7 +366,9 @@ class PlotObj():
         print BtLog.status_d['8'] % self.out_f
         plt.savefig(self.out_f, format=self.format) 
         plt.close()  
-    
+        
+        
+
     
 
 if __name__ == "__main__": 
