@@ -280,6 +280,7 @@ class PlotObj():
             else:
                 self.labels[group] = 'other'
                 self.colours[group] = colour_dict['other'] 
+        print self.colours
         self.plot_order.append('other')
 
     def plot(self, cov_lib, info_flag):
