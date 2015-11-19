@@ -63,27 +63,27 @@ def checkBam(infile):
     if not (which('samtools')):
         BtLog.error('7')
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
-    total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
-    total_reads, reads_mapped = 0, 0
+    reads_total_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
+    reads_total, reads_mapped = 0, 0
     output = ''
     command = "samtools flagstat " + infile
     for line in runCmd(command):
         output += line
     reads_mapped = int(reads_mapped_re.search(output).group(1))
-    total_reads = int(total_reads_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(total_reads), '{0:.1%}'.format(reads_mapped/total_reads))
-    return total_reads, reads_mapped
+    reads_total = int(reads_total_re.search(output).group(1))
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    return reads_total, reads_mapped
 
 def readSam(infile, set_of_blobs):
     base_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
-    total_reads = 0
+    reads_total = 0
     reads_mapped = 0
     with open(infile) as fh:
         for line in fh:
             match = line.split("\t")
             if match >= 11:
-                total_reads += 1
+                reads_total += 1
                 seq_name = match[2]
                 if not seq_name == '*':  
                     if seq_name not in set_of_blobs:
@@ -93,11 +93,11 @@ def readSam(infile, set_of_blobs):
                         reads_mapped += 1
                         base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
                         read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
-    return base_cov_dict, total_reads, reads_mapped, read_cov_dict        
+    return base_cov_dict, reads_total, reads_mapped, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
-    total_reads, reads_mapped = checkBam(infile)
-    progress_unit = int(int(total_reads)/1000)
+    reads_total, reads_mapped = checkBam(infile)
+    progress_unit = int(int(reads_total)/1000)
     base_cov_dict = {}
     read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
@@ -117,11 +117,11 @@ def readBam(infile, set_of_blobs):
                 else:
                     base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
                     read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
-        BtLog.progress(parsed_reads, progress_unit, total_reads)
-    BtLog.progress(total_reads, progress_unit, total_reads)
+        BtLog.progress(parsed_reads, progress_unit, reads_total)
+    BtLog.progress(reads_total, progress_unit, reads_total)
     if not int(reads_mapped) == int(parsed_reads):
         print warn_d['3'] % (reads_mapped, parsed_reads)
-    return base_cov_dict, total_reads, parsed_reads, read_cov_dict
+    return base_cov_dict, reads_total, parsed_reads, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header ):
     ''' 

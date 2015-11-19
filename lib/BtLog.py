@@ -71,7 +71,7 @@ status_d = {
     '8' : '[STATUS]\t: Plotting %s',
     '9' : '[STATUS]\t: Reading BlobDb %s',
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
-    '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s %)',
+    '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
     '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\''
 }
 
