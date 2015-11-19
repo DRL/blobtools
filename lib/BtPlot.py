@@ -327,7 +327,7 @@ class PlotObj():
             # calculate values for legend
             group_span_in_mb = round(self.span_visible[group]/1000000, 2)
             group_number_of_seqs = self.count_visible[group]
-            group_n50 = self.n50[group]
+            group_n50 = self.stats[group]['n50']
             blob_size_array = []
             s, lw, alpha, colour = 15, 0.5, 1, self.colours[group]
             if (self.ignore_contig_length):
