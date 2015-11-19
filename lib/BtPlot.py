@@ -47,13 +47,13 @@ def n50(list_of_lengths):
             break
     return N50
 
-def getSortedGroups(filter_dict, sort_order):
+def getSortedGroups(data_dict, sort_order):
     """ Returns list of sorted groups based on span or count. """
     sorted_groups = []
     if sort_order == 'span':
-        sorted_groups = sorted(filter_dict, key = lambda x : filter_dict[x]['span_visible'] if filter_dict[x]['span_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['span_visible'] if data_dict[x]['span_visible'] > 0 else None, reverse=True)
     elif sort_order == 'count':
-        sorted_groups = sorted(filter_dict, key = lambda x : filter_dict[x]['count_visible'] if filter_dict[x]['count_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else None, reverse=True)
     else:
         pass
     return sorted_groups
@@ -135,18 +135,19 @@ def parse_labels(labels):
             BtLog.error('17', labels)
 
 class PlotObj():
-    def __init__(self, data_dict, filter_dict, cov_libs):
-        self.labels = {}
+    def __init__(self, data_dict, cov_libs):
+        self.labels = set()
+        self.group_labels = {}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
-        self.read_cov = {}
+        self.count = {group : data_dict[group]['count'] for group in data_dict.keys()}
+        self.count_visible = {group : data_dict[group]['count_visible'] for group in data_dict.keys()}
+        self.count_hidden = {group : data_dict[group]['count_hidden'] for group in data_dict.keys()}
+        self.span = {group : data_dict[group]['span'] for group in data_dict.keys()}
+        self.span_visible = {group : data_dict[group]['span_visible'] for group in data_dict.keys()}
+        self.span_hidden = {group : data_dict[group]['span_hidden'] for group in data_dict.keys()}
+        self.stats = {}
         self.exclude_groups = []
-        self.count = {group : filter_dict[group]['count'] for group in filter_dict.keys()}
-        self.count_visible = {group : filter_dict[group]['count_visible'] for group in filter_dict.keys()}
-        self.count_hidden = {group : filter_dict[group]['count_hidden'] for group in filter_dict.keys()}
-        self.span = {group : filter_dict[group]['span'] for group in filter_dict.keys()}
-        self.span_visible = {group : filter_dict[group]['span_visible'] for group in filter_dict.keys()}
-        self.span_hidden = {group : filter_dict[group]['span_hidden'] for group in filter_dict.keys()}
         self.colours = {}
         self.group_order = []
         self.plot_order = []
@@ -154,19 +155,14 @@ class PlotObj():
         self.max_cov = 0.0
         self.out_f = ''
         self.title = ''
-        self.n50 = {}
-        self.gc_mean = {}
-        self.gc_std = {}
-        self.cov_mean = {}
-        self.cov_std = {}
         self.max_group_plot = 0
 
-    def stats(self):
+    def write_stats(self):
         stats_data = []
-        for idx, group in enumerate(self.group_order):
+        for label in self.group_order:
             table_data.append({
                         'name' : group, 
-                        'label' : self.labels[group],
+                        'group_labels' : [label for label in sorted(self.group_labels[group])],
                         'count_total' : "{:,}".format(self.count[group]), 
                         'count_visible_perc' : '{0:.1%}'.format(self.count_visible[group]/self.count[group]), 
                         'span_total' : "{:,}".format(self.span[group]), 
@@ -177,7 +173,7 @@ class PlotObj():
                         'gc_std' : self.gc_std[group],
                         'cov_mean' : {cov_lib : cov_mean for cov_lib, cov_mean in self.cov_mean[group].items()},
                         'cov_std' : {cov_lib : cov_std for cov_lib, cov_std in self.cov_std[group].items()},
-                        'read_cov' : {cov_lib : read_cov for cov_lib, cov_std in self.read_cov[group].items() if not read_cov == 0 else pass}
+                        'read_cov' : {cov_lib : read_cov for cov_lib, read_cov in self.read_cov[group].items()}
                         })
         
         out_f = "%s.plot.txt" % self.out_f
@@ -187,49 +183,50 @@ class PlotObj():
                 fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
 
     def compute_stats(self):
-        other_gc = []
-        other_length = []
-        other_covs = {cov_lib : [] for cov_lib in self.cov_libs}
-        for group, label in self.labels.items():
-            group_gc = self.data_dict[group]['gc']
-            self.gc_mean[group] = mean(array(group_gc))
-            self.gc_std[group] = std(array(group_gc))
-            group_length = self.data_dict[group]['length']
-            self.n50[group] = n50(group_length)
-            for cov_lib, covs in self.data_dict[group]['covs'].items():
-                if not group in self.cov_mean:
-                    self.cov_mean[group] = {}
-                self.cov_mean[group][cov_lib] = mean(array(covs))
-                if not group in self.cov_std:
-                    self.cov_std[group] = {}
-                self.cov_std[group][cov_lib] = std(array(covs))
-            if label == 'other':
-                other_gc += group_gc
-                other_length += group_length 
-                for cov_lib, covs in self.data_dict[group]['covs'].items():
-                    other_covs[cov_lib] += covs
-                self.count['other'] = self.count.get('other', 0) + self.count[group]
-                self.count_visible['other'] = self.count_visible.get('other', 0) + self.count_visible[group]
-                self.count_hidden['other'] = self.count_hidden.get('other', 0) + self.count_hidden[group]
-                self.span['other'] = self.span.get('other', 0) + self.span[group]
-                self.span_visible['other'] = self.span_visible.get('other', 0) + self.span_visible[group]
-                self.span_hidden['other'] = self.span_hidden.get('other', 0) + self.span_hidden[group]
-                self.data_dict['other'] = {'length' : [], 'gc' : [], 'covs' : {covLib : [] for covLib in self.cov_libs} }
-                self.data_dict['other']['length'] = other_length
-                self.data_dict['other']['gc'] = other_gc
-                self.gc_mean['other'] = mean(array(other_gc))
-                self.gc_std['other'] = std(array(other_gc))
-                self.n50['other'] = n50(other_length)
-                for cov_lib, covs in other_covs.items():
-                    self.data_dict['other']['covs'][cov_lib] = covs
-                    if not 'other' in self.cov_mean:
-                        self.cov_mean['other'] = {}
-                    self.cov_mean['other'][cov_lib] = mean(array(covs))
-                    if not 'other' in self.cov_std:
-                        self.cov_std['other'] = {}
-                    self.cov_std['other'][cov_lib] = std(array(covs))
+        stats = {}
+        for label in self.labels:
+            stats[label] = {
+                            'gc' : [], 
+                            'length': [], 
+                            'covs' : {cov_lib : [] for cov_lib in self.cov_libs},
+                            'cov_mean' : {cov_lib : 0.0 for cov_lib in self.cov_libs},
+                            'cov_std' : {cov_lib : 0.0 for cov_lib in self.cov_libs},
+                            'n50' : 0,
+                            'gc_mean' : 0.0,
+                            'gc_std' : 0.0,
+                            'reads_mapping' : 0,
+                            'groups' : set(),
+                            'count' : 0,
+                            'span' : 0,
+                            'count_visible' : 0,
+                            'span_visible' : 0
+                            }
+
+        # gather data
+        for group, labels in self.group_labels.items():
+            for label in labels:
+                stats[label][groups].add(group)
+                stats[label]['gc'] += self.data_dict[group]['gc'] 
+                stats[label]['length'] += self.data_dict[group]['length'] 
+                stats[label]['count_visible'] += self.count_visible[group]
+                stats[label]['span_visible'] += self.span_visible[group]
+                for cov_lib in self.cov_libs:
+                    stats[label][cov_lib]['covs'] += self.data_dict[group]['covs'][cov_lib]
+                    stats[label][cov_lib]['reads_mapping'] += self.data_dict[group]['reads_mapping'][cov_lib]
+
+        for label in stats:
+            stats[label]['gc_mean'] = mean(array(stats[label]['gc']))
+            stats[label]['gc_std'] = std(array(stats[label]['gc']))
+            stats[label]['n50'] = n50(stats[label]['length'])
+            stats[label]['count'] = len(stats[label]['length'])
+            stats[label]['span'] = sum(stats[label]['length'])
+            for cov_lib in self.cov_libs:
+                stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['cov']))
+                stats[label]['cov_std'][cov_lib] = std(array(stats[label]['cov']))
+        self.stats = stats
+        print stats
     
-    def relabel_and_colour(self, colour_f, label_d):
+    def relabel_and_colour(self, colour_f, main_labels, user_labels):
         if (colour_f):
             colour_dict = BtIO.parseColourDict(colour_f)
         else:
@@ -237,24 +234,25 @@ class PlotObj():
             colour_dict = generateColourDict(colour_groups)
             
         for idx, group in enumerate(self.group_order):
-            if (label_d):
-                if group in label_d:
-                    self.labels[group] = label_d[group] 
+            if (user_labels):
+                if group in user_labels:
+                    self.labels[group].add(user_labels[group])
                     self.colours[group] = colour_dict[group]
             elif (self.exclude_groups):
                 if group in self.exclude_groups:
-                    self.labels[group] = 'other'
+                    self.labels[group].add('other')
                     self.colours[group] = colour_dict['other']     
             elif group in colour_dict:
-                self.labels[group] = group
+                self.labels[group].add(group)
                 self.colours[group] = colour_dict[group] 
                 self.plot_order.append(group)
             elif idx > self.max_group_plot:
-                self.labels[group] = 'other'
+                self.labels[group].add('other')
                 self.colours[group] = colour_dict['other'] 
             else:
-                self.labels[group] = 'other'
+                self.labels[group].add('other')
                 self.colours[group] = colour_dict['other'] 
+            self.labels[group].add('all')
         self.colours['other'] = colour_dict['other'] 
         self.plot_order.append('other')
 
@@ -277,6 +275,13 @@ class PlotObj():
             for d in table_data:
                 fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
 
+    def plotReadCov(self):
+        for cov_lib in self.read_cov:
+            if not self.read_cov[cov_lib]['total'] == 0:
+                reads_total = self.read_cov[cov_lib]['total']
+                reads_mapped = self.read_cov[cov_lib]['mapped']
+                # generate counts of reads mapped by group ...
+                
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
         # Setting up plots and axes

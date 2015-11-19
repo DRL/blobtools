@@ -115,14 +115,28 @@ class BlobDb():
         self.hitLibs = blobDict['hitLibs']
         self.taxrules = blobDict['taxrules']
 
-    def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, label_d):
-        filter_dict = {}
+    def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index):
         data_dict = {}
         read_cov_dict = {}
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
         if len(cov_libs) > 1:
             cov_libs.append('sum')
+
+        data_structure = {
+                            'name' : [], 
+                            'length' : [], 
+                            'gc' : [], 
+                            'covs' : {covLib : [] for covLib in covLibs}, 
+                            'reads_mapped' : {covLib : 0 for covLib in covLibs},
+                            'count' : 0,
+                            'count_hidden' : 0,
+                            'count_visible' : 0,
+                            'span': 0, 
+                            'span_hidden' : 0, 
+                            'span_visible' : 0,
+                            }
+
         for blob in self.dict_of_blobs.values():
             name, gc, length, group = blob['name'], blob['gc'], blob['length'], ''
             
@@ -131,54 +145,43 @@ class BlobDb():
             else: # annotation with taxonomic group
                 group = blob['taxonomy'][taxrule][rank]['tax']
 
-            if not group in filter_dict: # initialise filter_dict for tax 
-                filter_dict[group] = {'count' : 0,
-                                    'count_hidden' : 0,
-                                    'count_visible' : 0,
-                                    'span': 0, 
-                                    'span_hidden' : 0, 
-                                    'span_visible' : 0}
+            if not group in data_dict: 
+                data_dict[group] = data_structure
 
-            if ((hide_nohits) and group == 'no-hit') or length < min_length: # FAIL
-                filter_dict[group]['count_hidden'] = filter_dict[group].get('count_hidden', 0) + 1
-                filter_dict[group]['span_hidden'] = filter_dict[group].get('span_hidden', 0) + length
-            else: # PASS
-                filter_dict[group]['count_visible'] = filter_dict[group].get('count_visible', 0) + 1
-                filter_dict[group]['span_visible'] = filter_dict[group].get('span_visible', 0) + int(length)
+            if ((hide_nohits) and group == 'no-hit') or length < min_length: # hidden
+                data_dict[group]['count_hidden'] = data_dict[group].get('count_hidden', 0) + 1
+                data_dict[group]['span_hidden'] = data_dict[group].get('span_hidden', 0) + int(length)
+            else: # visible
+                data_dict[group]['count_visible'] = data_dict[group].get('count_visible', 0) + 1
+                data_dict[group]['span_visible'] = data_dict[group].get('span_visible', 0) + int(length)
 
-                #data_list.append([(name), (length), (gc), (tax)])
-                if not group in data_dict:
-                    data_dict[group] = {'name' : [], 'length' : [], 'gc' : [], 'covs' : {covLib : [] for covLib in self.covLibs} }
-                    if len(self.covLibs) > 1:
-                        data_dict[group]['covs']['sum'] = []
+            data_dict[group]['name'].append(name)
+            data_dict[group]['length'].append(length)
+            data_dict[group]['gc'].append(gc)
 
-                data_dict[group]['name'].append(name)
-                data_dict[group]['length'].append(length)
-                data_dict[group]['gc'].append(gc)
+            cov_sum = 0.0
+            for covLib in sorted(covLibs):
+                cov = float(blob['covs'][covLib]) 
+                cov_sum += cov
+                cov = cov if cov > 0.02 else 0.02
+                if cov > max_cov:
+                    max_cov = cov
+                data_dict[group]['covs'][covLib].append(cov)
+                
+                # Read cov for read_cov_plot if read cov provided
+                if covLib in blob['read_cov']:
+                    data_dict[group]['reads_mapped'][covLib] += blob['read_cov'][covLib]  
+    
+            if 'sum' in data_dict[group]['covs']:
+                cov_sum = cov_sum if cov_sum > 0.02 else 0.02
+                data_dict[group]['covs']['sum'].append(cov_sum)
+                if cov > max_cov:
+                    max_cov = cov
 
-                cov_sum = 0.0
-                for covLib in sorted(self.covLibs):
-                    cov = float(blob['covs'][covLib]) 
-                    cov_sum += cov
-                    cov = cov if cov > 0.02 else 0.02
-                    if cov > max_cov:
-                        max_cov = cov
-                    data_dict[group]['covs'][covLib].append(cov)
-                    # Read cov for read_cov_plot if read cov provided
-                    if covLib in blob['read_cov']:
-                        read_cov_dict['name'] = {cov_lib : blob['read_cov'][covLib]} 
+            data_dict[group]['count'] = data_dict[group].get('count', 0) + 1
+            data_dict[group]['span'] = data_dict[group].get('span', 0) + int(length)
 
-                if 'sum' in data_dict[group]['covs']:
-                    cov_sum = cov_sum if cov_sum > 0.02 else 0.02
-                    data_dict[group]['covs']['sum'].append(cov_sum)
-                    if cov > max_cov:
-                        max_cov = cov
-
-
-            filter_dict[group]['count'] = filter_dict[group].get('count', 0) + 1
-            filter_dict[group]['span'] = filter_dict[group].get('span', 0) + int(length)
-
-        return data_dict, filter_dict, max_cov, cov_libs, read_cov_dict
+        return data_dict, max_cov, cov_libs
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib
@@ -219,26 +222,35 @@ class BlobDb():
             if covLib.fmt == 'bam' or covLib.fmt == 'sam':
                 base_cov_dict = {}
                 if covLib.fmt == 'bam':
-                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
                 else:
-                    base_cov_dict, covLib.total_reads, covLib.mapped_reads, read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))    
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))    
+                if covLib.reads_total == 0 or not len(cov_dict) == self.seqs:
+                    print BtLog.warn['4'] % covLib.f
                 for name, base_cov in base_cov_dict.items():
                     cov = base_cov / self.dict_of_blobs[name].agct_count
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
                     self.dict_of_blobs[name].read_cov = {covLib.name : read_cov_dict[name]}
             elif covLib.fmt == 'cas':
-                for name, cov in BtIO.readCas(covLib.f, self.order_of_blobs):
+                cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readCas(covLib.f, self.order_of_blobs)
+                if covLib.reads_total == 0 or not len(cov_dict) == self.seqs:
+                    print BtLog.warn['4'] % covLib.f
+                for name, cov in cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
+                    self.dict_of_blobs[name].read_cov = {covLib.name : read_cov_dict[name]}
             elif covLib.fmt == 'cov':
-                for name, cov in BtIO.readCov(covLib.f, set(self.dict_of_blobs)):
-                    covLib.cov_sum += cov
-                    self.dict_of_blobs[name].addCov(covLib.name, cov)
+                cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
+                if not len(cov_dict) == self.seqs:
+                    print BtLog.warn['4'] % covLib.f
+                covLib.cov_sum += cov
+                self.dict_of_blobs[name].addCov(covLib.name, cov)
             else:
                 pass        
             covLib.mean_cov = covLib.cov_sum/self.seqs
             self.covLibs[covLib.name] = covLib
+
 
     def parseHits(self, hitLibs):
         for hitLib in hitLibs:
@@ -270,8 +282,8 @@ class BlobDb():
             'Ns'       : self.n_count,
             'AvgCov'   : {lib : round(covlibObj.cov_sum/self.seqs, 2) for lib, covlibObj in self.covLibs.items()},
             'GC'       : round(sum([blObj.gc for blObj in self.dict_of_blobs.values()])/self.seqs, 2),
-            'MappedReads' : {lib : (covlibObj.mapped_reads) for lib, covlibObj in self.covLibs.items()},
-            'TotalReads' : {lib : (covlibObj.total_reads) for lib, covlibObj in self.covLibs.items()}
+            'MappedReads' : {lib : (covlibObj.reads_mapped) for lib, covlibObj in self.covLibs.items()},
+            'TotalReads' : {lib : (covlibObj.reads_total) for lib, covlibObj in self.covLibs.items()}
         }
         print count_dict
     
@@ -309,8 +321,8 @@ class CovLibObj():
         self.fmt = fmt
         self.f = abspath(f)
         self.cov_sum = 0
-        self.total_reads = 0
-        self.mapped_reads = 0
+        self.reads_total = 0
+        self.reads_mapped = 0
         self.mean_cov = 0.0
 
 class hitLibObj():

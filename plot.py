@@ -30,7 +30,7 @@
                                      (Supported: species, genus, family, order, phylum, superkingdom) 
         -x, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy 
                                      (Supported: bestsum, bestsumorder) [default: bestsum]
-        --label GROUPS...           Relabel (taxonomic) groups, 
+        --label GROUPS...           Relabel (taxonomic) groups (not 'all' or 'other'), 
                                      e.g. "Bacteria=Actinobacteria,Proteobacteria"
         --colours COLOURFILE        File containing colours for (taxonomic) groups
         --exclude GROUPS..          Place these (taxonomic) groups in 'other',
@@ -50,6 +50,7 @@ from os.path import dirname, isfile
 if __name__ == '__main__':
     TAXRULES = ['bestsum', 'bestsumorder']
     RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
+    main_labels = {'all', 'other'}
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
     # compute labels if supplied
     
-    label_d = BtPlot.parse_labels(labels)
+    user_labels = BtPlot.parse_labels(labels)
     
     if (exclude_groups):
         if "," in exclude_groups:
@@ -114,9 +115,8 @@ if __name__ == '__main__':
 
     # Get arrays and filter_dict (filter_dict lists, span/count passing filter) for those groups passing min_length, rank, hide_nohits ...
     # make it part of core , get data by group ... should be used by stats, generalise ...
-    data_dict, filter_dict, max_cov, cov_libs, read_cov_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, label_d)
-    plotObj = BtPlot.PlotObj(data_dict, filter_dict, cov_libs)
-    plotObj.read_cov = read_cov_dict
+    data_dict, max_cov, cov_libs = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index)
+    plotObj = BtPlot.PlotObj(data_dict, cov_libs)
     plotObj.exclude_groups = exclude_groups
     plotObj.format = format
     plotObj.max_cov = max_cov
@@ -125,14 +125,10 @@ if __name__ == '__main__':
     plotObj.hist_type = hist_type
     plotObj.ignore_contig_length = ignore_contig_length
     plotObj.max_group_plot = max_group_plot
-    plotObj.group_order = BtPlot.getSortedGroups(filter_dict, sort_order)
-    plotObj.labels = {group : group for group in plotObj.group_order}
-    #plotObj.colours = {group : 'None' for group in plotObj.group_order}
-    # sorted_groups = ALL groups sorted by visible span 
-    # colours = all groups that are present in colour_dict + 'other'
-    # labels = ALL groups and their labels  
-    plotObj.relabel_and_colour(colour_f, label_d)
-
+    plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
+    plotObj.labels.add(main_labels, user_labels, self.group_order.keys())
+    plotObj.group_labels = {group : set() for group in plotObj.group_order}
+    plotObj.relabel_and_colour(colour_f, main_labels, user_labels)
     plotObj.compute_stats()
 
     info_flag = 1
@@ -146,7 +142,7 @@ if __name__ == '__main__':
         if exclude_groups:
             out_f = "%s.%s" % (out_f, "exclude" + "_".join(exclude_groups))
         if labels:
-            out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in label_d.values()])))
+            out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in user_labels.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
         plotObj.plotBlobs(cov_lib, info_flag)

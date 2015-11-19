@@ -140,45 +140,62 @@ def parseCovFromHeader(fasta_type, header ):
 
 def readCov(infile, set_of_blobs):
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
-    i = 0
+    cov_dict = {}
+    seqs_parsed = 0
     with open(infile) as fh:
         for line in fh:
-            i += 1
             BtLog.progress(i, 10, len(set_of_blobs))
             match = cov_line_re.search(line)
             if match:
+                seqs_parsed += 1
                 name, cov = match.group(1), float(match.group(2))
                 if name not in set_of_blobs:
-                    BtLog.error('3', name, infile)
-                yield name, cov
+                    print BtLog.warn['2'] % (name, infile)
+                cov_dict[name] = cov
+            BtLog.progress(parsed_seqs, progress_unit, len(set_of_blobs))
+        BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
+    return cov_dict
 
-def readCas(infile, order_of_blobs):
-    cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
-    output = ''
+def checkCas(infile):
+    print BtLog.status_d['12']
     if not (which('clc_mapping_info')):
         BtLog.error('20')
-    else:
-        command = "clc_mapping_info -s -f " + infile
-        if (runCmd(command)):
-            for line in runCmd(command):
-                match = cas_line_re.search(line)
-                if match:
-                    idx = int(match.group(1)) - 1 # -1 because index of contig list starts with zero 
-                    name = order_of_blobs[idx]
-                    cov = float(match.group(4))
-                    yield name, cov
-    #error_CAS, message = commands.getstatusoutput("clc_mapping_info -s -f " + infile)
-    #if (error_CAS):
-    #    sys.exit("[ERROR] - Please add clc_mapping_info to you PATH variable.") 
-    #command = "clc_mapping_info -n " + infile
-    #cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
-    #for line in runCmd(command):
-    #    match = cas_line_re.search(line)
-    #    if match:
-    #        contig_index = int(match.group(1)) - 1 # -1 because index of contig list starts with zero 
-    #        contig_id = self.index[contig_index]
-    #        contig_cov = float(match.group(4))
-    #        yield contig_id, contig_cov
+    seqs_total_re = re.compile(r"\s+Contigs\s+(\d+)")
+    reads_total_re = re.compile(r"\s+Reads\s+(\d+)")
+    reads_mapping_re = re.compile(r"\s+Mapped reads\s+(\d+)\s+(\d+.\d+)\s+\%")
+    seqs_total, reads_total, reads_mapping, mapping_rate = 0, 0, 0, 0.0
+    output = ''
+    command = "clc_mapping_info -s " + infile
+    for line in runCmd(command):
+        output += line
+    seqs_total = int(seqs_total_re.search(output).group(1))
+    mapped_reads = int(reads_mapping_re.search(output).group(1))
+    mapping_rate = int(reads_mapping_re.search(output).group(2))
+    reads_total = int(reads_total_re.search(output).group(1))
+    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(mapping_rate))
+    return seqs_total, reads_total, mapped_reads
+
+def readCas(infile, order_of_blobs):
+    seqs_total, reads_total, reads_mapped = checkCas(infile)
+    cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
+    command = "clc_mapping_info -n " + infile
+    cov_dict = {}
+    read_cov_dict = {}
+    seqs_parsed = 0 
+    if (runCmd(command)):
+        for line in runCmd(command):
+            cas_line_match = cas_line_re.search(line)
+            if cas_line_match:
+                idx = int(cas_line_match.group(1)) - 1 # -1 because index of contig list starts with zero 
+                name = order_of_blobs[idx]
+                reads = int(cas_line_match.group(3))
+                cov = float(cas_line_match.group(6))
+                cov_dict[name] = cov
+                read_cov_dict[name] = reads
+                seqs_parsed += 1
+            BtLog.progress(parsed_seqs, progress_unit, seqs_total)
+        BtLog.progress(seqs_total, progress_unit, seqs_total)
+    return cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def readTax(infile, set_of_blobs):
     '''

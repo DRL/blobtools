@@ -19,12 +19,6 @@ def error(message, *argv):
         print error_d[message] % (argv)
     exit(1)
 
-def warn(message, *argv):
-    if (argv):
-        print warn_d[message] % (argv)
-    else:
-        print warn_d[message]
-
 def progress(iteration, steps, max_value):
     if int(iteration) % int(steps) == 0:
         sys.stdout.write('\r')
@@ -60,10 +54,11 @@ error_d = {
 }
 
 warn_d = {
-    '0' : '[WARN:0]\t: No tax files specified.', 
-    '1' : '[WARN:1]\t: %s not in colour file %s ...',
-    '2' : '[WARN:2]\t: %s in file %s is not part of the assembly',
-    '3' : '[WARN:3]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed'
+    '0' : '[WARN]\t: No tax files specified.', 
+    '1' : '[WARN]\t: %s not in colour file %s ...',
+    '2' : '[WARN]\t: %s in file %s is not part of the assembly',
+    '3' : '[WARN]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
+    '4' : '[WARN]\t: No coverage data found in %s'
 }
 status_d = {
     '1' : '[STATUS]\t: Parsing %s - %s',
@@ -76,7 +71,8 @@ status_d = {
     '8' : '[STATUS]\t: Plotting %s',
     '9' : '[STATUS]\t: Reading BlobDb %s',
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
-    '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)'
+    '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
+    '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\''
 }
 
 info_d = {
