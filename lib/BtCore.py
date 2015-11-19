@@ -160,17 +160,17 @@ class BlobDb():
             data_dict[group]['gc'].append(gc)
 
             cov_sum = 0.0
-            for covLib in sorted(covLibs):
-                cov = float(blob['covs'][covLib]) 
+            for cov_lib in sorted(cov_libs):
+                cov = float(blob['covs'][cov_lib]) 
                 cov_sum += cov
                 cov = cov if cov > 0.02 else 0.02
                 if cov > max_cov:
                     max_cov = cov
-                data_dict[group]['covs'][covLib].append(cov)
+                data_dict[group]['covs'][cov_lib].append(cov)
                 
                 # Read cov for read_cov_plot if read cov provided
-                if covLib in blob['read_cov']:
-                    data_dict[group]['reads_mapped'][covLib] += blob['read_cov'][covLib]  
+                if cov_lib in blob['read_cov']:
+                    data_dict[group]['reads_mapped'][cov_lib] += blob['read_cov'][cov_lib]  
     
             if 'sum' in data_dict[group]['covs']:
                 cov_sum = cov_sum if cov_sum > 0.02 else 0.02
