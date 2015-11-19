@@ -172,7 +172,7 @@ def checkCas(infile):
     seqs_total = int(seqs_total_re.search(output).group(1))
     mapped_reads = int(reads_mapping_re.search(output).group(1))
     reads_total = int(reads_total_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(mapped_reads/total_reads))
+    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return seqs_total, reads_total, mapped_reads
 
 def readCas(infile, order_of_blobs):
