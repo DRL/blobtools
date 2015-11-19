@@ -127,12 +127,12 @@ if __name__ == '__main__':
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
     plotObj.labels.update(main_labels, plotObj.group_order)
-    print plotObj.group_labels
     if user_labels:
         plotObj.labels.update(user_labels.keys())
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     print plotObj.group_labels
     plotObj.relabel_and_colour(colour_f, main_labels, user_labels)
+    print plotObj.group_labels
     plotObj.compute_stats()
 
     info_flag = 1
