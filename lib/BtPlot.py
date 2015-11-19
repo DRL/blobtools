@@ -137,7 +137,7 @@ def parse_labels(labels):
 class PlotObj():
     def __init__(self, data_dict, cov_libs):
         self.labels = set()
-        self.group_labels = {}
+        self.group_labels = {group : set() for group in data_dict.keys()}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
         self.count = {group : data_dict[group]['count'] for group in data_dict.keys()}
@@ -236,23 +236,23 @@ class PlotObj():
         for idx, group in enumerate(self.group_order):
             if (user_labels):
                 if group in user_labels:
-                    self.labels[group].update(user_labels[group])
+                    self.group_labels[group].update(user_labels[group])
                     self.colours[group] = colour_dict[group]
             elif (self.exclude_groups):
                 if group in self.exclude_groups:
-                    self.labels[group].update('other')
+                    self.group_labels[group].update('other')
                     self.colours[group] = colour_dict['other']     
             elif group in colour_dict:
-                self.labels[group].update(group)
+                self.group_labels[group].update(group)
                 self.colours[group] = colour_dict[group] 
                 self.plot_order.append(group)
             elif idx > self.max_group_plot:
-                self.labels[group].update('other')
+                self.group_labels[group].update('other')
                 self.colours[group] = colour_dict['other'] 
             else:
-                self.labels[group].update('other')
+                self.group_labels[group].update('other')
                 self.colours[group] = colour_dict['other'] 
-            self.labels[group].update('all')
+            self.group_labels[group].update('all')
         self.colours['other'] = colour_dict['other'] 
         self.plot_order.append('other')
 
