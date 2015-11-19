@@ -222,8 +222,8 @@ class PlotObj():
             stats[label]['count'] = len(stats[label]['length'])
             stats[label]['span'] = sum(stats[label]['length'])
             for cov_lib in self.cov_libs:
-                stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['cov'][cov_lib]))
-                stats[label]['cov_std'][cov_lib] = std(array(stats[label]['cov'][cov_lib]))
+                stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib]))
+                stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib]))
         self.stats = stats
         print stats
     
