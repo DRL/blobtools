@@ -261,12 +261,17 @@ class PlotObj():
         else:
             colour_groups = self.group_order[0:max_group_plot]
             colour_dict = generateColourDict(colour_groups)
+            
         for idx, group in enumerate(self.group_order):
             if (label_d):
                 if group in label_d:
                     self.labels[group] = label_d[group] 
-                    self.colours[group] = colour_dict[group]    
-            if group in colour_dict and group not in self.exclude_groups:
+                    self.colours[group] = colour_dict[group]
+            elif (self.exclude_groups):
+                if group in self.exclude_groups:
+                    self.labels[group] = 'other'
+                    self.colours[group] = colour_dict['other']     
+            elif group in colour_dict:
                 self.labels[group] = group
                 self.colours[group] = colour_dict[group] 
                 self.plot_order.append(group)

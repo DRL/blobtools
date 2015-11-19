@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # make it part of core , get data by group ... should be used by stats, generalise ...
     data_dict, filter_dict, max_cov, cov_libs = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, label_d)
     plotObj = BtPlot.PlotObj(data_dict, filter_dict, cov_libs)
-    plotObj.exclude_groups = list(exclude_groups)
+    plotObj.exclude_groups = exclude_groups
     plotObj.max_cov = max_cov
     plotObj.title = title
     plotObj.multiplot = multiplot
