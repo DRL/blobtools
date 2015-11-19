@@ -188,12 +188,15 @@ def readCas(infile, order_of_blobs):
             cas_line_match = cas_line_re.search(line)
             if cas_line_match:
                 idx = int(cas_line_match.group(1)) - 1 # -1 because index of contig list starts with zero 
-                name = order_of_blobs[idx]
-                reads = int(cas_line_match.group(3))
-                cov = float(cas_line_match.group(6))
-                cov_dict[name] = cov
-                read_cov_dict[name] = reads
-                seqs_parsed += 1
+                try:
+                    name = order_of_blobs[idx]
+                    reads = int(cas_line_match.group(3))
+                    cov = float(cas_line_match.group(6))
+                    cov_dict[name] = cov
+                    read_cov_dict[name] = reads
+                    seqs_parsed += 1
+                except:
+                    pass
             BtLog.progress(seqs_parsed, progress_unit, seqs_total)
         BtLog.progress(seqs_total, progress_unit, seqs_total)
     return cov_dict, reads_total, reads_mapped, read_cov_dict
