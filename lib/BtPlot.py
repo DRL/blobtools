@@ -212,8 +212,8 @@ class PlotObj():
                 stats[label]['count_visible'] += self.count_visible[group]
                 stats[label]['span_visible'] += self.span_visible[group]
                 for cov_lib in self.cov_libs:
-                    stats[label][cov_lib]['covs'] += self.data_dict[group]['covs'][cov_lib]
-                    stats[label][cov_lib]['reads_mapping'] += self.data_dict[group]['reads_mapping'][cov_lib]
+                    stats[label]['covs'][cov_lib] += self.data_dict[group]['covs'][cov_lib]
+                    stats[label]['reads_mapping'][cov_lib] += self.data_dict[group]['reads_mapping'][cov_lib]
 
         for label in stats:
             stats[label]['gc_mean'] = mean(array(stats[label]['gc']))
