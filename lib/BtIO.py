@@ -172,7 +172,7 @@ def checkCas(infile):
     mapped_reads = int(reads_mapping_re.search(output).group(1))
     mapping_rate = float(reads_mapping_re.search(output).group(2))
     reads_total = int(reads_total_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(mapping_rate))
+    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{:%}'.format(mapping_rate))
     return seqs_total, reads_total, mapped_reads
 
 def readCas(infile, order_of_blobs):
@@ -193,7 +193,7 @@ def readCas(infile, order_of_blobs):
                 cov_dict[name] = cov
                 read_cov_dict[name] = reads
                 seqs_parsed += 1
-            BtLog.progress(parsed_seqs, progress_unit, seqs_total)
+            BtLog.progress(seqs_parsed, progress_unit, seqs_total)
         BtLog.progress(seqs_total, progress_unit, seqs_total)
     return cov_dict, reads_total, reads_mapped, read_cov_dict
 
