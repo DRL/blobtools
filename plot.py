@@ -5,7 +5,7 @@
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
                             [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
                             [--colours FILE] [--include FILE] [--exclude FILE]
-                            [-h|--help] 
+                            [--format FORMAT] [-h|--help] 
 
     Options:
         -h --help                   show this
@@ -35,6 +35,7 @@
         --colours COLOURFILE        File containing colours for (taxonomic) groups
         --exclude GROUPS..          Place these (taxonomic) groups in 'other',
                                      e.g. "Actinobacteria,Proteobacteria"
+        --format FORMAT             Figure format for plot (png, pdf)
 """
 
 from __future__ import division
@@ -66,7 +67,8 @@ if __name__ == '__main__':
     ignore_contig_length = args['--noscale']
     labels = args['--label']
     colour_f = args['--colours']
-    exclude_groups = args['--exclude'] 
+    exclude_groups = args['--exclude']
+    format = args['--format'] 
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -114,6 +116,7 @@ if __name__ == '__main__':
     data_dict, filter_dict, max_cov, cov_libs = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, label_d)
     plotObj = BtPlot.PlotObj(data_dict, filter_dict, cov_libs)
     plotObj.exclude_groups = exclude_groups
+    plotObj.format = format
     plotObj.max_cov = max_cov
     plotObj.title = title
     plotObj.multiplot = multiplot
@@ -146,3 +149,4 @@ if __name__ == '__main__':
         plotObj.out_f = out_f
         plotObj.plot(cov_lib, info_flag)
         info_flag = 0
+    plotObj.writePlotSummaryTable()

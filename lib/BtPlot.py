@@ -29,9 +29,8 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "Set1" # "Set1"
+COLOURMAP = "Set2" # "Set1"
 BLACK, GREY, BGGREY, WHITE = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff')
-FIGFORMAT = 'png'
 nullfmt = NullFormatter()
 
 def n50(list_of_lengths):
@@ -78,54 +77,6 @@ def generateColourDict(colour_groups):
         colour_d['None'] = GREY
     colour_d['other'] = WHITE
     return colour_d
-
-#def getMinMaxCov(cov_arrays):
-#    max_cov, min_cov = 100.00, 100.00
-#    for cov_lib in cov_arrays:
-#        lib_max_cov, lib_min_cov = amax(cov_arrays[cov_lib].astype(float)), amin(cov_arrays[cov_lib].astype(float))
-#        if lib_max_cov > max_cov:
-#            max_cov = lib_max_cov
-#        if lib_min_cov < min_cov:
-#            min_cov = lib_min_cov
-#    return min_cov, max_cov
-
-#def getSumCov(cov_arrays):
-#    arrays = [cov_array for cov_array in cov_arrays.values()]
-#    sum_array = np.sum(arrays, axis=0)
-#    cov_arrays['sum'] = sum_array
-#    return cov_arrays
-
-def getSummaryTable(summary_dict, plot_order):
-    table_data = []
-    for group in sorted(summary_dict, key = lambda x : summary_dict[x]['span_visible'], reverse=True):
-        count_total = 0
-        count_visible_perc = ''
-        span_total = 0
-        span_visible_perc = ''
-        if group in plot_order:
-            count_total = summary_dict[group]['count_total']
-            count_visible_perc = '{0:.1%}'.format(summary_dict[group]['count_visible']/count_total)
-            span_total = summary_dict[group]['span_total']
-            span_visible_perc = '{0:.1%}'.format(summary_dict[group]['span_visible']/span_total)
-        else:
-            count_total = summary_dict[group]['count_total']
-            count_visible_perc = '{0:.1%}'.format(0.0)
-            span_total = summary_dict[group]['span_total']
-            span_visible_perc = '{0:.1%}'.format(0.0)
-        table_data.append({
-                    'name' : group, 
-                    'count_total' : "{:,}".format(count_total), 
-                    'count_visible_perc' : count_visible_perc, 
-                    'span_total' : "{:,}".format(span_total), 
-                    'span_visible_perc' : span_visible_perc})
-    return table_data
-
-def writeTableData(table_data, out_f):
-    out_f = "%s.txt" % out_f
-    with open(out_f,'w') as fh:
-        fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group"))
-        for d in table_data:
-            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'] ))
 
 def set_canvas():
     left, width = 0.1, 0.60
@@ -280,8 +231,25 @@ class PlotObj():
             else:
                 self.labels[group] = 'other'
                 self.colours[group] = colour_dict['other'] 
-        print self.colours
+        self.colours['other'] = colour_dict['other'] 
         self.plot_order.append('other')
+
+    def writePlotSummaryTable(self):
+        table_data = []
+        for group in sorted(self.span_visible, key = lambda x : self.span_visible[x], reverse=True):
+            table_data.append({
+                        'name' : group, 
+                        'count_total' : "{:,}".format(self.count[group]), 
+                        'count_visible_perc' : '{0:.1%}'.format(self.count_visible[group]/self.count[group]), 
+                        'span_total' : "{:,}".format(self.span[group]), 
+                        'span_visible_perc' : '{0:.1%}'.format(self.span_visible[group]/self.span[group])
+                        })
+        
+        out_f = "%s.txt" % self.out_f
+        with open(out_f,'w') as fh:
+            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group"))
+            for d in table_data:
+                fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'] ))
 
     def plot(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
@@ -319,12 +287,8 @@ class PlotObj():
         legend_labels = []
         # counter necessary for multiplot so that PNGs are in order when sorted by name
         i = 0
-        # initiate variables for plotting
-        s, lw, alpha, color = 0, 0, 0, ''
         for group in self.plot_order:
-            #if (summary_dict[group]['count_visible']):
             i += 1
-            # create np_arrays for length, gc and cov for all contigs in phylum 
             group_length_array = np.array(self.data_dict[group]['length'])
             group_gc_array = np.array(self.data_dict[group]['gc'])
             group_cov_array = np.array(self.data_dict[group]['covs'][cov_lib])
@@ -332,7 +296,6 @@ class PlotObj():
             group_span_in_mb = round(self.span_visible[group]/1000000, 2)
             group_number_of_seqs = self.count_visible[group]
             group_n50 = self.n50[group]
-            # set variables for plotting
             blob_size_array = []
             s, lw, alpha, colour = 15, 0.5, 1, self.colours[group]
             if (self.ignore_contig_length):
@@ -364,18 +327,18 @@ class PlotObj():
             if (self.multiplot): 
                 axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
                 plot_ref_legend(axScatter)
-                m_out_f = "%s.%s.%s.png" % (self.out_f, i, group)
+                m_out_f = "%s.%s.%s.%s" % (self.out_f, i, group, self.format)
                 print BtLog.status_d['8'] % m_out_f
-                plt.savefig(m_out_f, format="png")
+                plt.savefig(m_out_f, format=self.format)
         if not (self.ignore_contig_length):
             plot_ref_legend(axScatter)
         axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
         #table_data = getSummaryTable(summary_dict, plot_order)
         # writing data table for plot
         #writeTableData(table_data, out_f)
-        self.out_f = "%s.png" % self.out_f
+        self.out_f = "%s.%s" % (self.out_f, self.format)
         print BtLog.status_d['8'] % self.out_f
-        plt.savefig(self.out_f, format="png") 
+        plt.savefig(self.out_f, format=self.format) 
         plt.close()  
     
     
