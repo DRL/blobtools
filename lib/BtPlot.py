@@ -30,7 +30,7 @@ mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
 COLOURMAP = "Set1" # "Set1"
-BLACK, GREY, BGGREY, WHITE = '#262626', '#d3d3d3', '#F0F0F5', '#ffffff'
+BLACK, GREY, BGGREY, WHITE = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff')
 FIGFORMAT = 'png'
 nullfmt = NullFormatter()
 
@@ -282,7 +282,7 @@ class PlotObj():
                 self.colours[group] = colour_dict['other'] 
         self.plot_order.append('other')
 
-    def plot(cov_lib, info_flag):
+    def plot(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
         # Setting up plots and axes
         plt.figure(1, figsize=(35,35), dpi=400)
