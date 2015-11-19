@@ -77,7 +77,6 @@ def generateColourDict(colour_groups):
     if 'None' in colour_groups: 
         colour_d['None'] = GREY
     colour_d['other'] = WHITE
-    print colour_d
     return colour_d
 
 #def getMinMaxCov(cov_arrays):
@@ -283,100 +282,100 @@ class PlotObj():
                 self.colours[group] = colour_dict['other'] 
         self.plot_order.append('other')
 
-def plot(plotObj, cov_lib, info_flag):
-    rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
-    # Setting up plots and axes
-    plt.figure(1, figsize=(35,35), dpi=400)
-    axScatter = plt.axes(rect_scatter, axisbg=BGGREY, yscale = 'log')
-    axScatter = set_format_scatterplot(axScatter, plotObj.max_cov)
-    axHistx = plt.axes(rect_histx, axisbg=BGGREY)
-    axHistx = set_format_hist_x(axHistx, axScatter)
-    axHisty = plt.axes(rect_histy, axisbg=BGGREY)
-    axHisty = set_format_hist_y(axHisty, axScatter)
-    if plotObj.hist_type == "span":
-        axHistx.set_ylabel("Span (kb)")
-        axHisty.set_xlabel("Span (kb)", rotation='horizontal')
-    else:
-        axHistx.set_ylabel("Count")
-        axHisty.set_xlabel("Count", rotation='horizontal')    
-    axScatter.yaxis.get_major_ticks()[0].label1.set_visible(False)
-    axScatter.yaxis.get_major_ticks()[1].label1.set_visible(False)
-    for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram 
-        xtick.set_rotation(270)
-    axLegend = plt.axes(rect_legend, axisbg=WHITE)
-    axLegend.xaxis.set_major_locator(plt.NullLocator())
-    axLegend.xaxis.set_major_formatter(nullfmt)
-    axLegend.yaxis.set_major_locator(plt.NullLocator())
-    axLegend.yaxis.set_major_formatter(nullfmt)
-    # Setting title
-    if (plotObj.title):
-        plt.suptitle(plotObj.title, fontsize=35, verticalalignment='top')
-    # Setting bins for histograms
-    top_bins = arange(0, 1, 0.01)
-    right_bins = logspace(-2, (int(math.log(plotObj.max_cov)) + 1), 200, base=10.0)
-    # empty handles for big legend
-    legend_handles = []
-    legend_labels = []
-    # counter necessary for multiplot so that PNGs are in order when sorted by name
-    i = 0
-    # initiate variables for plotting
-    s, lw, alpha, color = 0, 0, 0, ''
-    for group in plotObj.plot_order:
-        #if (summary_dict[group]['count_visible']):
-        i += 1
-        # create np_arrays for length, gc and cov for all contigs in phylum 
-        group_length_array = np.array(plotObj.data_dict[group]['length'])
-        group_gc_array = np.array(plotObj.data_dict[group]['gc'])
-        group_cov_array = np.array(plotObj.data_dict[group]['covs'][cov_lib])
-        # calculate values for legend
-        group_span_in_mb = round(plotObj.span_visible[group]/1000000, 2)
-        group_number_of_seqs = plotObj.count_visible[group]
-        group_n50 = plotObj.n50[group]
-        # set variables for plotting
-        blob_size_array = []
-        s, lw, alpha, colour = 15, 0.5, 1, plotObj.colours[group]
-        if (plotObj.ignore_contig_length):
-            if not group == "no-hit":
-                s = 65
-            blob_size_array = [s for length in group_length_array]
+    def plot(cov_lib, info_flag):
+        rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
+        # Setting up plots and axes
+        plt.figure(1, figsize=(35,35), dpi=400)
+        axScatter = plt.axes(rect_scatter, axisbg=BGGREY, yscale = 'log')
+        axScatter = set_format_scatterplot(axScatter, self.max_cov)
+        axHistx = plt.axes(rect_histx, axisbg=BGGREY)
+        axHistx = set_format_hist_x(axHistx, axScatter)
+        axHisty = plt.axes(rect_histy, axisbg=BGGREY)
+        axHisty = set_format_hist_y(axHisty, axScatter)
+        if self.hist_type == "span":
+            axHistx.set_ylabel("Span (kb)")
+            axHisty.set_xlabel("Span (kb)", rotation='horizontal')
         else:
-            blob_size_array = [length/s for length in group_length_array]
-        if group == "no-hit":
-            alpha = 0.5
-        weights_array = group_length_array/1000
-        # generate label for legend
-        fmt_seqs = "{:,}".format(group_number_of_seqs)
-        fmt_span = "{:,}".format(group_span_in_mb)
-        fmt_n50 = "{:,}".format(group_n50)
-        label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
-        if (info_flag):
-            print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
-        legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
-        legend_labels.append(label)
-        if (plotObj.hist_type == "span"):
-            axHistx.hist(group_gc_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-            axHisty.hist(group_cov_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-        else:           
-            axHistx.hist(group_gc_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-            axHisty.hist(group_cov_array , color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-        axScatter.scatter(group_gc_array, group_cov_array, color = colour, s = blob_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
-        axLegend.axis('off')
-        if (plotObj.multiplot): 
-            axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
+            axHistx.set_ylabel("Count")
+            axHisty.set_xlabel("Count", rotation='horizontal')    
+        axScatter.yaxis.get_major_ticks()[0].label1.set_visible(False)
+        axScatter.yaxis.get_major_ticks()[1].label1.set_visible(False)
+        for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram 
+            xtick.set_rotation(270)
+        axLegend = plt.axes(rect_legend, axisbg=WHITE)
+        axLegend.xaxis.set_major_locator(plt.NullLocator())
+        axLegend.xaxis.set_major_formatter(nullfmt)
+        axLegend.yaxis.set_major_locator(plt.NullLocator())
+        axLegend.yaxis.set_major_formatter(nullfmt)
+        # Setting title
+        if (self.title):
+            plt.suptitle(self.title, fontsize=35, verticalalignment='top')
+        # Setting bins for histograms
+        top_bins = arange(0, 1, 0.01)
+        right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+        # empty handles for big legend
+        legend_handles = []
+        legend_labels = []
+        # counter necessary for multiplot so that PNGs are in order when sorted by name
+        i = 0
+        # initiate variables for plotting
+        s, lw, alpha, color = 0, 0, 0, ''
+        for group in self.plot_order:
+            #if (summary_dict[group]['count_visible']):
+            i += 1
+            # create np_arrays for length, gc and cov for all contigs in phylum 
+            group_length_array = np.array(self.data_dict[group]['length'])
+            group_gc_array = np.array(self.data_dict[group]['gc'])
+            group_cov_array = np.array(self.data_dict[group]['covs'][cov_lib])
+            # calculate values for legend
+            group_span_in_mb = round(self.span_visible[group]/1000000, 2)
+            group_number_of_seqs = self.count_visible[group]
+            group_n50 = self.n50[group]
+            # set variables for plotting
+            blob_size_array = []
+            s, lw, alpha, colour = 15, 0.5, 1, self.colours[group]
+            if (self.ignore_contig_length):
+                if not group == "no-hit":
+                    s = 65
+                blob_size_array = [s for length in group_length_array]
+            else:
+                blob_size_array = [length/s for length in group_length_array]
+            if group == "no-hit":
+                alpha = 0.5
+            weights_array = group_length_array/1000
+            # generate label for legend
+            fmt_seqs = "{:,}".format(group_number_of_seqs)
+            fmt_span = "{:,}".format(group_span_in_mb)
+            fmt_n50 = "{:,}".format(group_n50)
+            label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
+            if (info_flag):
+                print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
+            legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
+            legend_labels.append(label)
+            if (self.hist_type == "span"):
+                axHistx.hist(group_gc_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
+                axHisty.hist(group_cov_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
+            else:           
+                axHistx.hist(group_gc_array, color = colour, bins = top_bins, histtype='step', lw = 3)
+                axHisty.hist(group_cov_array , color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
+            axScatter.scatter(group_gc_array, group_cov_array, color = colour, s = blob_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
+            axLegend.axis('off')
+            if (self.multiplot): 
+                axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
+                plot_ref_legend(axScatter)
+                m_out_f = "%s.%s.%s.png" % (self.out_f, i, group)
+                print BtLog.status_d['8'] % m_out_f
+                plt.savefig(m_out_f, format="png")
+        if not (self.ignore_contig_length):
             plot_ref_legend(axScatter)
-            m_out_f = "%s.%s.%s.png" % (plotObj.out_f, i, group)
-            print BtLog.status_d['8'] % m_out_f
-            plt.savefig(m_out_f, format="png")
-    if not (plotObj.ignore_contig_length):
-        plot_ref_legend(axScatter)
-    axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-    #table_data = getSummaryTable(summary_dict, plot_order)
-    # writing data table for plot
-    #writeTableData(table_data, out_f)
-    plotObj.out_f = "%s.png" % plotObj.out_f
-    print BtLog.status_d['8'] % plotObj.out_f
-    plt.savefig(plotObj.out_f, format="png") 
-    plt.close()  
+        axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
+        #table_data = getSummaryTable(summary_dict, plot_order)
+        # writing data table for plot
+        #writeTableData(table_data, out_f)
+        self.out_f = "%s.png" % self.out_f
+        print BtLog.status_d['8'] % self.out_f
+        plt.savefig(self.out_f, format="png") 
+        plt.close()  
     
     
 

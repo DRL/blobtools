@@ -144,5 +144,5 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in label_d.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
-        BtPlot.plot(plotObj, cov_lib, info_flag)
+        plotObj.plot(cov_lib, info_flag)
         info_flag = 0
