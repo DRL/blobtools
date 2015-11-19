@@ -137,7 +137,7 @@ def parse_labels(labels):
 class PlotObj():
     def __init__(self, data_dict, cov_libs):
         self.labels = set()
-        self.group_labels = {group : set() for group in data_dict.keys()}
+        self.group_labels = {}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
         self.count = {group : data_dict[group]['count'] for group in data_dict.keys()}
