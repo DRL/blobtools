@@ -236,23 +236,23 @@ class PlotObj():
         for idx, group in enumerate(self.group_order):
             if (user_labels):
                 if group in user_labels:
-                    self.labels[group].add(user_labels[group])
+                    self.labels[group].update(user_labels[group])
                     self.colours[group] = colour_dict[group]
             elif (self.exclude_groups):
                 if group in self.exclude_groups:
-                    self.labels[group].add('other')
+                    self.labels[group].update('other')
                     self.colours[group] = colour_dict['other']     
             elif group in colour_dict:
-                self.labels[group].add(group)
+                self.labels[group].update(group)
                 self.colours[group] = colour_dict[group] 
                 self.plot_order.append(group)
             elif idx > self.max_group_plot:
-                self.labels[group].add('other')
+                self.labels[group].update('other')
                 self.colours[group] = colour_dict['other'] 
             else:
-                self.labels[group].add('other')
+                self.labels[group].update('other')
                 self.colours[group] = colour_dict['other'] 
-            self.labels[group].add('all')
+            self.labels[group].update('all')
         self.colours['other'] = colour_dict['other'] 
         self.plot_order.append('other')
 
