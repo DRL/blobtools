@@ -50,7 +50,6 @@ from os.path import dirname, isfile
 if __name__ == '__main__':
     TAXRULES = ['bestsum', 'bestsumorder']
     RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
-    main_labels = {'all', 'other'}
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
@@ -127,14 +126,15 @@ if __name__ == '__main__':
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
     print "Group order : ", plotObj.group_order 
-    plotObj.labels.update(main_labels, plotObj.group_order)
-    print "labels : ", plotObj.labels
+    plotObj.labels.update('all', plotObj.group_order)
+    if len(plotObj.group_order) > plotObj.max_group_plot:
+        plotObj.labels.update('other')
     if user_labels:
         plotObj.labels.update(user_labels.keys())
-        print "labels + user labels : ", plotObj.labels
+    print "labels : ", plotObj.labels
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     print "Empty group labels : ", plotObj.group_labels
-    plotObj.relabel_and_colour(colour_f, main_labels, user_labels)
+    plotObj.relabel_and_colour(colour_f)
     print "Relabeled group labels : ", plotObj.group_labels
     plotObj.compute_stats()
 
