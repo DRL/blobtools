@@ -128,9 +128,9 @@ if __name__ == '__main__':
     print "Group order : ", plotObj.group_order 
     plotObj.labels.update('all', plotObj.group_order)
     if len(plotObj.group_order) > plotObj.max_group_plot:
-        plotObj.labels.update('other')
+        plotObj.labels.add('other')
     if user_labels:
-        plotObj.labels.update(user_labels.keys())
+        plotObj.labels.add(user_labels.keys())
     print "labels : ", plotObj.labels
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     print "Empty group labels : ", plotObj.group_labels
