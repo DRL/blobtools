@@ -228,7 +228,7 @@ class PlotObj():
         for label in stats:
             print label, stats[label]
     
-    def relabel_and_colour(self, colour_f, main_labels, user_labels):
+    def relabel_and_colour(self, colour_f, user_labels):
         if (colour_f):
             colour_dict = BtIO.parseColourDict(colour_f)
         else:

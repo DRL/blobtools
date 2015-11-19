@@ -134,7 +134,7 @@ if __name__ == '__main__':
     print "labels : ", plotObj.labels
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     print "Empty group labels : ", plotObj.group_labels
-    plotObj.relabel_and_colour(colour_f)
+    plotObj.relabel_and_colour(colour_f, user_labels)
     print "Relabeled group labels : ", plotObj.group_labels
     plotObj.compute_stats()
 
