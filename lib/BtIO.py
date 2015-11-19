@@ -62,23 +62,23 @@ def checkBam(infile):
     print BtLog.status_d['10']
     if not (which('samtools')):
         BtLog.error('7')
-    mapped_reads_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
+    reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
     total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
-    total_reads, mapped_reads = 0, 0
+    total_reads, reads_mapped = 0, 0
     output = ''
     command = "samtools flagstat " + infile
     for line in runCmd(command):
         output += line
-    mapped_reads = int(mapped_reads_re.search(output).group(1))
+    reads_mapped = int(reads_mapped_re.search(output).group(1))
     total_reads = int(total_reads_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(total_reads), '{0:.1%}'.format(mapped_reads/total_reads))
-    return total_reads, mapped_reads
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(total_reads), '{0:.1%}'.format(reads_mapped/total_reads))
+    return total_reads, reads_mapped
 
 def readSam(infile, set_of_blobs):
     base_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
     total_reads = 0
-    mapped_reads = 0
+    reads_mapped = 0
     with open(infile) as fh:
         for line in fh:
             match = line.split("\t")
@@ -90,13 +90,13 @@ def readSam(infile, set_of_blobs):
                         print BtLog.warn_d['2'] % (seq_name, infile)
                     base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
                     if (base_cov):
-                        mapped_reads += 1
+                        reads_mapped += 1
                         base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
                         read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
-    return base_cov_dict, total_reads, mapped_reads, read_cov_dict        
+    return base_cov_dict, total_reads, reads_mapped, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
-    total_reads, mapped_reads = checkBam(infile)
+    total_reads, reads_mapped = checkBam(infile)
     progress_unit = int(int(total_reads)/1000)
     base_cov_dict = {}
     read_cov_dict = {}
@@ -119,8 +119,8 @@ def readBam(infile, set_of_blobs):
                     read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
         BtLog.progress(parsed_reads, progress_unit, total_reads)
     BtLog.progress(total_reads, progress_unit, total_reads)
-    if not int(mapped_reads) == int(parsed_reads):
-        print warn_d['3'] % (mapped_reads, parsed_reads)
+    if not int(reads_mapped) == int(parsed_reads):
+        print warn_d['3'] % (reads_mapped, parsed_reads)
     return base_cov_dict, total_reads, parsed_reads, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header ):
@@ -170,10 +170,10 @@ def checkCas(infile):
     for line in runCmd(command):
         output += line
     seqs_total = int(seqs_total_re.search(output).group(1))
-    mapped_reads = int(reads_mapping_re.search(output).group(1))
+    reads_mapped = int(reads_mapping_re.search(output).group(1))
     reads_total = int(reads_total_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
-    return seqs_total, reads_total, mapped_reads
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    return seqs_total, reads_total, reads_mapped
 
 def readCas(infile, order_of_blobs):
     seqs_total, reads_total, reads_mapped = checkCas(infile)
