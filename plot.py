@@ -126,7 +126,7 @@ if __name__ == '__main__':
     plotObj.ignore_contig_length = ignore_contig_length
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
-    plotObj.labels.add(main_labels, user_labels, plotObj.group_order.keys())
+    plotObj.labels.add(main_labels, user_labels, plotObj.group_order)
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     plotObj.relabel_and_colour(colour_f, main_labels, user_labels)
     plotObj.compute_stats()
