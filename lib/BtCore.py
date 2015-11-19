@@ -120,22 +120,9 @@ class BlobDb():
         read_cov_dict = {}
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
+        cov_libs_total_reads = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
         if len(cov_libs) > 1:
             cov_libs.append('sum')
-
-        data_structure = {
-                            'name' : [], 
-                            'length' : [], 
-                            'gc' : [], 
-                            'covs' : {covLib : [] for covLib in cov_libs}, 
-                            'reads_mapped' : {covLib : 0 for covLib in cov_libs},
-                            'count' : 0,
-                            'count_hidden' : 0,
-                            'count_visible' : 0,
-                            'span': 0, 
-                            'span_hidden' : 0, 
-                            'span_visible' : 0,
-                            }
 
         for blob in self.dict_of_blobs.values():
             name, gc, length, group = blob['name'], blob['gc'], blob['length'], ''
@@ -143,10 +130,22 @@ class BlobDb():
             if (c_index): # annotation with c_index instead of taxonomic group 
                 group = str(blob['taxonomy'][taxrule][rank]['c_index'])
             else: # annotation with taxonomic group
-                group = blob['taxonomy'][taxrule][rank]['tax']
-
+                group = str(blob['taxonomy'][taxrule][rank]['tax'])
+            
             if not group in data_dict: 
-                data_dict[group] = data_structure
+                data_dict[group] = {
+                                    'name' : [], 
+                                    'length' : [], 
+                                    'gc' : [], 
+                                    'covs' : {covLib : [] for covLib in cov_libs}, 
+                                    'reads_mapped' : {covLib : 0 for covLib in cov_libs},
+                                    'count' : 0,
+                                    'count_hidden' : 0,
+                                    'count_visible' : 0,
+                                    'span': 0, 
+                                    'span_hidden' : 0, 
+                                    'span_visible' : 0,
+                                    }
 
             if ((hide_nohits) and group == 'no-hit') or length < min_length: # hidden
                 data_dict[group]['count_hidden'] = data_dict[group].get('count_hidden', 0) + 1
@@ -181,7 +180,7 @@ class BlobDb():
             data_dict[group]['count'] = data_dict[group].get('count', 0) + 1
             data_dict[group]['span'] = data_dict[group].get('span', 0) + int(length)
 
-        return data_dict, max_cov, cov_libs
+        return data_dict, max_cov, cov_libs, cov_libs_total_reads
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib

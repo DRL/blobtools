@@ -114,8 +114,8 @@ if __name__ == '__main__':
 
     # Get arrays and filter_dict (filter_dict lists, span/count passing filter) for those groups passing min_length, rank, hide_nohits ...
     # make it part of core , get data by group ... should be used by stats, generalise ...
-    data_dict, max_cov, cov_libs = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index)
-    plotObj = BtPlot.PlotObj(data_dict, cov_libs)
+    data_dict, max_cov, cov_libs, cov_libs_total_reads = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index)
+    plotObj = BtPlot.PlotObj(data_dict, cov_libs, cov_libs_total_reads)
     plotObj.exclude_groups = exclude_groups
     plotObj.format = format
     plotObj.max_cov = max_cov
@@ -125,23 +125,20 @@ if __name__ == '__main__':
     plotObj.ignore_contig_length = ignore_contig_length
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
-    print "Group order : ", plotObj.group_order 
     plotObj.labels.update(plotObj.group_order)
-    if len(plotObj.group_order) > plotObj.max_group_plot:
-        plotObj.labels.add('other')
-    if user_labels:
-        plotObj.labels.add(user_labels.keys())
-    print "labels : ", plotObj.labels
+    #if len(plotObj.group_order) > plotObj.max_group_plot:
+    #    plotObj.labels.add('other')
+    if (user_labels):
+        for group, label in user_labels.items():
+            plotObj.labels.add(label)
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
-    print "Empty group labels : ", plotObj.group_labels
     plotObj.relabel_and_colour(colour_f, user_labels)
-    print "Relabeled group labels : ", plotObj.group_labels
     plotObj.compute_stats()
 
     info_flag = 1
     
     for cov_lib in plotObj.cov_libs:
-        out_f = "%s.%s.%s.p%s" % (title, cov_lib, hist_type, max_group_plot)
+        out_f = "%s.%s.%s.%s.p%s" % (title, cov_lib, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
         if c_index:
@@ -154,5 +151,5 @@ if __name__ == '__main__':
         plotObj.out_f = out_f
         plotObj.plotBlobs(cov_lib, info_flag)
         info_flag = 0
-    plotObj.writePlotSummaryTable()
-    plotObj.plotReadCov()
+    plotObj.write_stats()
+    #plotObj.plotReadCov()
