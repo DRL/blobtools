@@ -142,6 +142,7 @@ def readCov(infile, set_of_blobs):
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     cov_dict = {}
     seqs_parsed = 0
+    progress_unit = int(len(set_of_blobs)/10)
     with open(infile) as fh:
         for line in fh:
             BtLog.progress(i, 10, len(set_of_blobs))
@@ -172,11 +173,12 @@ def checkCas(infile):
     mapped_reads = int(reads_mapping_re.search(output).group(1))
     mapping_rate = float(reads_mapping_re.search(output).group(2))
     reads_total = int(reads_total_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), '{:%}'.format(mapping_rate))
+    print BtLog.status_d['11'] % ('{:,}'.format(mapped_reads), '{:,}'.format(reads_total), (mapping_rate))
     return seqs_total, reads_total, mapped_reads
 
 def readCas(infile, order_of_blobs):
     seqs_total, reads_total, reads_mapped = checkCas(infile)
+    progress_unit = int(len(order_of_blobs)/10)
     cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
     command = "clc_mapping_info -n " + infile
     cov_dict = {}
