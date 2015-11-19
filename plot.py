@@ -126,7 +126,7 @@ if __name__ == '__main__':
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
     print "Group order : ", plotObj.group_order 
-    plotObj.labels.add(plotObj.group_order)
+    plotObj.labels.update(plotObj.group_order)
     if len(plotObj.group_order) > plotObj.max_group_plot:
         plotObj.labels.add('other')
     if user_labels:
