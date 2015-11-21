@@ -300,8 +300,15 @@ class PlotObj():
     def plotReadCov(self):
         for cov_lib in self.read_cov:
             if not self.read_cov[cov_lib]['total'] == 0:
+                labels = ['all']
+                perc_mapped = []
                 reads_total = self.read_cov[cov_lib]['total']
-                reads_mapped = self.read_cov[cov_lib]['mapped']
+                reads_mapped_total = self.read_cov[cov_lib]['mapped']
+                for group in self.plot_order:
+                    labels.append(group)
+                perc_mapped = [stats[group]['reads_mapped'][cov_lib] for label in labels]
+                print labels
+                print perc_mapped
                 # generate counts of reads mapped by group ...
                 
     def plotBlobs(self, cov_lib, info_flag):

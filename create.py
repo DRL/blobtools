@@ -27,7 +27,7 @@
         -s, --sam <SAM>...          SAM file
         -a, --cas <CAS>...          CAS file (requires clc_mapping_info in $PATH)
         -c, --cov <COV>...          TAB separated. (seqID\\tcoverage)
-        -o, --out <OUT>             BlobDB output file [default: blobDb.json]
+        -o, --out <OUT>             BlobDB output prefix 
         --title TITLE               Title of BlobDB [default: FASTA)  
 """
 
@@ -55,6 +55,10 @@ if __name__ == '__main__':
     hit_fs = args['--taxfile']
 
     out_f = args['--out']
+    if (out_f):
+        out_f = "%s.%s" % (out_f, ".BlobDB.json")
+    else:
+        out_f = "%s" % ("BlobDB.json")
     nodesDB_f = args['--db']
     names_f = args['--names']
     nodes_f = args['--nodes']
