@@ -279,25 +279,6 @@ class PlotObj():
         if 'other' in self.labels:
             self.plot_order.append('other')
 
-    #def writePlotSummaryTable(self):
-    #    table_data = []
-    #    for group in self.group_order:
-    #        table_data.append({
-    #                    'name' : group, 
-    #                    'label' : self.labels[group],
-    #                    'count_total' : "{:,}".format(self.count[group]), 
-    #                    'count_visible_perc' : '{0:.1%}'.format(self.count_visible[group]/self.count[group]), 
-    #                    'span_total' : "{:,}".format(self.span[group]), 
-    #                    'span_visible_perc' : '{0:.1%}'.format(self.span_visible[group]/self.span[group]),
-    #                    'colour' : self.colours[group]
-    #                    })
-    #    
-    #    out_f = "%s.plot.txt" % self.out_f
-    #    with open(out_f,'w') as fh:
-    #        fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format("COUNT", "visible (%)", "SPAN (nt)", "visible (%)", "group", "label", "colour"))
-    #        for d in table_data:
-    #            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
-
     def plotReadCov(self):
         for cov_lib in self.cov_libs:
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
@@ -306,11 +287,11 @@ class PlotObj():
                 for group in self.plot_order:
                     labels.append(group)
                 perc_mapped = [self.stats[label]['reads_mapped'][cov_lib] for label in labels]
-                reads_total = self.read_cov[cov_lib]['total']
-                reads_mapped_total = self.read_cov[cov_lib]['mapped']
-                reads_unmapped = reads_total - reads_mapped_total
+                reads_total = self.cov_libs_total_reads_dict[cov_lib]
+                reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
+                
                 x_pos = np.arange(len(labels))
                 plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
                 plt.xticks(x_pos, labels)

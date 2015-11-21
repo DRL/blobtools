@@ -5,7 +5,8 @@
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
                             [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
                             [--colours FILE] [--include FILE] [--exclude FILE]
-                            [--format FORMAT] [-h|--help] 
+                            [--format FORMAT] [--blobs BOOL] [--reads BOOL]
+                            [-h|--help] 
 
     Options:
         -h --help                   show this
@@ -37,6 +38,8 @@
                                      e.g. "Actinobacteria,Proteobacteria"
         --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
                                         ps, svg, svgz, tiff) [default: png]
+        --blobs BOOL                make blobplot [default: True]
+        --reads BOOL                make plot of reads mapping [default: True]
 """
 
 from __future__ import division
