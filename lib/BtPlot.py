@@ -324,8 +324,8 @@ class PlotObj():
             axarr[0].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
             axarr[1].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
             #rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 0.75, color = colours)
-            rects_0 = ax.barh(top_y_pos, top_perc_mapped, tick_label=top_labels, align='center', height = 0.75, color = top_colours)
-            rects_1 = ax.barh(bottom_y_pos, bottom_perc_mapped, tick_label=bottom_labels, align='center', height = 0.75, color = bottom_colours)
+            rects_0 = axarr[0].barh(top_y_pos, top_perc_mapped, tick_label=top_labels, align='center', height = 0.75, color = top_colours)
+            rects_1 = axarr[1].barh(bottom_y_pos, bottom_perc_mapped, tick_label=bottom_labels, align='center', height = 0.75, color = bottom_colours)
 
             #ax.set_ylabel("Allocation of reads")
             #ax.set_xlabel("Percent of reads")
