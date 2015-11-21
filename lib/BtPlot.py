@@ -302,21 +302,27 @@ class PlotObj():
             labels.append('unmapped')
             perc_mapped.append(100*reads_unmapped/reads_total)
             colours.append(BLACK)
-
             y_pos = arange(len(labels))
+            print perc_mapped
+            print labels
+            print y_pos
             fig = plt.figure(1, figsize=(30,10), dpi=200)
             ax = fig.add_subplot(111)
             ax.set_axis_bgcolor(BGGREY)
-            ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', color = colours)
+            rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 0.5, color = colours)
             ax.set_ylabel("Allocation of reads")
             ax.set_xlabel("Percent of reads")
             ax.set_title(self.title)
             ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
             
             bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            for patch, label in zip(ax.patches, bar_labels):
-                plt.text(patch.get_y() + patch.get_height() +5, patch.get_width()/2, label, ha='center', va='bottom')
-            
+            for rect, bar_label in izip(rects, bar_labels):
+                width = int(rect.get_width())
+                xloc = 1.02 *width
+                align = 'right'
+                yloc = rect.get_y() + rect.get_height()/2.0
+                ax.text(xloc, yloc, rankStr, horizontalalignment=align,
+                     verticalalignment='center', color=BLACK, weight='bold')
 
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f
