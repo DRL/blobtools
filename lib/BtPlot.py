@@ -282,20 +282,31 @@ class PlotObj():
     def plotReadCov(self):
         for cov_lib in self.cov_libs:
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
+                labels = []
                 perc_mapped = []
-                labels = ['all']
-                colours = [BLACK]
+                colours = []
+
+                # All
+                labels.append('all')
+                perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
+                colours.append(BLACK)
+
+                # Plotted groups
                 for group in self.plot_order:
                     labels.append(group)
+                    perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
                     colours.append(self.colours[group])
-                perc_mapped = [self.stats[label]['reads_mapped'][cov_lib] for label in labels]
                 
+                # unmapped
                 reads_total = self.cov_libs_total_reads_dict[cov_lib]
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
+                reads_unmapped_perc = reads_unmapped/reads_total
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
                 colours.append(BLACK)
 
+                plt.figure(1, figsize=(35,10), dpi=200)
+                plt.axes(axisbg=BGGREY)
                 x_pos = arange(len(labels))
                 plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
                 plt.xticks(x_pos, labels)
