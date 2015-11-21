@@ -307,13 +307,13 @@ class PlotObj():
             plt.axes(axisbg=BGGREY)
             plt.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
             x_pos = arange(len(labels))
-            plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
+            plt.bar(x_pos, perc_mapped, align='center', color = colours)
             plt.xticks(x_pos, labels, rotation=60)
             plt.ylabel("Percent of reads")
             plt.xlabel("Allocation of reads")
             plt.title(self.title)
             bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            for patch, label in zip(ax.patches, bar_labels):
+            for patch, label in zip(plt.patches, bar_labels):
                 plt.text(patch.get_x() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f
