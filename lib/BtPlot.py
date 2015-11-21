@@ -313,7 +313,7 @@ class PlotObj():
             plt.xlabel("Allocation of reads")
             plt.title(self.title)
             bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            for patch, label in zip(plt.patches, bar_labels):
+            for patch, label in zip(plt.axes.patches, bar_labels):
                 plt.text(patch.get_x() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f
