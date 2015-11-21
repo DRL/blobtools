@@ -315,7 +315,7 @@ class PlotObj():
             ax.set_title(self.title)
             ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
             ax_right = ax.twinx()
-            ax_right.set_yticks(pos)
+            ax_right.set_yticks(y_pos)
             y_right_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
             ax_right.set_yticklabels(y_right_labels)
             ax_right.set_ylim(ax.get_ylim())
