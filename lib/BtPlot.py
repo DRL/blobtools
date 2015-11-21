@@ -305,7 +305,7 @@ class PlotObj():
                 labels = ['all']
                 for group in self.plot_order:
                     labels.append(group)
-                perc_mapped = [stats[label]['reads_mapped'][cov_lib] for label in labels]
+                perc_mapped = [self.stats[label]['reads_mapped'][cov_lib] for label in labels]
                 reads_total = self.read_cov[cov_lib]['total']
                 reads_mapped_total = self.read_cov[cov_lib]['mapped']
                 reads_unmapped = reads_total - reads_mapped_total
@@ -318,10 +318,10 @@ class PlotObj():
                 plt.ylabel("Allocation of reads")
                 plt.title(self.title)
                 out_f = "%s.read_cov.%s" % (self.out_f, self.format)
+                print BtLog.status_d['8'] % m_out_f
                 plt.savefig(out_f, format=self.format)
                 print labels
                 print perc_mapped
-                # generate counts of reads mapped by group ...
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
