@@ -333,8 +333,8 @@ class PlotObj():
             
             axarr[1].set_xlabel("Percent of reads")
             axarr[0].set_title(self.title)
-            ax_right_0 = axarr[1].twin()
-            ax_right_1 = axarr[2].twin()
+            ax_right_0 = axarr[1].twiny()
+            ax_right_1 = axarr[2].twiny()
             ax_right_0.set_yticks(y_pos_top)
             ax_right_1.set_yticks(y_pos_bottom)
             
