@@ -154,6 +154,7 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in user_labels.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
+        print plot_blobs
         if (plot_blobs):
             plotObj.plotBlobs(cov_lib, info_flag)
         if (plot_reads):
