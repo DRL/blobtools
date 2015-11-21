@@ -291,8 +291,8 @@ class PlotObj():
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
-                
-                x_pos = np.arange(len(labels))
+
+                x_pos = arange(len(labels))
                 plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
                 plt.xticks(x_pos, labels)
                 plt.ylabel("Percent of reads")
