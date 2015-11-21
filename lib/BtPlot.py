@@ -133,12 +133,12 @@ def parse_labels(labels):
     return label_d
 
 class PlotObj():
-    def __init__(self, data_dict, cov_libs, cov_libs_total_reads):
+    def __init__(self, data_dict, cov_libs, cov_libs_total_reads_d):
         self.labels = {'all'}
         self.group_labels = {}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
-        self.cov_libs_total_reads = cov_libs_total_reads
+        self.cov_libs_total_reads = cov_libs_total_reads_d
         self.stats = {}
         self.exclude_groups = []
         self.colours = {}
@@ -299,7 +299,7 @@ class PlotObj():
 
     def plotReadCov(self):
         for cov_lib in self.cov_libs:
-            if not self.read_cov[cov_lib]['total'] == 0:
+            if not self.cov_libs_total_reads_d[cov_lib] == 0:
                 perc_mapped = []
                 labels = ['all']
                 for group in self.plot_order:
