@@ -298,7 +298,7 @@ class PlotObj():
     #            fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
 
     def plotReadCov(self):
-        for cov_lib in self.read_cov:
+        for cov_lib in self.cov_libs:
             if not self.read_cov[cov_lib]['total'] == 0:
                 perc_mapped = []
                 labels = ['all']
