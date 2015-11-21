@@ -29,7 +29,7 @@ mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
 COLOURMAP = "Set2" # "Set1"
-BLACK, GREY, BGGREY, WHITE = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff')
+BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#3B3B3B')
 nullfmt = NullFormatter()
 
 def n50(list_of_lengths):
@@ -303,7 +303,6 @@ class PlotObj():
             perc_mapped.append(100*reads_unmapped/reads_total)
             colours.append(BLACK)
 
-            yticks(xrange(10), rotation='vertical')
             plt.figure(1, figsize=(30,10), dpi=200)
             plt.axes(axisbg=BGGREY)
             plt.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
