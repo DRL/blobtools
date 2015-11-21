@@ -279,45 +279,43 @@ class PlotObj():
         if 'other' in self.labels:
             self.plot_order.append('other')
 
-    def plotReadCov(self):
-        for cov_lib in self.cov_libs:
-            if not self.cov_libs_total_reads_dict[cov_lib] == 0:
-                labels = []
-                perc_mapped = []
-                colours = []
+    def plotReadCov(self, cov_lib):
+        if not self.cov_libs_total_reads_dict[cov_lib] == 0:
+            labels = []
+            perc_mapped = []
+            colours = []
+            
+            # All
+            labels.append('all')
+            perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
+            colours.append(BLACK)
+            
+            # Plotted groups
+            for group in self.plot_order:
+                labels.append(group)
+                perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
+                colours.append(self.colours[group])
+            
+            # unmapped
+            reads_total = self.cov_libs_total_reads_dict[cov_lib]
+            reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
+            labels.append('unmapped')
+            perc_mapped.append(reads_unmapped/reads_total)
+            colours.append(BLACK)
 
-                # All
-                labels.append('all')
-                perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
-                colours.append(BLACK)
-
-                # Plotted groups
-                for group in self.plot_order:
-                    labels.append(group)
-                    perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
-                    colours.append(self.colours[group])
-                
-                # unmapped
-                reads_total = self.cov_libs_total_reads_dict[cov_lib]
-                reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-                reads_unmapped_perc = reads_unmapped/reads_total
-                labels.append('unmapped')
-                perc_mapped.append(reads_unmapped)
-                colours.append(BLACK)
-
-                plt.figure(1, figsize=(35,10), dpi=200)
-                plt.axes(axisbg=BGGREY)
-                x_pos = arange(len(labels))
-                plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
-                plt.xticks(x_pos, labels)
-                plt.ylabel("Percent of reads")
-                plt.ylabel("Allocation of reads")
-                plt.title(self.title)
-                out_f = "%s.read_cov.%s" % (self.out_f, self.format)
-                print BtLog.status_d['8'] % out_f
-                plt.savefig(out_f, format=self.format)
-                print labels
-                print perc_mapped
+            plt.figure(1, figsize=(35,10), dpi=200)
+            plt.axes(axisbg=BGGREY)
+            x_pos = arange(len(labels))
+            plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
+            plt.xticks(x_pos, labels)
+            plt.ylabel("Percent of reads")
+            plt.ylabel("Allocation of reads")
+            plt.title(self.title)
+            out_f = "%s.read_cov.%s" % (self.out_f, self.format)
+            print BtLog.status_d['8'] % out_f
+            plt.savefig(out_f, format=self.format)
+            print labels
+            print perc_mapped
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
@@ -395,13 +393,13 @@ class PlotObj():
             if (self.multiplot): 
                 axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
                 plot_ref_legend(axScatter)
-                m_out_f = "%s.%s.%s.%s" % (self.out_f, i, group, self.format)
+                m_out_f = "%s.%s.%s.blobs.%s" % (self.out_f, i, group, self.format)
                 print BtLog.status_d['8'] % m_out_f
                 plt.savefig(m_out_f, format=self.format)
         if not (self.ignore_contig_length):
             plot_ref_legend(axScatter)
         axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-        self.out_f = "%s.%s" % (self.out_f, self.format)
+        self.out_f = "%s.blobs.%s" % (self.out_f, self.format)
         print BtLog.status_d['8'] % self.out_f
         plt.savefig(self.out_f, format=self.format) 
         plt.close()  

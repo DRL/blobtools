@@ -73,6 +73,8 @@ if __name__ == '__main__':
     colour_f = args['--colours']
     exclude_groups = args['--exclude']
     format = args['--format'] 
+    plot_blobs = args['--blobs'] 
+    plot_reads = args['--reads'] 
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -139,9 +141,9 @@ if __name__ == '__main__':
     plotObj.compute_stats()
 
     info_flag = 1
-    
+
     for cov_lib in plotObj.cov_libs:
-        out_f = "%s.%s.%s.%s.p%s" % (title, cov_lib, hist_type, rank, max_group_plot)
+            out_f = "%s.%s.%s.%s.p%s" % (title, cov_lib, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
         if c_index:
@@ -152,7 +154,9 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in user_labels.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
-        #plotObj.plotBlobs(cov_lib, info_flag)
+        if (plot_blobs):
+            plotObj.plotBlobs(cov_lib, info_flag)
+        if (plot_reads):
+            plotObj.plotReadCov(cov_lib)
         info_flag = 0
-    #plotObj.write_stats()
-    plotObj.plotReadCov()
+    plotObj.write_stats()
