@@ -138,7 +138,7 @@ class PlotObj():
         self.group_labels = {}
         self.cov_libs = cov_libs
         self.data_dict = data_dict
-        self.cov_libs_total_reads = cov_libs_total_reads_d
+        self.cov_libs_total_reads_dict = cov_libs_total_reads_d
         self.stats = {}
         self.exclude_groups = []
         self.colours = {}
@@ -299,7 +299,7 @@ class PlotObj():
 
     def plotReadCov(self):
         for cov_lib in self.cov_libs:
-            if not self.cov_libs_total_reads_d[cov_lib] == 0:
+            if not self.cov_libs_total_reads_dict[cov_lib] == 0:
                 perc_mapped = []
                 labels = ['all']
                 for group in self.plot_order:
@@ -310,6 +310,9 @@ class PlotObj():
                 reads_unmapped = reads_total - reads_mapped_total
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
+                #x_pos = np.arange(len(labels))
+                #plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
+
                 print labels
                 print perc_mapped
                 # generate counts of reads mapped by group ...
