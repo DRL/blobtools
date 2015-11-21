@@ -152,4 +152,4 @@ if __name__ == '__main__':
         plotObj.plotBlobs(cov_lib, info_flag)
         info_flag = 0
     plotObj.write_stats()
-    #plotObj.plotReadCov()
+    plotObj.plotReadCov()
