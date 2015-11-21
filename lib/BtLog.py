@@ -76,7 +76,7 @@ status_d = {
 }
 
 info_d = {
-    '0' : '[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt'
+    '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt'
     }
 
 if __name__ == "__main__": 
