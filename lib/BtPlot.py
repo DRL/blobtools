@@ -284,22 +284,26 @@ class PlotObj():
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
                 perc_mapped = []
                 labels = ['all']
+                colours = [BLACK]
                 for group in self.plot_order:
                     labels.append(group)
+                    colours.append(self.colours[group])
                 perc_mapped = [self.stats[label]['reads_mapped'][cov_lib] for label in labels]
+                
                 reads_total = self.cov_libs_total_reads_dict[cov_lib]
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
+                colours.append(BLACK)
 
                 x_pos = arange(len(labels))
-                plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
+                plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
                 plt.xticks(x_pos, labels)
                 plt.ylabel("Percent of reads")
                 plt.ylabel("Allocation of reads")
                 plt.title(self.title)
                 out_f = "%s.read_cov.%s" % (self.out_f, self.format)
-                print BtLog.status_d['8'] % m_out_f
+                print BtLog.status_d['8'] % out_f
                 plt.savefig(out_f, format=self.format)
                 print labels
                 print perc_mapped
