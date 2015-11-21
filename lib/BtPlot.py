@@ -293,24 +293,29 @@ class PlotObj():
             # Plotted groups
             for group in self.plot_order:
                 labels.append(group)
-                perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
+                perc_mapped.append(100*self.stats[group]['reads_mapped_perc'][cov_lib])
                 colours.append(self.colours[group])
             
             # unmapped
             reads_total = self.cov_libs_total_reads_dict[cov_lib]
             reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
             labels.append('unmapped')
-            perc_mapped.append(reads_unmapped/reads_total)
+            perc_mapped.append(100*reads_unmapped/reads_total)
             colours.append(BLACK)
 
-            plt.figure(1, figsize=(35,10), dpi=200)
+            yticks(xrange(10), rotation='vertical')
+            plt.figure(1, figsize=(30,10), dpi=200)
             plt.axes(axisbg=BGGREY)
+            plt.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
             x_pos = arange(len(labels))
             plt.bar(x_pos, perc_mapped, align='center', alpha=0.5, color = colours)
-            plt.xticks(x_pos, labels)
+            plt.xticks(x_pos, labels, rotation=60)
             plt.ylabel("Percent of reads")
-            plt.ylabel("Allocation of reads")
+            plt.xlabel("Allocation of reads")
             plt.title(self.title)
+            bar_labels = ['{0:.1%}'.format(value) for value in perc_mapped]
+            for patch, label in zip(ax.patches, bar_labels):
+                plt.text(patch.get_x() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f
             plt.savefig(out_f, format=self.format)
@@ -399,9 +404,9 @@ class PlotObj():
         if not (self.ignore_contig_length):
             plot_ref_legend(axScatter)
         axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-        self.out_f = "%s.blobs.%s" % (self.out_f, self.format)
-        print BtLog.status_d['8'] % self.out_f
-        plt.savefig(self.out_f, format=self.format) 
+        out_f = "%s.blobs.%s" % (self.out_f, self.format)
+        print BtLog.status_d['8'] % out_f
+        plt.savefig(out_f, format=self.format) 
         plt.close()  
         
         
