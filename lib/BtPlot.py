@@ -149,6 +149,7 @@ class PlotObj():
         self.out_f = ''
         self.title = ''
         self.max_group_plot = 0
+        self.format = ''
 
     def get_stats_for_group(self, group):
         stats = { 'name' : group, 
@@ -235,7 +236,7 @@ class PlotObj():
             for cov_lib in self.cov_libs:
                 stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib]))
                 stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib]))
-                stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads[cov_lib]
+                stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads_dict[cov_lib]
         self.stats = stats
         #for label in stats:
         #    print label, stats[label]
@@ -310,9 +311,14 @@ class PlotObj():
                 reads_unmapped = reads_total - reads_mapped_total
                 labels.append('unmapped')
                 perc_mapped.append(reads_unmapped)
-                #x_pos = np.arange(len(labels))
-                #plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
-
+                x_pos = np.arange(len(labels))
+                plt.bar(x_pos, perc_mapped, align='center', alpha=0.5)
+                plt.xticks(x_pos, labels)
+                plt.ylabel("Percent of reads")
+                plt.ylabel("Allocation of reads")
+                plt.title(self.title)
+                out_f = "%s.read_cov.%s" % (self.out_f, self.format)
+                plt.savefig(out_f, format=self.format)
                 print labels
                 print perc_mapped
                 # generate counts of reads mapped by group ...
