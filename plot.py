@@ -143,7 +143,7 @@ if __name__ == '__main__':
     info_flag = 1
 
     for cov_lib in plotObj.cov_libs:
-            out_f = "%s.%s.%s.%s.p%s" % (title, cov_lib, hist_type, rank, max_group_plot)
+        out_f = "%s.%s.%s.%s.p%s" % (title, cov_lib, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
         if c_index:
