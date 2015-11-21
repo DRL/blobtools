@@ -321,7 +321,7 @@ class PlotObj():
                 xloc = 1.02 *width
                 align = 'right'
                 yloc = rect.get_y() + rect.get_height()/2.0
-                ax.text(xloc, yloc, rankStr, horizontalalignment=align,
+                ax.text(xloc, yloc, bar_label, horizontalalignment=align,
                      verticalalignment='center', color=BLACK, weight='bold')
 
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
