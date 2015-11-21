@@ -306,16 +306,15 @@ class PlotObj():
             y_pos = arange(len(labels))
             fig = plt.figure(1, figsize=(30,10), dpi=200)
             ax = fig.add_subplot(111)
-            ax.barh(y_pos, perc_mapped, align='center', color = colours)
-            ax.set_yticks(y_pos, labels)
+            ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', color = colours, background=BGGREY)
             ax.set_ylabel("Allocation of reads")
             ax.set_xlabel("Percent of reads")
             ax.set_title(self.title)
-            ax.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
+            ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
             
             bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
             for patch, label in zip(ax.patches, bar_labels):
-                plt.text(patch.get_y() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
+                plt.text(patch.get_y() + patch.get_height() +5, patch.get_width()/2, label, ha='center', va='bottom')
             
 
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
