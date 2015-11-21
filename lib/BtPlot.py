@@ -333,8 +333,10 @@ class PlotObj():
             
             axarr[1].set_xlabel("Percent of reads")
             axarr[0].set_title(self.title)
-            ax_right_0 = axarr[1].twiny()
-            ax_right_1 = axarr[2].twiny()
+            ax_right_0.set_yticks(y_pos_top)
+            ax_right_1.set_yticks(y_pos_top)
+            #ax_right_0 = axarr[1].twiny()
+            #ax_right_1 = axarr[2].twiny()
 
             #ax_right.set_yticks(y_pos)
             ax_right_0_labels = ['{0:.2%}'.format(value) for value in top_perc_mapped]
