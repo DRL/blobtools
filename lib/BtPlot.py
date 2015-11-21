@@ -287,7 +287,7 @@ class PlotObj():
             
             # All
             labels.append('all')
-            perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
+            perc_mapped.append(100*self.stats['all']['reads_mapped_perc'][cov_lib])
             colours.append(BLACK)
             
             # Plotted groups
