@@ -121,7 +121,7 @@ class BlobDb():
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
         print self.covLibs
-        cov_libs_total_reads = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
+        cov_libs_reads_total = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
         if len(cov_libs) > 1:
             cov_libs.append('sum')
 
@@ -181,7 +181,7 @@ class BlobDb():
             data_dict[group]['count'] = data_dict[group].get('count', 0) + 1
             data_dict[group]['span'] = data_dict[group].get('span', 0) + int(length)
 
-        return data_dict, max_cov, cov_libs, cov_libs_total_reads
+        return data_dict, max_cov, cov_libs, cov_libs_reads_total
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib
