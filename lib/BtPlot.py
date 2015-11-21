@@ -305,12 +305,12 @@ class PlotObj():
                 bottom_perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
                 bottom_colours.append(self.colours[group])
             
-            top_perc_mapped = perc_mapped[::-1]
-            bottom_perc_mapped = perc_mapped[::-1]
-            top_labels = labels[::-1]
-            bottom_labels = labels[::-1]
-            top_colours = colours[::-1]
-            bottom_colours = colours[::-1]
+            top_perc_mapped = top_perc_mapped[::-1]
+            bottom_perc_mapped = bottom_perc_mapped[::-1]
+            top_labels = top_labels[::-1]
+            bottom_labels = bottom_labels[::-1]
+            top_colours = top_colours[::-1]
+            bottom_colours = bottom_colours[::-1]
             
             top_y_pos = arange(len(top_labels))
             bottom_y_pos = arange(len(bottom_labels))
