@@ -303,23 +303,32 @@ class PlotObj():
             perc_mapped.append(100*reads_unmapped/reads_total)
             colours.append(BLACK)
 
+            y_pos = arange(len(labels))
             plt.figure(1, figsize=(30,10), dpi=200)
             plt.axes(axisbg=BGGREY)
-            plt.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
-            x_pos = arange(len(labels))
-            plt.bar(x_pos, perc_mapped, align='center', color = colours)
-            plt.xticks(x_pos, labels, rotation=60)
-            plt.ylabel("Percent of reads")
-            plt.xlabel("Allocation of reads")
-            plt.title(self.title)
+            ax = fig.add_subplot(111)
+            ax.barh(y_pos, perc_mapped, align='center', color = colours)
+            ax.set_yticks(y_pos, labels)
+            ax.set_ylabel("Allocation of reads")
+            ax.set_xlabel("Percent of reads")
+            ax.set_title(self.title)
+            ax.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
+            
             bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            for patch, label in zip(plt.axes.patches, bar_labels):
-                plt.text(patch.get_x() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
+            for patch, label in zip(ax.patches, bar_labels):
+                plt.text(patch.get_y() + patch.get_width()/2, patch.get_height() + 5, label, ha='center', va='bottom')
+            
+
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f
             plt.savefig(out_f, format=self.format)
-            print labels
-            print perc_mapped
+            
+            #plt.bar(x_pos, perc_mapped, align='center', color = colours)
+            #plt.xticks(x_pos, labels, rotation=60)
+            #plt.ylabel("Percent of reads")
+            #plt.xlabel("Allocation of reads")
+            #plt.title(self.title)
+            #bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
