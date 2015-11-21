@@ -300,13 +300,14 @@ class PlotObj():
     def plotReadCov(self):
         for cov_lib in self.read_cov:
             if not self.read_cov[cov_lib]['total'] == 0:
-                labels = ['all']
+                labels = ['all', 'unmapped']
                 perc_mapped = []
                 reads_total = self.read_cov[cov_lib]['total']
                 reads_mapped_total = self.read_cov[cov_lib]['mapped']
+                reads_unmapped = reads_total - reads_mapped_total
                 for group in self.plot_order:
                     labels.append(group)
-                perc_mapped = [stats[group]['reads_mapped'][cov_lib] for label in labels]
+                perc_mapped = [stats[label]['reads_mapped'][cov_lib] for label in labels]
                 print labels
                 print perc_mapped
                 # generate counts of reads mapped by group ...
