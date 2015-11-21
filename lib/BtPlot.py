@@ -305,7 +305,6 @@ class PlotObj():
 
             y_pos = arange(len(labels))
             fig = plt.figure(1, figsize=(30,10), dpi=200)
-            fig.axes(axisbg=BGGREY)
             ax = fig.add_subplot(111)
             ax.barh(y_pos, perc_mapped, align='center', color = colours)
             ax.set_yticks(y_pos, labels)
