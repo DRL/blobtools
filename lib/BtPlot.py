@@ -28,7 +28,7 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "Spectral" # "Set1"
+COLOURMAP = "hsv" # "Set1", "Paired", "Set2", "Spectral"
 BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#3B3B3B')
 nullfmt = NullFormatter()
 
@@ -289,30 +289,29 @@ class PlotObj():
             labels.append('all')
             perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
             colours.append(BLACK)
-            
+            # unmapped
+            reads_total = self.cov_libs_total_reads_dict[cov_lib]
+            reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
+            labels.append('unmapped')
+            perc_mapped.append(reads_unmapped/reads_total)
+            colours.append(DGREY)
+
             # Plotted groups
             for group in self.plot_order:
                 labels.append(group)
                 perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
                 colours.append(self.colours[group])
             
-            # unmapped
-            reads_total = self.cov_libs_total_reads_dict[cov_lib]
-            reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-            labels.append('unmapped')
-            perc_mapped.append(reads_unmapped/reads_total)
-            colours.append(BLACK)
-            y_pos = arange(len(labels))
             perc_mapped = perc_mapped[::-1]
             labels = labels[::-1]
             colours = colours[::-1]
-
-            print sum(perc_mapped)
+            
+            y_pos = arange(len(labels))
             fig = plt.figure(1, figsize=(30,10), dpi=200)
             ax = fig.add_subplot(111)
             ax.set_axis_bgcolor(BGGREY)
             ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-            rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 1, color = colours)
+            rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 0.75, color = colours)
             ax.set_ylabel("Allocation of reads")
             ax.set_xlabel("Percent of reads")
             ax.set_title(self.title)
