@@ -28,7 +28,7 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "Paired" # "Set1"
+COLOURMAP = "Paired2" # "Set1"
 BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#3B3B3B')
 nullfmt = NullFormatter()
 
@@ -306,30 +306,26 @@ class PlotObj():
             perc_mapped = perc_mapped[::-1]
             labels = labels[::-1]
             colours = colours[::-1]
+
+            print sum(perc_mapped)
             fig = plt.figure(1, figsize=(30,10), dpi=200)
             ax = fig.add_subplot(111)
             ax.set_axis_bgcolor(BGGREY)
-            rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 0.5, color = colours)
+            ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
+            rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 1, color = colours)
             ax.set_ylabel("Allocation of reads")
             ax.set_xlabel("Percent of reads")
             ax.set_title(self.title)
-            ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
+            
             ax_right = ax.twinx()
             ax_right.set_yticks(y_pos)
             y_right_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
             ax_right.set_yticklabels(y_right_labels)
             ax_right.set_ylim(ax.get_ylim())
-
-            out_f = "%s.read_cov.%s" % (self.out_f, self.format)
+            out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
             print BtLog.status_d['8'] % out_f
             plt.savefig(out_f, format=self.format)
             
-            #plt.bar(x_pos, perc_mapped, align='center', color = colours)
-            #plt.xticks(x_pos, labels, rotation=60)
-            #plt.ylabel("Percent of reads")
-            #plt.xlabel("Allocation of reads")
-            #plt.title(self.title)
-            #bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
