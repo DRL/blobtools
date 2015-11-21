@@ -118,7 +118,7 @@ def readBam(infile, set_of_blobs):
                     base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
                     read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
         BtLog.progress(parsed_reads, progress_unit, reads_total)
-    BtLog.progress(reads_total, progress_unit, reads_total)
+    #BtLog.progress(reads_total, progress_unit, reads_total)
     if not int(reads_mapped) == int(parsed_reads):
         print warn_d['3'] % (reads_mapped, parsed_reads)
     return base_cov_dict, reads_total, parsed_reads, read_cov_dict

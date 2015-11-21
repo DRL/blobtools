@@ -120,6 +120,7 @@ class BlobDb():
         read_cov_dict = {}
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
+        print self.covLibs
         cov_libs_total_reads = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
         if len(cov_libs) > 1:
             cov_libs.append('sum')
