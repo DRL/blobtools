@@ -5,7 +5,7 @@
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
                             [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
                             [--colours FILE] [--include FILE] [--exclude FILE]
-                            [--format FORMAT] [--blobs BOOL] [--reads BOOL]
+                            [--format FORMAT] [--noblobs] [--noreads]
                             [-h|--help] 
 
     Options:
