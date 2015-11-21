@@ -73,8 +73,8 @@ if __name__ == '__main__':
     colour_f = args['--colours']
     exclude_groups = args['--exclude']
     format = args['--format'] 
-    plot_blobs = args['--blobs']
-    plot_reads = args['--reads'] 
+    plot_blobs = args['--blobs'].strip()
+    plot_reads = args['--reads'].strip()
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
