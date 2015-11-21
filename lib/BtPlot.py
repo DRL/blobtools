@@ -287,25 +287,25 @@ class PlotObj():
             
             # All
             labels.append('all')
-            perc_mapped.append(100*self.stats['all']['reads_mapped_perc'][cov_lib])
+            perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
             colours.append(BLACK)
             
             # Plotted groups
             for group in self.plot_order:
                 labels.append(group)
-                perc_mapped.append(100*self.stats[group]['reads_mapped_perc'][cov_lib])
+                perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
                 colours.append(self.colours[group])
             
             # unmapped
             reads_total = self.cov_libs_total_reads_dict[cov_lib]
             reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
             labels.append('unmapped')
-            perc_mapped.append(100*reads_unmapped/reads_total)
+            perc_mapped.append(reads_unmapped/reads_total)
             colours.append(BLACK)
             y_pos = arange(len(labels))
-            print perc_mapped
-            print labels
-            print y_pos
+            perc_mapped = perc_mapped[::-1]
+            labels = labels[::-1]
+            colours = colours[::-1]
             fig = plt.figure(1, figsize=(30,10), dpi=200)
             ax = fig.add_subplot(111)
             ax.set_axis_bgcolor(BGGREY)
@@ -314,15 +314,11 @@ class PlotObj():
             ax.set_xlabel("Percent of reads")
             ax.set_title(self.title)
             ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-            
-            bar_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            for rect, bar_label in izip(rects, bar_labels):
-                width = int(rect.get_width())
-                xloc = 1.02 *width
-                align = 'right'
-                yloc = rect.get_y() + rect.get_height()/2.0
-                ax.text(xloc, yloc, bar_label, horizontalalignment=align,
-                     verticalalignment='center', color=BLACK, weight='bold')
+            ax_right = ax.twinx()
+            ax_right.set_yticks(pos)
+            y_right_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
+            ax_right.set_yticklabels(y_right_labels)
+            ax_right.set_ylim(ax.get_ylim())
 
             out_f = "%s.read_cov.%s" % (self.out_f, self.format)
             print BtLog.status_d['8'] % out_f

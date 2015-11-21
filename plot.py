@@ -38,8 +38,8 @@
                                      e.g. "Actinobacteria,Proteobacteria"
         --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
                                         ps, svg, svgz, tiff) [default: png]
-        --blobs BOOL                make blobplot [default: True]
-        --reads BOOL                make plot of reads mapping [default: True]
+        --noblobs                   omit blobplot [default: False]
+        --noreads                   omit plot of reads mapping [default: False]
 """
 
 from __future__ import division
@@ -73,8 +73,8 @@ if __name__ == '__main__':
     colour_f = args['--colours']
     exclude_groups = args['--exclude']
     format = args['--format'] 
-    plot_blobs = args['--blobs'].strip()
-    plot_reads = args['--reads'].strip()
+    no_plot_blobs = args['--noblobs']
+    no_plot_reads = args['--noreads']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -154,10 +154,10 @@ if __name__ == '__main__':
             out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in user_labels.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
         plotObj.out_f = out_f
-        if (plot_blobs):
+        if not (no_plot_blobs):
             plotObj.plotBlobs(cov_lib, info_flag)
             info_flag = 0
-        if (plot_reads):
+        if not (no_plot_reads):
             plotObj.plotReadCov(cov_lib)
        
     plotObj.write_stats()
