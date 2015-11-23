@@ -93,7 +93,7 @@ if __name__ == '__main__':
                [bt.CovLibObj('sam' + str(idx), 'sam', lib_f) for idx, lib_f in enumerate(sam_fs)] + \
                [bt.CovLibObj('cas' + str(idx), 'cas', lib_f) for idx, lib_f in enumerate(cas_fs)] + \
                [bt.CovLibObj('cov' + str(idx), 'cov', lib_f) for idx, lib_f in enumerate(cov_fs)] 
-
+               
     # Create BlobDB object              
     blobDb = bt.BlobDb(title)
 

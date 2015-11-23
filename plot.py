@@ -160,7 +160,7 @@ if __name__ == '__main__':
         if not (no_plot_blobs):
             plotObj.plotBlobs(cov_lib, info_flag)
             info_flag = 0
-        if not (no_plot_reads):
-            plotObj.plotReadCov(cov_lib)
-       
     plotObj.write_stats()
+
+    if not (no_plot_reads):
+        plotObj.plotReadCov()

@@ -121,8 +121,6 @@ class BlobDb():
         max_cov = 0.0
         cov_libs = self.covLibs.keys()
         cov_libs_reads_total = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
-        if len(cov_libs) > 1:
-            cov_libs.append('sum')
 
         for blob in self.dict_of_blobs.values():
             name, gc, length, group = blob['name'], blob['gc'], blob['length'], ''
@@ -146,6 +144,9 @@ class BlobDb():
                                     'span_hidden' : 0, 
                                     'span_visible' : 0,
                                     }
+                if len(cov_libs) > 1:
+                    data_dict[group]['covs']['sum'] = []
+                    data_dict[group]['reads_mapped']['sum'] = 0
 
             if ((hide_nohits) and group == 'no-hit') or length < min_length: # hidden
                 data_dict[group]['count_hidden'] = data_dict[group].get('count_hidden', 0) + 1
@@ -159,6 +160,7 @@ class BlobDb():
             data_dict[group]['gc'].append(gc)
 
             cov_sum = 0.0
+            reads_mapped_sum = 0
             for cov_lib in sorted(cov_libs):
                 cov = float(blob['covs'][cov_lib]) 
                 cov_sum += cov
@@ -166,16 +168,18 @@ class BlobDb():
                 if cov > max_cov:
                     max_cov = cov
                 data_dict[group]['covs'][cov_lib].append(cov)
-                
-                # Read cov for read_cov_plot if read cov provided
                 if cov_lib in blob['read_cov']:
-                    data_dict[group]['reads_mapped'][cov_lib] += blob['read_cov'][cov_lib]  
-    
-            if 'sum' in data_dict[group]['covs']:
+                    reads_mapped = blob['read_cov'][cov_lib]
+                    reads_mapped_sum += reads_mapped
+                    data_dict[group]['reads_mapped'][cov_lib] += reads_mapped  
+            
+            if len(cov_libs) > 1:
                 cov_sum = cov_sum if cov_sum > 0.02 else 0.02
                 data_dict[group]['covs']['sum'].append(cov_sum)
                 if cov > max_cov:
                     max_cov = cov
+                if (reads_mapped_sum):
+                    data_dict[group]['reads_mapped']['sum'] += reads_mapped_sum
 
             data_dict[group]['count'] = data_dict[group].get('count', 0) + 1
             data_dict[group]['span'] = data_dict[group].get('span', 0) + int(length)
