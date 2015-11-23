@@ -29,7 +29,7 @@ mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
 COLOURMAP = "rainbow" # "Set1", "Paired", "Set2", "Spectral"
-BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#3B3B3B')
+BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#4d4d4d')
 nullfmt = NullFormatter()
 
 def n50(list_of_lengths):
@@ -46,6 +46,20 @@ def n50(list_of_lengths):
             N50 = contig_length
             break
     return N50
+
+def parseRefCov(refcov_f):
+    refcov_dict = {}
+    with open(refcov_f) as fh:
+        for l in fh:
+            try:
+                cov_lib, reads_mapped_ref, reads_unmapped_ref = l.split(",")
+                refcov_dict[cov_lib] = {
+                                        'reads_mapped' : int(reads_mapped_ref), 
+                                        'reads_unmapped' : int(reads_unmapped_ref)
+                                       }
+            except:
+                BtLog.error('21')
+    return refcov_dict
 
 def getSortedGroups(data_dict, sort_order):
     """ Returns list of sorted groups based on span or count. """
@@ -285,24 +299,14 @@ class PlotObj():
         if 'other' in self.labels:
             self.plot_order.append('other')
 
-    def plotReadCov(self):
-        FONTSIZE = 12
-
-        # plot ReadCov by tax for each cov_lib
-        #plot_data = {'by_group' : {} }
-        
-        # plot ReadCov by cov_lib for each tax
-        #if len(self.cov_libs) > 1:
-        reference_read_cov = {}
-
-        main_columns = 2
-        if (reference_read_cov):
-            main_columns += 2
-        group_columns = len(self.plot_order)
-
+    def plotReadCov(self, refcov_dict):
+        mat.rcParams.update({'font.size': 14})
         plot_data = {}
         
-        # plot cov_per_tax
+        main_columns = 2
+        if (refcov_dict):
+            main_columns += 2
+        group_columns = len(self.plot_order)
         
         for cov_lib in self.cov_libs:
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
@@ -311,100 +315,61 @@ class PlotObj():
                 # unmapped (assembly)
                 reads_total = self.cov_libs_total_reads_dict[cov_lib]
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-                main_plot.labels.append('Unmapped')
+                if cov_lib in refcov_dict:
+                    reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped']
+                    reads_unmapped_ref = refcov_dict[cov_lib]['reads_unmapped'] 
+                    reads_total_ref = reads_mapped_ref + reads_unmapped_ref
+                    main_plot.labels.append('Unmapped (ref)')
+                    main_plot.values.append(reads_unmapped_ref/reads_total_ref)
+                    main_plot.colours.append(DGREY)
+                    main_plot.labels.append('Mapped (ref)')
+                    main_plot.values.append(reads_mapped_ref/reads_total_ref)
+                    main_plot.colours.append(DGREY)
+
+                main_plot.labels.append('Unmapped (assembly)')
                 main_plot.values.append(reads_unmapped/reads_total)
-                main_plot.colours.append(GREY)
+                main_plot.colours.append(DGREY)
                 # mapped (assembly)
-                main_plot.labels.append('Mapped')
+                main_plot.labels.append('Mapped (assembly)')
                 main_plot.values.append(self.stats['all']['reads_mapped_perc'][cov_lib])
-                main_plot.colours.append(BLACK)
+                main_plot.colours.append(DGREY)
                 # mapped plotted groups
                 for group in self.plot_order:
                     group_plot.labels.append(group)
                     group_plot.values.append(self.stats[group]['reads_mapped_perc'][cov_lib])
                     group_plot.colours.append(self.colours[group])
+                
                 plot_data[cov_lib] = {'main' : main_plot, 'group' : group_plot}
 
-        x_pos_main = arange(main_columns)
-        x_pos_group = arange(len(self.plot_order))
+                x_pos_main = arange(main_columns)
+                x_pos_group = arange(len(self.plot_order))
         
-        for cov_lib in sorted(self.cov_libs):
-            if not self.cov_libs_total_reads_dict[cov_lib] == 0:
-                print cov_lib
-                print plot_data[cov_lib]['main'].values
-                print plot_data[cov_lib]['main'].labels
-                print plot_data[cov_lib]['group'].values
-                print plot_data[cov_lib]['group'].labels
                 fig = plt.figure(1, figsize=(30, 10), dpi=200)  
                 gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, len(self.plot_order)]) 
                 ax_main = plt.subplot(gs[0])
                 ax_main.set_axis_bgcolor(BGGREY)
                 ax_group = plt.subplot(gs[1])
                 ax_group.set_axis_bgcolor(BGGREY)
-                ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='-') 
-                ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='-')
-                rect_main = ax_main.bar(x_pos_main, plot_data[cov_lib]['main'].values, tick_label=plot_data[cov_lib]['main'].labels, align='center', color = plot_data[cov_lib]['main'].colours)
-                for rect_m in rect_main:
-                    height_m = rect_m.get_height()
-                    ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 1.05*height_m, '{:.1f}%'.format(int(height_m)*100), ha='center', va='bottom')
-                rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, tick_label=plot_data[cov_lib]['group'].labels, align='center', color = plot_data[cov_lib]['group'].colours)
+                rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, width = 0.5, tick_label=plot_data[cov_lib]['group'].labels, align='center', color = plot_data[cov_lib]['group'].colours)
                 for rect_g in rect_group:
-                    height_g = rect_g.get_height()
-                    ax_main.text(rect_g.get_x() + rect_g.get_width()/2., 1.05*height_g, '{:.1f}%'.format(int(height_g)*100), ha='center', va='bottom')
-                ax_main = label_barchart(rect_main, ax_main)
-                ax_group = label_barchart(rect_group, ax_group)
-                ax_main_y_values = ax_main.get_yticks()
-                ax_group_y_values = ax_group.get_yticks()
-                ax_main.set_yticklabels(['{:.1f}%'.format(x*100) for x in ax_main_y_values])
-                ax_main.set_yticklabels(['{:.1f}%'.format(x*100) for x in ax_group_y_values])
+                    height_g = float(rect_g.get_height())
+                    ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.1f}%'.format(height_g*100), ha='center', va='bottom')
+                rect_main = ax_main.bar(x_pos_main, plot_data[cov_lib]['main'].values, width = 0.5, tick_label=plot_data[cov_lib]['main'].labels, align='center', color = plot_data[cov_lib]['main'].colours)
+                for rect_m in rect_main:
+                    height_m = float(rect_m.get_height())
+                    ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.1f}%'.format(height_m*100), ha='center', va='bottom')
+                ax_main.set_ylim(0, 1.1)
+                ax_group.set_ylim(0, 1.1)
+                ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
+                ax_main.set_xticklabels(plot_data[cov_lib]['main'].labels, rotation=45)
+                ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
+                ax_group.set_xticklabels(plot_data[cov_lib]['group'].labels, rotation=45)
+                ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--') 
+                ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
                 out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
                 print BtLog.status_d['8'] % out_f
-                plt.xticks(fontsize=FONTSIZE)
-                plt.yticks(fontsize=FONTSIZE)    
                 plt.tight_layout()
-                plt.savefig(out_f, format=self.format)
-
-        #top_y_pos = arange(len(top_labels))
-        #bottom_y_pos = arange(len(bottom_labels))
-        #fig = plt.figure(1, figsize=(30,10), dpi=200)
-        #gs = mat.gridspec.GridSpec(2, 1, height_ratios=[len(top_labels), len(bottom_labels)]) 
-        #axarr[0] = plt.subplot(gs[0], sharex=True)
-        #axarr = []
-        #axarr.append(plt.subplot(gs[0]))
-        #axarr.append(plt.subplot(gs[1]))
-        #axarr[0].set_axis_bgcolor(BGGREY)
-        #axarr[1].set_axis_bgcolor(BGGREY)
-    #
-        #axarr[0].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-        #axarr[1].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-    
-        #rects_0 = axarr[0].barh(top_y_pos, top_perc_mapped, tick_label=top_labels, align='center', height = 0.75, color = top_colours)
-        #rects_1 = axarr[1].barh(bottom_y_pos, bottom_perc_mapped, tick_label=bottom_labels, align='center', height = 0.75, color = bottom_colours)
-        #    
-        #    #axarr[1].set_xlabel("Percent of reads")
-        #axarr[0].set_title(self.title)
-        #ax_right_0 = axarr[0].twinx()
-        #ax_right_1 = axarr[1].twinx()
-        #ax_right_0.set_yticks(top_y_pos)
-        #ax_right_1.set_yticks(bottom_y_pos)
-        #axarr[0].set_xticklabels([])
-        #axarr[1].set_xticklabels([])
-        #ax_right_0.set_xlim(0, 1)
-        #ax_right_1.set_xlim(0, 1)
-        #ax_right_0_labels = ['{0:.2%}'.format(value) for value in top_perc_mapped]
-        #ax_right_1_labels = ['{0:.2%}'.format(value) for value in bottom_perc_mapped]
-        #
-        #ax_right_0.set_yticklabels(ax_right_0_labels)
-        #ax_right_1.set_yticklabels(ax_right_1_labels)
-        #
-        #ax_right_0.set_ylim(axarr[0].get_ylim())
-        #ax_right_1.set_ylim(axarr[1].get_ylim())
-        #
-        #out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
-        #print BtLog.status_d['8'] % out_f
-        #plt.tight_layout()
-        #plt.savefig(out_f, format=self.format)
-            
+                plt.savefig(out_f, format=self.format)            
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()

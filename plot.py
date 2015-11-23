@@ -5,7 +5,7 @@
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
                             [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
                             [--colours FILE] [--include FILE] [--exclude FILE]
-                            [--format FORMAT] [--noblobs] [--noreads]
+                            [--format FORMAT] [--noblobs] [--noreads] [--refcov FILE]
                             [-h|--help] 
 
     Options:
@@ -40,6 +40,9 @@
                                         ps, svg, svgz, tiff) [default: png]
         --noblobs                   Omit blobplot [default: False]
         --noreads                   Omit plot of reads mapping [default: False]
+        --refcov FILE               File containing number of "mapped" and "unmapped" reads 
+                                    per coverage file. (e.g.: bam0,900,100). If provided, info
+                                    will be used in read coverage plot(s). 
 """
 
 from __future__ import division
@@ -75,6 +78,7 @@ if __name__ == '__main__':
     format = args['--format'] 
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
+    refcov_f = args['--refcov']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -103,6 +107,9 @@ if __name__ == '__main__':
             exclude_groups = exclude_groups.rsplit(",")
         else:
             exclude_groups = exclude_groups
+    
+    if (refcov_f):
+        refcov_dict = BtPlot.parseRefCov(revcov)
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
@@ -163,4 +170,4 @@ if __name__ == '__main__':
     plotObj.write_stats()
 
     if not (no_plot_reads):
-        plotObj.plotReadCov()
+        plotObj.plotReadCov(refcov_dict)

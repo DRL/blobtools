@@ -49,7 +49,8 @@ error_d = {
     '17' : '[ERROR:17]\t: Label could not be parsed from "%s".',
     '18' : '[ERROR:18]\t: Please provide a tax file in BLAST format.',
     '19' : '[ERROR:19]\t: Sequence %s in file %s is not part of the assembly.',
-    '20' : '[ERROR:20]\t: Please add "clc_mapping_info" to you PATH variable.'
+    '20' : '[ERROR:20]\t: Please add "clc_mapping_info" to you PATH variable.',
+    '21' : '[ERROR:21]\t: refcov FILE does not seem to have the right format.'
 
 }
 
