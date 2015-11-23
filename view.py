@@ -34,7 +34,7 @@ if __name__ == '__main__':
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
-    blobdb_f = args['<BLOBDB>']
+    blobdb_f = args['--input']
     out_f = args['--out'] 
     ranks = args['--rank']
     taxrule = args['--taxrule']
@@ -70,20 +70,4 @@ if __name__ == '__main__':
     if (blobDB.hitLibs) and taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
     blobDB.view(out_f, ranks, taxrule, hits_flag, seqs)
-
-    # #print nodesDB['1']
-    # BtLog.status('2')
-    # if not isfile(nodesDB_default):
-    #     BtLog.status('5', nodesDB_default)
-    #     BtIO.writeJsonGzip(nodesDB, nodesDB_default)
-    #     BtLog.status('2')
-
-    # # Parse Tax
-    # tax_libs = [bt.TaxLibObj('tax' + str(idx), 'tax', lib_f) for idx, lib_f in enumerate(tax_fs)]
-    # blobDb.parseTax(tax_libs)
-
-    # blobDb.computeTaxonomy('bestSum', nodesDB)    
-    
-    # dump = blobDb.dump()
-    # print dump['dict_of_blobs']['contig_455']
 

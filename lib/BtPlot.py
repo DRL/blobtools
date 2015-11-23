@@ -132,6 +132,22 @@ def parse_labels(labels):
             BtLog.error('17', labels)
     return label_d
 
+class PlotReadObj():
+    def __init__(self, columns):
+        self.columns = columns
+        self.values = []
+        self.labels = []
+        self.colours = []
+
+    def bless(self):
+        self.values = self.values[::-1]
+        self.labels = self.labels[::-1]
+        self.colours = self.colours[::-1]
+
+
+
+
+
 class PlotObj():
     def __init__(self, data_dict, cov_libs, cov_libs_total_reads_d):
         self.labels = {'all'}
@@ -279,81 +295,90 @@ class PlotObj():
         if 'other' in self.labels:
             self.plot_order.append('other')
 
-    def plotReadCov(self, cov_lib):
-        if not self.cov_libs_total_reads_dict[cov_lib] == 0:
-            top_labels = []
-            top_perc_mapped = []
-            top_colours = []
-            bottom_labels = []
-            bottom_perc_mapped = []
-            bottom_colours = []
-            
-            # All
-            top_labels.append('mapped')
-            top_perc_mapped.append(self.stats['all']['reads_mapped_perc'][cov_lib])
-            top_colours.append(BLACK)
-            # unmapped
-            reads_total = self.cov_libs_total_reads_dict[cov_lib]
-            reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-            top_labels.append('unmapped')
-            top_perc_mapped.append(reads_unmapped/reads_total)
-            top_colours.append(DGREY)
+    def plotReadCov(self, cov_libs):
 
-            # Plotted groups
-            for group in self.plot_order:
-                bottom_labels.append(group)
-                bottom_perc_mapped.append(self.stats[group]['reads_mapped_perc'][cov_lib])
-                bottom_colours.append(self.colours[group])
-            
-            top_perc_mapped = top_perc_mapped[::-1]
-            bottom_perc_mapped = bottom_perc_mapped[::-1]
-            top_labels = top_labels[::-1]
-            bottom_labels = bottom_labels[::-1]
-            top_colours = top_colours[::-1]
-            bottom_colours = bottom_colours[::-1]
-            
-            top_y_pos = arange(len(top_labels))
-            bottom_y_pos = arange(len(bottom_labels))
-            fig = plt.figure(1, figsize=(30,10), dpi=200)
-            f, axarr = plt.subplots(2, sharex=True)
-            #ax = fig.add_subplot(111)
-            #ax.set_axis_bgcolor(BGGREY)
-            axarr[0].set_axis_bgcolor(BGGREY)
-            axarr[1].set_axis_bgcolor(BGGREY)
-            #ax.grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-            axarr[0].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-            axarr[1].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
-            #rects = ax.barh(y_pos, perc_mapped, tick_label=labels, align='center', height = 0.75, color = colours)
-            rects_0 = axarr[0].barh(top_y_pos, top_perc_mapped, tick_label=top_labels, align='center', height = 0.75, color = top_colours)
-            rects_1 = axarr[1].barh(bottom_y_pos, bottom_perc_mapped, tick_label=bottom_labels, align='center', height = 0.75, color = bottom_colours)
+        # plot ReadCov by tax for each cov_lib
+        #plot_data = {'by_group' : {} }
+        
+        # plot ReadCov by cov_lib for each tax
+        #if len(self.cov_libs) > 1:
+        
+        main_columns = 2
+    
+        plot_data = {}
+        
+        # plot cov_per_tax
+        if (reference_read_cov):
+            main_plot.columns += 2
+        
+        for cov_lib in self.cov_libs:
+            if not self.cov_libs_total_reads_dict[cov_lib] == 0:
+                main_plot = PlotReadObj(main_columns)
+                tax_plot = PlotReadObj(len(self.plot_order))
+                
+                # unmapped (assembly)
+                reads_total = self.cov_libs_total_reads_dict[cov_lib]
+                reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
+                main_plot.labels.append('unmapped')
+                main_plot.values.append(reads_unmapped/reads_total)
+                main_plot.colours.append(GREY)
+                # mapped (assembly)
+                main_plot.labels.append('mapped')
+                main_plot.values.append(self.stats['all']['reads_mapped_perc'][cov_lib])
+                main_plot.colours.append(BLACK)
+                # mapped plotted groups
+                for group in self.plot_order:
+                    tax_plot.labels.append(group)
+                    tax_plot.values.append(self.stats[group]['reads_mapped_perc'][cov_lib])
+                    tax_plot.colours.append(self.colours[group])
+                
+                main_plot.bless()
+                tax_plot.bless()
+        
+        fig = plt.figure(1, figsize=(30,10), dpi=200)
+        gs = mat.gridspec.GridSpec(1, 2, width_ratios=[ len(self.plot_order)]) 
+        x_pos = arange(len(self.plot_order) + 2)
 
-            #ax.set_ylabel("Allocation of reads")
-            #ax.set_xlabel("Percent of reads")
-            #ax.set_title(self.title)
+        #top_y_pos = arange(len(top_labels))
+        #bottom_y_pos = arange(len(bottom_labels))
+        fig = plt.figure(1, figsize=(30,10), dpi=200)
+        gs = mat.gridspec.GridSpec(2, 1, height_ratios=[len(top_labels), len(bottom_labels)]) 
+        #axarr[0] = plt.subplot(gs[0], sharex=True)
+        axarr = []
+        axarr.append(plt.subplot(gs[0]))
+        axarr.append(plt.subplot(gs[1]))
+        axarr[0].set_axis_bgcolor(BGGREY)
+        axarr[1].set_axis_bgcolor(BGGREY)
+    
+        axarr[0].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
+        axarr[1].grid(True,  axis='x', which="major", lw=2., color=WHITE, linestyle='-') 
+    
+        rects_0 = axarr[0].barh(top_y_pos, top_perc_mapped, tick_label=top_labels, align='center', height = 0.75, color = top_colours)
+        rects_1 = axarr[1].barh(bottom_y_pos, bottom_perc_mapped, tick_label=bottom_labels, align='center', height = 0.75, color = bottom_colours)
             
-            axarr[1].set_xlabel("Percent of reads")
-            axarr[0].set_title(self.title)
-            ax_right_0 = axarr[1].twiny()
-            ax_right_1 = axarr[2].twiny()
-            ax_right_0.set_yticks(y_pos_top)
-            ax_right_1.set_yticks(y_pos_bottom)
-            
-            
-
-            #ax_right.set_yticks(y_pos)
-            ax_right_0_labels = ['{0:.2%}'.format(value) for value in top_perc_mapped]
-            ax_right_1_labels = ['{0:.2%}'.format(value) for value in bottom_perc_mapped]
-            #y_right_labels = ['{0:.2%}'.format(value) for value in perc_mapped]
-            ax_right_0.set_yticklabels(ax_right_0_labels)
-            ax_right_1.set_yticklabels(ax_right_1_labels)
-            #ax_right.set_yticklabels(y_right_labels)
-            #ax_right.set_ylim(ax.get_ylim())
-            ax_right_0.set_ylim(axarr[0].get_ylim())
-            ax_right_1.set_ylim(axarr[1].get_ylim())
-            
-            out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
-            print BtLog.status_d['8'] % out_f
-            plt.savefig(out_f, format=self.format)
+            #axarr[1].set_xlabel("Percent of reads")
+        axarr[0].set_title(self.title)
+        ax_right_0 = axarr[0].twinx()
+        ax_right_1 = axarr[1].twinx()
+        ax_right_0.set_yticks(top_y_pos)
+        ax_right_1.set_yticks(bottom_y_pos)
+        axarr[0].set_xticklabels([])
+        axarr[1].set_xticklabels([])
+        ax_right_0.set_xlim(0, 1)
+        ax_right_1.set_xlim(0, 1)
+        ax_right_0_labels = ['{0:.2%}'.format(value) for value in top_perc_mapped]
+        ax_right_1_labels = ['{0:.2%}'.format(value) for value in bottom_perc_mapped]
+        
+        ax_right_0.set_yticklabels(ax_right_0_labels)
+        ax_right_1.set_yticklabels(ax_right_1_labels)
+        
+        ax_right_0.set_ylim(axarr[0].get_ylim())
+        ax_right_1.set_ylim(axarr[1].get_ylim())
+        
+        out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
+        print BtLog.status_d['8'] % out_f
+        plt.tight_layout()
+        plt.savefig(out_f, format=self.format)
             
                 
     def plotBlobs(self, cov_lib, info_flag):

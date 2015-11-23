@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     out_f = args['--out']
     if (out_f):
-        out_f = "%s.%s" % (out_f, ".BlobDB.json")
+        out_f = "%s.%s" % (out_f, "BlobDB.json")
     else:
         out_f = "%s" % ("BlobDB.json")
     nodesDB_f = args['--db']

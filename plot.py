@@ -38,8 +38,8 @@
                                      e.g. "Actinobacteria,Proteobacteria"
         --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
                                         ps, svg, svgz, tiff) [default: png]
-        --noblobs                   omit blobplot [default: False]
-        --noreads                   omit plot of reads mapping [default: False]
+        --noblobs                   Omit blobplot [default: False]
+        --noreads                   Omit plot of reads mapping [default: False]
 """
 
 from __future__ import division
