@@ -238,7 +238,7 @@ class BlobDb():
             elif covLib.fmt == 'cas':
                 cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readCas(covLib.f, self.order_of_blobs)
                 if covLib.reads_total == 0:
-                    print BtLog.warn['4'] % covLib.f
+                    print BtLog.warn_d['4'] % covLib.f
                 for name, cov in cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
@@ -246,7 +246,7 @@ class BlobDb():
             elif covLib.fmt == 'cov':
                 cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
                 if not len(cov_dict) == self.seqs:
-                    print BtLog.warn['4'] % covLib.f
+                    print BtLog.warn_d['4'] % covLib.f
                 covLib.cov_sum += cov
                 self.dict_of_blobs[name].addCov(covLib.name, cov)
             else:
