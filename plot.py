@@ -40,7 +40,7 @@
                                         ps, svg, svgz, tiff) [default: png]
         --noblobs                   Omit blobplot [default: False]
         --noreads                   Omit plot of reads mapping [default: False]
-        --refcov FILE               File containing number of "mapped" and "unmapped" reads 
+        --refcov FILE               File containing number of "total" and "mapped" reads 
                                     per coverage file. (e.g.: bam0,900,100). If provided, info
                                     will be used in read coverage plot(s). 
 """
@@ -108,8 +108,9 @@ if __name__ == '__main__':
         else:
             exclude_groups = exclude_groups
     
+    refcov_dict = {}
     if (refcov_f):
-        refcov_dict = BtPlot.parseRefCov(revcov)
+        refcov_dict = BtPlot.parseRefCov(refcov_f)
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
@@ -156,6 +157,8 @@ if __name__ == '__main__':
         out_f = "%s.%s.%s.p%s" % (title, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
+        if ignore_contig_length:
+            out_f = "%s.%s" % (out_f, "noscale")
         if c_index:
             out_f = "%s.%s" % (out_f, "c_index")
         if exclude_groups:

@@ -220,6 +220,8 @@ def readTax(infile, set_of_blobs):
                     }
                 if hitDict['name'] not in set_of_blobs:
                     BtLog.error('19', hitDict['name'], infile)
+                if hitDict['taxId'] == 'N/A':
+                    BtLog.error('22', infile)
                 yield hitDict
 
 def parseColourDict(infile):

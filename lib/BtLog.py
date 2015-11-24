@@ -50,7 +50,8 @@ error_d = {
     '18' : '[ERROR:18]\t: Please provide a tax file in BLAST format.',
     '19' : '[ERROR:19]\t: Sequence %s in file %s is not part of the assembly.',
     '20' : '[ERROR:20]\t: Please add "clc_mapping_info" to you PATH variable.',
-    '21' : '[ERROR:21]\t: refcov FILE does not seem to have the right format.'
+    '21' : '[ERROR:21]\t: Refcov FILE does not seem to have the right format.',
+    '22' : '[ERROR:22]\t: Tax file %s seems to have no taxids.'
 
 }
 
@@ -59,7 +60,8 @@ warn_d = {
     '1' : '[WARN]\t: %s not in colour file %s ...',
     '2' : '[WARN]\t: %s in file %s is not part of the assembly',
     '3' : '[WARN]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
-    '4' : '[WARN]\t: No coverage data found in %s'
+    '4' : '[WARN]\t: No coverage data found in %s',
+    '5' : '[WARN]\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used. '
 }
 status_d = {
     '1' : '[STATUS]\t: Parsing %s - %s',

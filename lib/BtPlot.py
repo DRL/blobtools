@@ -52,10 +52,10 @@ def parseRefCov(refcov_f):
     with open(refcov_f) as fh:
         for l in fh:
             try:
-                cov_lib, reads_mapped_ref, reads_unmapped_ref = l.split(",")
+                cov_lib, reads_total_ref, reads_mapped_ref = l.split(",")
                 refcov_dict[cov_lib] = {
-                                        'reads_mapped' : int(reads_mapped_ref), 
-                                        'reads_unmapped' : int(reads_unmapped_ref)
+                                        'reads_total' : int(reads_total_ref), 
+                                        'reads_mapped' : int(reads_mapped_ref)
                                        }
             except:
                 BtLog.error('21')
@@ -203,9 +203,9 @@ class PlotObj():
         with open(out_f, 'w') as fh:
             for cov_lib in sorted(self.cov_libs):
                 fh.write("# %s - %s\n" % (self.out_f, cov_lib))
-                fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format('Group', 'colour', 'count', 'visible (%)', 'span', 'visible(%)', 'n50', 'GC', 'GC (std)', 'cov_mean', 'cov_std', 'read map', 'read map (%)'))        
+                fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format('Group', 'colour', 'count', 'visible (%)', 'span', 'visible(%)', 'n50', 'GC', 'GC (std)', 'cov_mean', 'cov_std', 'read map', 'read map (%)'))        
                 for stat in stats:
-                    fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format(\
+                    fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format(\
                             stat['name'], stat['colour'], stat['count_total'], stat['count_visible_perc'], stat['span_total'], \
                             stat['span_visible_perc'], stat['n50'], stat['gc_mean'], stat['gc_std'], stat['cov_mean'][cov_lib], \
                             stat['cov_std'][cov_lib], stat['reads_mapped'][cov_lib], stat['reads_mapped_perc'][cov_lib]))
@@ -302,7 +302,7 @@ class PlotObj():
     def plotReadCov(self, refcov_dict):
         mat.rcParams.update({'font.size': 14})
         plot_data = {}
-        
+
         main_columns = 2
         if (refcov_dict):
             main_columns += 2
@@ -316,9 +316,9 @@ class PlotObj():
                 reads_total = self.cov_libs_total_reads_dict[cov_lib]
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
                 if cov_lib in refcov_dict:
-                    reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped']
-                    reads_unmapped_ref = refcov_dict[cov_lib]['reads_unmapped'] 
-                    reads_total_ref = reads_mapped_ref + reads_unmapped_ref
+                    reads_total_ref = refcov_dict[cov_lib]['reads_total']
+                    reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped'] 
+                    reads_unmapped_ref = reads_total_ref - reads_mapped_ref
                     main_plot.labels.append('Unmapped (ref)')
                     main_plot.values.append(reads_unmapped_ref/reads_total_ref)
                     main_plot.colours.append(DGREY)

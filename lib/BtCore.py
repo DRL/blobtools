@@ -261,6 +261,9 @@ class BlobDb():
             print BtLog.status_d['1'] % (hitLib.name, hitLib.f)
             # only accepts format 'seqID\ttaxID\tscore'
             for hitDict in BtIO.readTax(hitLib.f, set(self.dict_of_blobs)):
+                if ";" in hitDict['taxId']:
+                    hitDict['taxId'] = hitDict['taxId'].split(";")[0]
+                    print BtLog.warn['5'] % (hitDict['name'], hitLib)
                 self.set_of_taxIds.add(hitDict['taxId'])
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
     
