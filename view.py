@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools view    -i <BLOBDB> [--taxrule <TAXRULE>] [--rank <TAXRANK>...] [--hits]
+"""usage: blobtools view    -i <BLOBDB> [-r <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>]
                             [--h|--help] 
     
