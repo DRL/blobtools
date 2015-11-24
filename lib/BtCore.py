@@ -228,7 +228,7 @@ class BlobDb():
                     base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
                 else:
                     base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))    
-                if covLib.reads_total == 0 or not len(cov_dict) == self.seqs:
+                if covLib.reads_total == 0 or not len(base_cov_dict) == self.seqs:
                     print BtLog.warn['4'] % covLib.f
                 for name, base_cov in base_cov_dict.items():
                     cov = base_cov / self.dict_of_blobs[name].agct_count
