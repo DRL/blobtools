@@ -5,7 +5,7 @@
 usage: blobtools <command> [<args>...] [--help]
 
 commands:
-  create     create a BlobDB
+  create    create a BlobDB
   view      print BlobDB
   plot      plot BlobDB as a blobplot
 
