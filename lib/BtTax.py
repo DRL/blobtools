@@ -9,7 +9,6 @@ Bugs        : ?
 To do       : ?
 """
 from __future__ import division
-
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
 
 def noHit():
@@ -40,6 +39,14 @@ def getLineages(tree_lists, nodesDB):
 			node = nodesDB[taxId]
 			if node['rank'] in RANKS:
 				lineage[tree_list_id][node['rank']] = node['name']
+		# traverse ranks again so that undef is "higher_def_rank" + "-" + undef
+		def_rank = ''
+		for rank in reversed(list(RANKS)):
+			if not lineage[tree_list_id][rank] == 'undef':
+				def_rank = lineage[tree_list_id][rank]
+			else:
+				if (def_rank):
+					lineage[tree_list_id][rank] = def_rank + "-" + lineage[tree_list_id][rank]
 	return lineage
 
 def taxRule(taxrule, hits, lineages):
@@ -70,9 +77,6 @@ def taxRule(taxrule, hits, lineages):
 					else:
 						if (hit_lib):
 							taxonomy[rank]['c_index'] += 1  
-							
-						
-		#taxonomy = getSeqTaxonomy(taxDict, lineages)
 	else:
 		pass
 	return taxonomy 

@@ -31,7 +31,7 @@ def readFasta(infile):
             if l[0] == '>':
                 if (header):
                     yield header, ''.join(seqs)
-                header, seqs = l[1:-1], []
+                header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
             else:
                 seqs.append(l[:-1])
         yield header, ''.join(seqs)
@@ -43,47 +43,61 @@ def runCmd(command):
                          stderr=subprocess.STDOUT)
     return iter(p.stdout.readline, b'')
 
-def is_exe(fpath):
+def which(program):
+    def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
 
 def checkBam(infile):
-    if not (is_exe(samtools)):
+    print BtLog.status_d['10']
+    if not (which('samtools')):
         BtLog.error('7')
-    mapped_reads_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
-    total_reads_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
-    total_reads, mapped_reads = 0, 0
+    reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
+    reads_total_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
+    reads_total, reads_mapped = 0, 0
     output = ''
     command = "samtools flagstat " + infile
     for line in runCmd(command):
         output += line
-    mapped_reads = mapped_reads_re.search(output).group(1)
-    total_reads = total_reads_re.search(output).group(1)
-    return total_reads, mapped_reads
+    reads_mapped = int(reads_mapped_re.search(output).group(1))
+    reads_total = int(reads_total_re.search(output).group(1))
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    return reads_total, reads_mapped
 
 def readSam(infile, set_of_blobs):
     base_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
-    total_reads = 0
-    mapped_reads = 0
+    reads_total = 0
+    reads_mapped = 0
     with open(infile) as fh:
         for line in fh:
             match = line.split("\t")
             if match >= 11:
-                total_reads += 1
-                contig_name = match[2]
-                if not contig_name == '*':  
-                    if contig_name not in set_of_blobs:
-                        error(errorMessage['4'] % (contig_name, infile))
+                reads_total += 1
+                seq_name = match[2]
+                if not seq_name == '*':  
+                    if seq_name not in set_of_blobs:
+                        print BtLog.warn_d['2'] % (seq_name, infile)
                     base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
                     if (base_cov):
-                        mapped_reads += 1
-                        base_cov_dict[contig_name] = base_cov_dict.get(contig_name, 0) + base_cov 
-                        read_cov_dict[contig_name] = read_cov_dict.get(contig_name, 0) + 1 
-    return base_cov_dict, total_reads, mapped_reads, read_cov_dict        
+                        reads_mapped += 1
+                        base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                        read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+    return base_cov_dict, reads_total, reads_mapped, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
-    total_reads, mapped_reads = checkBam(infile)
-    progress_unit = int(int(total_reads)/1000)
+    reads_total, reads_mapped = checkBam(infile)
+    progress_unit = int(int(reads_total)/1000)
     base_cov_dict = {}
     read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
@@ -94,20 +108,20 @@ def readBam(infile, set_of_blobs):
     for line in runCmd(command):
         match = line.split("\t")
         if match >= 11:
-            contig_name = match[2]
+            seq_name = match[2]
             base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
             if (base_cov):
                 parsed_reads += 1
-                if contig_name not in set_of_blobs:
-                    error('3', contig_name, infile)
+                if seq_name not in set_of_blobs:
+                    print BtLog.warn_d['2'] % (seq_name, infile)
                 else:
-                    base_cov_dict[contig_name] = base_cov_dict.get(contig_name, 0) + base_cov 
-                    read_cov_dict[contig_name] = read_cov_dict.get(contig_name, 0) + 1 
-        BtLog.progress(parsed_reads, progress_unit, total_reads)
-    BtLog.progress(total_reads, progress_unit, total_reads)
-    if not int(mapped_reads) == int(parsed_reads):
-        print "mapped_reads != parsed_reads", mapped_reads, parsed_reads
-    return base_cov_dict, total_reads, parsed_reads, read_cov_dict
+                    base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                    read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+        BtLog.progress(parsed_reads, progress_unit, reads_total)
+    #BtLog.progress(reads_total, progress_unit, reads_total)
+    if not int(reads_mapped) == int(parsed_reads):
+        print warn_d['3'] % (reads_mapped, parsed_reads)
+    return base_cov_dict, reads_total, parsed_reads, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header ):
     ''' 
@@ -126,45 +140,66 @@ def parseCovFromHeader(fasta_type, header ):
 
 def readCov(infile, set_of_blobs):
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
-    i = 0
+    cov_dict = {}
+    seqs_parsed = 0
+    progress_unit = int(len(set_of_blobs)/100)
     with open(infile) as fh:
         for line in fh:
-            i += 1
             BtLog.progress(i, 10, len(set_of_blobs))
             match = cov_line_re.search(line)
             if match:
+                seqs_parsed += 1
                 name, cov = match.group(1), float(match.group(2))
                 if name not in set_of_blobs:
-                    BtLog.error('3', name, infile)
-                yield name, cov
+                    print BtLog.warn['2'] % (name, infile)
+                cov_dict[name] = cov
+            BtLog.progress(parsed_seqs, progress_unit, len(set_of_blobs))
+        BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
+    return cov_dict
+
+def checkCas(infile):
+    print BtLog.status_d['12']
+    if not (which('clc_mapping_info')):
+        BtLog.error('20')
+    seqs_total_re = re.compile(r"\s+Contigs\s+(\d+)")
+    reads_total_re = re.compile(r"\s+Reads\s+(\d+)")
+    reads_mapping_re = re.compile(r"\s+Mapped reads\s+(\d+)\s+(\d+.\d+)\s+\%")
+    seqs_total, reads_total, reads_mapping, mapping_rate = 0, 0, 0, 0.0
+    output = ''
+    command = "clc_mapping_info -s " + infile
+    for line in runCmd(command):
+        output += line
+    seqs_total = int(seqs_total_re.search(output).group(1))
+    reads_mapped = int(reads_mapping_re.search(output).group(1))
+    reads_total = int(reads_total_re.search(output).group(1))
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    return seqs_total, reads_total, reads_mapped
 
 def readCas(infile, order_of_blobs):
+    seqs_total, reads_total, reads_mapped = checkCas(infile)
+    progress_unit = int(len(order_of_blobs)/100)
     cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
-    output = ''
-    if not (is_exe('clc_mapping_info')):
-        BtLog.error('20')
-    else:
-        command = "clc_mapping_info -s -f " + infile
-        if (runCmd(command)):
-            for line in runCmd(command):
-                match = cas_line_re.search(line)
-                if match:
-                    idx = int(match.group(1)) - 1 # -1 because index of contig list starts with zero 
+    command = "clc_mapping_info -n " + infile
+    cov_dict = {}
+    read_cov_dict = {}
+    seqs_parsed = 0 
+    if (runCmd(command)):
+        for line in runCmd(command):
+            cas_line_match = cas_line_re.search(line)
+            if cas_line_match:
+                idx = int(cas_line_match.group(1)) - 1 # -1 because index of contig list starts with zero 
+                try:
                     name = order_of_blobs[idx]
-                    cov = float(match.group(4))
-                    yield name, cov
-    #error_CAS, message = commands.getstatusoutput("clc_mapping_info -s -f " + infile)
-    #if (error_CAS):
-    #    sys.exit("[ERROR] - Please add clc_mapping_info to you PATH variable.") 
-    #command = "clc_mapping_info -n " + infile
-    #cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
-    #for line in runCmd(command):
-    #    match = cas_line_re.search(line)
-    #    if match:
-    #        contig_index = int(match.group(1)) - 1 # -1 because index of contig list starts with zero 
-    #        contig_id = self.index[contig_index]
-    #        contig_cov = float(match.group(4))
-    #        yield contig_id, contig_cov
+                    reads = int(cas_line_match.group(3))
+                    cov = float(cas_line_match.group(6))
+                    cov_dict[name] = cov
+                    read_cov_dict[name] = reads
+                    seqs_parsed += 1
+                except:
+                    pass
+            BtLog.progress(seqs_parsed, progress_unit, seqs_total)
+        BtLog.progress(seqs_total, progress_unit, seqs_total)
+    return cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def readTax(infile, set_of_blobs):
     '''
@@ -173,7 +208,7 @@ def readTax(infile, set_of_blobs):
         - catch matches in variables
         - add as key-value pairs to hitDict
     '''
-    hit_line_re = re.compile(r"^(\S+)\s+(\d+)\s+(\d+\.*\d*)")
+    hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
             match = hit_line_re.search(line)
@@ -185,9 +220,18 @@ def readTax(infile, set_of_blobs):
                     }
                 if hitDict['name'] not in set_of_blobs:
                     BtLog.error('19', hitDict['name'], infile)
+                if hitDict['taxId'] == 'N/A':
+                    BtLog.error('22', infile)
                 yield hitDict
 
-
+def parseColourDict(infile):
+    colour_dict = {}
+    with open(infile) as fh:
+        for line in fh:
+            colour, group = line.rstrip("\n").split("=")
+            if colour.startswith("#"):
+                colour_dict[group] = colour
+    return colour_dict
 
 def getNodesDB(**kwargs):
     '''

@@ -1,34 +1,48 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools plot    --i <BLOBDB> [--p <MAXTAX>] [--l <LEN>] [--c] [--n] [--x]
-                            [--o <PREFIX>] [--m] [--sort <ORDER>] [--hist <HIST>] [--title]
-                            [--rank <RANK>] [--taxrule <TAXRULE>] [--label <GROUPS>...] 
-                            [--h|--help] 
+"""usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
+                            [-r RANK] [-x TAXRULE] [--label GROUPS...] 
+                            [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
+                            [--colours FILE] [--include FILE] [--exclude FILE]
+                            [--format FORMAT] [--noblobs] [--noreads] [--refcov FILE]
+                            [-h|--help] 
 
     Options:
-        --h --help                  show this
-        --i <BLOBDB>                BlobDB file
-        --p <MAXTAX>                Maximum number of taxonomic groups to plot [default: 7]
-        --l <LEN>                   Minimum sequence length considered for plotting [default: 100]
-        --c                         Colour blobs by c_index [default: False]
-        --n                         Hide "no-hit" contigs [default: False]
-        --x                         Ignore contig length for plotting
-        --o <PREFIX>                Output prefix
-        --m                         Multi-plot. Print plot after addition of each taxonomic group [default: False]
+        -h --help                   show this
+        -i, --infile BLOBDB         BlobDB file
+        -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining 
+                                     groups are placed in 'other' [default: 7]
+        -l, --length INT            Minimum sequence length considered for plotting [default: 100]
+        -c, --cindex                Colour blobs by 'c index' [default: False]
+        -n, --nohit                 Hide sequences without taxonomic annotation [default: False]
+        -s, --noscale               Do not scale sequences by length [default: False]
+        -o, --out PREFIX            Output prefix
+        -m, --multiplot             Multi-plot. Print plot after addition of each (taxonomic) group 
+                                     [default: False]
         --sort <ORDER>              Sort order for plotting [default: span]
-                                    span  : plot with decreasing span
-                                    count : plot with decreasing count 
+                                     span  : plot with decreasing span
+                                     count : plot with decreasing count 
         --hist <HIST>               Data for histograms [default: span] 
-                                    span  : span-weighted histograms
-                                    count : count histograms
-        --title                     Add title of BlobDB [default: True]
-        --rank <RANK>               Taxonomic rank used for colouring of blobs [default: phylum]
-                                    (Supported: species, genus, family, order, phylum, superkingdom) 
-        --taxrule <TAXRULE>         Taxrule which has been used for computing taxonomy 
-                                    (Supported: bestsum, bestsumorder) [default: bestsum]
-        --label <GROUPS>...         Relabel taxonomic groups, 
-                                    e.g. "Bacteria=Actinobacteria,Proteobacteria" 
+                                     span  : span-weighted histograms
+                                     count : count histograms
+        --title                     Add title of BlobDB to plot [default: False]
+        -r, --rank RANK             Taxonomic rank used for colouring of blobs [default: phylum]
+                                     (Supported: species, genus, family, order, phylum, superkingdom) 
+        -x, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy 
+                                     (Supported: bestsum, bestsumorder) [default: bestsum]
+        --label GROUPS...           Relabel (taxonomic) groups (not 'all' or 'other'), 
+                                     e.g. "Bacteria=Actinobacteria,Proteobacteria"
+        --colours COLOURFILE        File containing colours for (taxonomic) groups
+        --exclude GROUPS..          Place these (taxonomic) groups in 'other',
+                                     e.g. "Actinobacteria,Proteobacteria"
+        --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
+                                        ps, svg, svgz, tiff) [default: png]
+        --noblobs                   Omit blobplot [default: False]
+        --noreads                   Omit plot of reads mapping [default: False]
+        --refcov FILE               File containing number of "total" and "mapped" reads 
+                                    per coverage file. (e.g.: bam0,900,100). If provided, info
+                                    will be used in read coverage plot(s). 
 """
 
 from __future__ import division
@@ -45,21 +59,26 @@ if __name__ == '__main__':
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
-    #print args
-    blobdb_f = args['--i']
+    blobdb_f = args['--infile']
     rank = args['--rank'] 
-    c_index = args['--c']
-    min_length = int(args['--l'])
-    multiplot = args['--m']
-    hide_nohits = args['--n']
-    out_prefix = args['--o']
-    max_taxa_plot = int(args['--p'])
+    c_index = args['--cindex']
+    min_length = int(args['--length'])
+    multiplot = args['--multiplot']
+    hide_nohits = args['--nohit']
+    out_prefix = args['--out']
+    max_group_plot = int(args['--plotgroups'])
     sort_order = args['--sort']
     taxrule = args['--taxrule']
     hist_type = args['--hist']
     plot_title = args['--title']
-    ignore_contig_length = args['--x']
+    ignore_contig_length = args['--noscale']
     labels = args['--label']
+    colour_f = args['--colours']
+    exclude_groups = args['--exclude']
+    format = args['--format'] 
+    no_plot_blobs = args['--noblobs']
+    no_plot_reads = args['--noreads']
+    refcov_f = args['--refcov']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -80,18 +99,18 @@ if __name__ == '__main__':
         BtLog.error('8', taxrule)
 
     # compute labels if supplied
-    label_d = {}
-    if (labels):
-        try:
-            for cluster in labels:
-                name, groups = cluster.split("=")
-                for group in groups.split(","):
-                    if (group):
-                        if group in label_d:
-                            BtLog.error('17', group)            
-                        label_d[group] = name
-        except:
-            BtLog.error('16', labels)
+    
+    user_labels = BtPlot.parse_labels(labels)
+    
+    if (exclude_groups):
+        if "," in exclude_groups:
+            exclude_groups = exclude_groups.rsplit(",")
+        else:
+            exclude_groups = exclude_groups
+    
+    refcov_dict = {}
+    if (refcov_f):
+        refcov_dict = BtPlot.parseRefCov(refcov_f)
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
@@ -106,23 +125,52 @@ if __name__ == '__main__':
     if taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
 
-    # blobDB.getArrays(rank, c_index, min_length, multiplot, hide_nohits, out_prefix, max_taxa_plot, sort_order, taxrule, hist_type, plot_title)
-    data_array, cov_arrays, summary_dict = blobDB.getArrays(rank, min_length, hide_nohits, taxrule, c_index, label_d)
-    plot_order = BtPlot.getPlotOrder(summary_dict, sort_order, max_taxa_plot)
-    colour_dict = BtPlot.getColourDict(plot_order)
-    min_cov, max_cov = BtPlot.getMinMaxCov(cov_arrays)
-    if len(cov_arrays) > 1:
-        cov_arrays = BtPlot.getSumCov(cov_arrays)
-    info = 1
-    for cov_lib in cov_arrays:
-        cov_array = cov_arrays[cov_lib]
-        out_f = "%s.%s.%s" % (title, cov_lib, hist_type)
+    # Get arrays and filter_dict (filter_dict lists, span/count passing filter) for those groups passing min_length, rank, hide_nohits ...
+    # make it part of core , get data by group ... should be used by stats, generalise ...
+    data_dict, max_cov, cov_libs, cov_libs_total_reads = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index)
+    plotObj = BtPlot.PlotObj(data_dict, cov_libs, cov_libs_total_reads)
+    plotObj.exclude_groups = exclude_groups
+    plotObj.format = format
+    plotObj.max_cov = max_cov
+    plotObj.title = title
+    plotObj.multiplot = multiplot
+    plotObj.hist_type = hist_type
+    plotObj.ignore_contig_length = ignore_contig_length
+    plotObj.max_group_plot = max_group_plot
+    plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
+    plotObj.labels.update(plotObj.group_order)
+    #if len(plotObj.group_order) > plotObj.max_group_plot:
+    #    plotObj.labels.add('other')
+    if (user_labels):
+        for group, label in user_labels.items():
+            plotObj.labels.add(label)
+    plotObj.group_labels = {group : set() for group in plotObj.group_order}
+    plotObj.relabel_and_colour(colour_f, user_labels)
+    plotObj.compute_stats()
+
+    info_flag = 1
+
+    for cov_lib in plotObj.cov_libs:
+        if (plotObj.title):
+            plotObj.title = "%s.%s" % (plotObj.title, cov_lib)
+
+        out_f = "%s.%s.%s.p%s" % (title, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
+        if ignore_contig_length:
+            out_f = "%s.%s" % (out_f, "noscale")
         if c_index:
             out_f = "%s.%s" % (out_f, "c_index")
+        if exclude_groups:
+            out_f = "%s.%s" % (out_f, "exclude" + "_".join(exclude_groups))
         if labels:
-            out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in label_d.values()])))
+            out_f = "%s.%s" % (out_f, "label_" + "_".join(set([name for name in user_labels.values()])))
         out_f = "%s.%s.%s" % (out_f, min_length, taxrule)
-        BtPlot.plot(data_array, cov_array, summary_dict, plot_order, colour_dict, min_cov, max_cov, multiplot, hist_type, plot_title, out_f, ignore_contig_length, info)
-        info = 0
+        plotObj.out_f = out_f
+        if not (no_plot_blobs):
+            plotObj.plotBlobs(cov_lib, info_flag)
+            info_flag = 0
+    plotObj.write_stats()
+
+    if not (no_plot_reads):
+        plotObj.plotReadCov(refcov_dict)

@@ -5,7 +5,7 @@
 usage: blobtools <command> [<args>...] [--help]
 
 commands:
-  forge     create a BlobDB
+  create     create a BlobDB
   view      print BlobDB
   plot      plot BlobDB as a blobplot
 
@@ -27,8 +27,8 @@ if __name__ == '__main__':
     #print(args)
 
     argv = [args['<command>']] + args['<args>']
-    if args['<command>'] == 'forge':
-        exit(call(['python', main_dir + 'forge.py'] + argv))
+    if args['<command>'] == 'create':
+        exit(call(['python', main_dir + 'create.py'] + argv))
     elif args['<command>'] == 'view':
         exit(call(['python', main_dir + 'view.py'] + argv))
     elif args['<command>'] == 'plot':
