@@ -247,8 +247,9 @@ class BlobDb():
                 cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
                 if not len(cov_dict) == self.seqs:
                     print BtLog.warn_d['4'] % covLib.f
-                covLib.cov_sum += cov
-                self.dict_of_blobs[name].addCov(covLib.name, cov)
+                for name, cov in cov_dict.items():
+                    covLib.cov_sum += cov
+                    self.dict_of_blobs[name].addCov(covLib.name, cov)
             else:
                 pass        
             covLib.mean_cov = covLib.cov_sum/self.seqs
