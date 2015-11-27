@@ -51,7 +51,8 @@ $ ./blobtools -h
 ```
 
 ## Doc 
-- blobtools : main executable
+### blobtools 
+- main executable
 ```
 usage: blobtools <command> [<args>...] [--help]
 
@@ -63,7 +64,8 @@ commands:
 -h --help    show this
 ```
 
-- blobtools create : create a BlobDb JSON file
+### blobtools create 
+- create a BlobDb JSON file
 ```
 usage: blobtools create     -i FASTA [-y FASTATYPE] [-o OUTFILE] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]  
@@ -95,7 +97,8 @@ usage: blobtools create     -i FASTA [-y FASTATYPE] [-o OUTFILE] [--title TITLE]
         --title TITLE               Title of BlobDB [default: FASTA) 
 ```
 
-- blobtools view : generate table output from a blobDB file
+### blobtools view 
+- generate table output from a blobDB file
 ```
 usage: blobtools view    -i <BLOBDB> [-r <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>]
@@ -115,7 +118,8 @@ usage: blobtools view    -i <BLOBDB> [-r <TAXRULE>] [--rank <TAXRANK>...] [--hit
         -b, --hits                  Displays taxonomic hits from tax files
 ```
 
-blobtools plot : generate a blobplot from a blobDB file
+### blobtools plot 
+- generate a blobplot from a blobDB file
 ```
 usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
