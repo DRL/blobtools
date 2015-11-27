@@ -256,7 +256,8 @@ class PlotObj():
             for cov_lib in self.cov_libs:
                 stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib]))
                 stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib]))
-                stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads_dict[cov_lib]
+                if (self.cov_libs_total_reads_dict[cov_lib]):
+                    stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads_dict[cov_lib]
         self.stats = stats
         #for label in stats:
         #    print label, stats[label]
