@@ -300,7 +300,7 @@ class PlotObj():
             self.plot_order.append('other')
 
     def plotReadCov(self, refcov_dict):
-        mat.rcParams.update({'font.size': 14})
+        mat.rcParams.update({'font.size': 18})
         plot_data = {}
 
         main_columns = 2
