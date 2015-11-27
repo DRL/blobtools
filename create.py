@@ -4,7 +4,7 @@
 """usage: blobtools create     -i FASTA [-y FASTATYPE] [-o OUTFILE] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]  
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>] 
-                              [-t TAX...] [-r TAXRULE...]
+                              [-t TAX...] [-x TAXRULE...]
                               [-h|--help] 
     
     Options:
@@ -15,7 +15,7 @@
                                     (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
         -t, --taxfile TAX...        Taxonomy file in format (qseqid\\ttaxid\\tbitscore) 
                                     (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
-        -r, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
+        -x, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
                                     "bestsum"       : sum bitscore across all hits for each taxonomic rank
                                     "bestsumorder"  : sum bitscore across all hits for each taxonomic rank. 
                                                   - If first <TAX> file supplies hits, bestsum is calculated. 

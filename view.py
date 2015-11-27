@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools view    -i <BLOBDB> [-r <TAXRULE>] [--rank <TAXRANK>...] [--hits]
+"""usage: blobtools view    -i <BLOBDB> [-x <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>]
                             [--h|--help] 
     
@@ -11,9 +11,9 @@
         -o, --out <OUT>             Output file [default: STDOUT]
         -l, --list <LIST>           List of sequence names (comma-separated or file). 
                                     If comma-separated, no whitespaces allowed.
-        -r, --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
+        -x, --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
                                     [default: bestsum]
-        --rank <TAXRANK>...         Taxonomic rank(s) at which output will be written. 
+        -r, --rank <TAXRANK>...         Taxonomic rank(s) at which output will be written. 
                                     (supported: 'species', 'genus', 'family', 'order', 
                                     'phylum', 'superkingdom', 'all') [default: phylum]
         -b, --hits                  Displays taxonomic hits from tax files
