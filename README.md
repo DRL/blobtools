@@ -1,13 +1,56 @@
 # blobtools
-Application for the visualisation of draft genome assemblies and general QC
+Application for the visualisation of (draft) genome assemblies and general assembly QC using TAGC (Taxon-annotated Gc-Coverage) plots [Kumar et al. 2012](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3843372/pdf/fgene-04-00237.pdf).
 
-- Requirements
+## Requirements
 
 ```
-pip install matplotlib
-pip install docopt
+- Python 2.7+
+- Matplotlib 1.5 
+- Docopt 
+- Virtualenv (Recommended, see [tutorial](http://docs.python-guide.org/en/latest/dev/virtualenvs/)) 
 ```
 
+## Installation 
+- Recommended 
+```
+# install virtualenv 
+pip install virtualenv
+
+# clone blobtools into folder
+git clone https://github.com/DRL/blobtools.git
+
+# create virtual environment for blobtools  
+cd blobtools/
+virtualenv blob_env
+
+# activate virtual environment
+source blob_env/bin/activate
+
+# install matplotlib
+(blob_env) $ pip install matplotlib
+
+# install docopt
+(blob_env) $ pip install docopt 
+
+# run
+(blob_env) $ ./blobtools -h
+```
+- Basic
+```
+# clone blobtools into folder
+$ git clone https://github.com/DRL/blobtools.git
+
+# install matplotlib
+$ pip install matplotlib
+
+# install docopt
+$ pip install docopt
+
+# run
+$ ./blobtools -h
+```
+
+## Doc 
 - blobtools : main executable
 ```
 usage: blobtools <command> [<args>...] [--help]
