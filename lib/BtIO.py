@@ -153,7 +153,7 @@ def readCov(infile, set_of_blobs):
                 if name not in set_of_blobs:
                     print BtLog.warn['2'] % (name, infile)
                 cov_dict[name] = cov
-            BtLog.progress(parsed_seqs, progress_unit, len(set_of_blobs))
+            BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
         BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
     return cov_dict
 
