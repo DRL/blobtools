@@ -145,7 +145,7 @@ def readCov(infile, set_of_blobs):
     progress_unit = int(len(set_of_blobs)/100)
     with open(infile) as fh:
         for line in fh:
-            BtLog.progress(i, 10, len(set_of_blobs))
+            BtLog.progress(seqs_parsed, 10, len(set_of_blobs))
             match = cov_line_re.search(line)
             if match:
                 seqs_parsed += 1
