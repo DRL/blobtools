@@ -7,7 +7,8 @@ Application for the visualisation of (draft) genome assemblies and general assem
 - Python 2.7+
 - Matplotlib 1.5 
 - Docopt 
-- Virtualenv (Recommended, see [tutorial](http://docs.python-guide.org/en/latest/dev/virtualenvs/)) 
+- NCBI Taxonomy (names.dmp and nodes.dmp) from [taxdump.tgz](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz)
+- Virtualenv (recommended), see [tutorial](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
 ```
 
 ## Installation 
