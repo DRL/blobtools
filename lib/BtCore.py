@@ -115,7 +115,7 @@ class BlobDb():
         self.hitLibs = blobDict['hitLibs']
         self.taxrules = blobDict['taxrules']
 
-    def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index):
+    def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict):
         data_dict = {}
         read_cov_dict = {}
         max_cov = 0.0
@@ -125,7 +125,9 @@ class BlobDb():
         for blob in self.dict_of_blobs.values():
             name, gc, length, group = blob['name'], blob['gc'], blob['length'], ''
             
-            if (c_index): # annotation with c_index instead of taxonomic group 
+            if (catcolour_dict): # annotation with categories specified in catcolour
+                group = str(catcolour_dict[name])
+            elif (c_index): # annotation with c_index instead of taxonomic group
                 group = str(blob['taxonomy'][taxrule][rank]['c_index'])
             else: # annotation with taxonomic group
                 group = str(blob['taxonomy'][taxrule][rank]['tax'])

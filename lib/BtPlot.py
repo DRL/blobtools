@@ -28,7 +28,7 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 FONTSIZE = 24
-COLOURMAP = "rainbow" # "Set1", "Paired", "Set2", "Spectral"
+COLOURMAP = "Spectral" # "Set1", "Paired", "Set2", "Spectral"
 BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#4d4d4d')
 nullfmt = NullFormatter()
 
@@ -58,8 +58,20 @@ def parseRefCov(refcov_f):
                                         'reads_mapped' : int(reads_mapped_ref)
                                        }
             except:
-                BtLog.error('21')
+                BtLog.error('21', refcov_f)
     return refcov_dict
+
+def parseCatColour(catcolour_f):
+    catcolour_dict = {}
+    with open(catcolour_f) as fh:
+        for l in fh:
+            try:
+                seq_name, category = l.rstrip("\n").split(",")
+                catcolour_dict[seq_name] = category
+            except:
+                BtLog.error('23', catcolour_f)
+    return catcolour_dict
+
 
 def getSortedGroups(data_dict, sort_order):
     """ Returns list of sorted groups based on span or count. """
@@ -301,7 +313,7 @@ class PlotObj():
             self.plot_order.append('other')
 
     def plotReadCov(self, refcov_dict):
-        mat.rcParams.update({'font.size': 18})
+        mat.rcParams.update({'font.size': 24})
         plot_data = {}
 
         main_columns = 2
@@ -418,7 +430,7 @@ class PlotObj():
             group_number_of_seqs = self.stats[group]['count_visible']
             group_n50 = self.stats[group]['n50']
             blob_size_array = []
-            s, lw, alpha, colour = 15, 0.5, 1, self.colours[group]
+            s, lw, alpha, colour = 15, 0.5, 0.5, self.colours[group]
             if (self.ignore_contig_length):
                 if not group == "no-hit":
                     s = 65
@@ -448,7 +460,7 @@ class PlotObj():
             if (self.multiplot): 
                 axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
                 plot_ref_legend(axScatter)
-                m_out_f = "%s.%s.%s.blobs.%s" % (self.out_f, i, group, self.format)
+                m_out_f = "%s.%s.%s.blobs.%s" % (self.out_f, i, group.replace("/", "_").replace(" ", "_"), self.format)
                 print BtLog.status_d['8'] % m_out_f
                 plt.savefig(m_out_f, format=self.format)
         if not (self.ignore_contig_length):

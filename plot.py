@@ -5,7 +5,8 @@
                             [-r RANK] [-x TAXRULE] [--label GROUPS...] 
                             [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
                             [--colours FILE] [--include FILE] [--exclude FILE]
-                            [--format FORMAT] [--noblobs] [--noreads] [--refcov FILE]
+                            [--format FORMAT] [--noblobs] [--noreads] 
+                            [--refcov FILE] [--catcolour FILE]
                             [-h|--help] 
 
     Options:
@@ -41,8 +42,11 @@
         --noblobs                   Omit blobplot [default: False]
         --noreads                   Omit plot of reads mapping [default: False]
         --refcov FILE               File containing number of "total" and "mapped" reads 
-                                    per coverage file. (e.g.: bam0,900,100). If provided, info
-                                    will be used in read coverage plot(s). 
+                                     per coverage file. (e.g.: bam0,900,100). If provided, info
+                                     will be used in read coverage plot(s). 
+        --catcolour FILE            Colour plot based on categories from FILE 
+                                     (format : "seq\tcategory"). 
+                                    
 """
 
 from __future__ import division
@@ -79,6 +83,7 @@ if __name__ == '__main__':
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
     refcov_f = args['--refcov']
+    catcolour_f = args['--catcolour']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -112,6 +117,14 @@ if __name__ == '__main__':
     if (refcov_f):
         refcov_dict = BtPlot.parseRefCov(refcov_f)
 
+    catcolour_dict = {}
+    if (catcolour_f) and (c_index):
+        BtLog.error('24')
+    elif (catcolour_f):
+        catcolour_dict = BtPlot.parseCatColour(catcolour_f)
+    else: 
+        pass
+
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
     blobDB = bt.BlobDb('new')
@@ -124,10 +137,8 @@ if __name__ == '__main__':
     # Is taxrule sane and was it computed?
     if taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
-
-    # Get arrays and filter_dict (filter_dict lists, span/count passing filter) for those groups passing min_length, rank, hide_nohits ...
-    # make it part of core , get data by group ... should be used by stats, generalise ...
-    data_dict, max_cov, cov_libs, cov_libs_total_reads = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index)
+    
+    data_dict, max_cov, cov_libs, cov_libs_total_reads = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_libs, cov_libs_total_reads)
     plotObj.exclude_groups = exclude_groups
     plotObj.format = format
@@ -139,8 +150,7 @@ if __name__ == '__main__':
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
     plotObj.labels.update(plotObj.group_order)
-    #if len(plotObj.group_order) > plotObj.max_group_plot:
-    #    plotObj.labels.add('other')
+    
     if (user_labels):
         for group, label in user_labels.items():
             plotObj.labels.add(label)
@@ -157,6 +167,8 @@ if __name__ == '__main__':
         out_f = "%s.%s.%s.p%s" % (title, hist_type, rank, max_group_plot)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
+        if catcolour_dict:
+            out_f = "%s.%s" % (out_f, "catcolour")
         if ignore_contig_length:
             out_f = "%s.%s" % (out_f, "noscale")
         if c_index:

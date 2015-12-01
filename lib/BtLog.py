@@ -51,9 +51,10 @@ error_d = {
     '18' : '[ERROR:18]\t: Please provide a tax file in BLAST format.',
     '19' : '[ERROR:19]\t: Sequence %s in file %s is not part of the assembly.',
     '20' : '[ERROR:20]\t: Please add "clc_mapping_info" to you PATH variable.',
-    '21' : '[ERROR:21]\t: Refcov FILE does not seem to have the right format.',
-    '22' : '[ERROR:22]\t: Tax file %s seems to have no taxids.'
-
+    '21' : '[ERROR:21]\t: Refcov file %s does not seem to have the right format.',
+    '22' : '[ERROR:22]\t: Tax file %s seems to have no taxids.',
+    '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
+    '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.'
 }
 
 warn_d = {

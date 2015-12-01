@@ -12,7 +12,6 @@ To do       : ?
 from __future__ import division
 import re
 import subprocess
-import commands
 from os.path import basename, isfile, abspath
 import os
 import lib.BtLog as BtLog
