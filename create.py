@@ -63,7 +63,7 @@ if __name__ == '__main__':
     names_f = args['--names']
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
-    title = args['--title'] if (args['--title']) else os.path.basename(".".join(fasta_f.split('.')[0:-1]))
+    title = args['--title'] if (args['--title']) else out_f
 
 
     # Do files exist ?
