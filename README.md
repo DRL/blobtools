@@ -1,6 +1,10 @@
 # blobtools
 Application for the visualisation of (draft) genome assemblies and general assembly QC using TAGC (Taxon-annotated Gc-Coverage) plots [Kumar et al. 2012](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3843372/pdf/fgene-04-00237.pdf).
 
+> Once we were blobs in the sea...
+
+> -Terry Pratchett, A Hat Full of Sky
+
 ## Requirements
 
 ```
