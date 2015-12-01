@@ -165,3 +165,15 @@ usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
                                     per coverage file. (e.g.: bam0,900,100). If provided, info
                                     will be used in read coverage plot(s). 
 ```
+## Additional features
+
+### bam2cov
+- covert bam to cov
+```
+usage: blobtools bam2cov         -i FASTA -b BAM [-h|--help] 
+    
+    Options:
+        -h --help                   show this
+        -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.  
+        -b, --bam <BAM>             BAM file (requires samtools in $PATH)
+```
