@@ -147,8 +147,8 @@ class BlobDb():
                                     'span_visible' : 0,
                                     }
                 if len(cov_libs) > 1:
-                    data_dict[group]['covs']['sum'] = []
-                    data_dict[group]['reads_mapped']['sum'] = 0
+                    data_dict[group]['covs']['cov_sum'] = []
+                    data_dict[group]['reads_mapped']['cov_sum'] = 0
 
             if ((hide_nohits) and group == 'no-hit') or length < min_length: # hidden
                 data_dict[group]['count_hidden'] = data_dict[group].get('count_hidden', 0) + 1
@@ -177,14 +177,19 @@ class BlobDb():
             
             if len(cov_libs) > 1:
                 cov_sum = cov_sum if cov_sum > 0.02 else 0.02
-                data_dict[group]['covs']['sum'].append(cov_sum)
+                data_dict[group]['covs']['cov_sum'].append(cov_sum)
                 if cov > max_cov:
                     max_cov = cov
                 if (reads_mapped_sum):
-                    data_dict[group]['reads_mapped']['sum'] += reads_mapped_sum
+                    data_dict[group]['reads_mapped']['cov_sum'] += reads_mapped_sum
 
             data_dict[group]['count'] = data_dict[group].get('count', 0) + 1
             data_dict[group]['span'] = data_dict[group].get('span', 0) + int(length)
+
+        if len(cov_libs) > 1:
+            cov_libs.append('cov_sum')
+            for cov_lib, data in self.covLibs.items():
+                cov_libs_reads_total['cov_sum'] = cov_libs_reads_total.get('cov_sum', 0) + data['reads_total'] 
 
         return data_dict, max_cov, cov_libs, cov_libs_reads_total
 

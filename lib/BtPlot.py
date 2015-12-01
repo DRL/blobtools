@@ -225,7 +225,6 @@ class PlotObj():
 
     def compute_stats(self):
         stats = {}
-        
         for label in self.labels:
             stats[label] = {
                             'gc' : [], 

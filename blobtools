@@ -24,7 +24,7 @@ from docopt import docopt
 if __name__ == '__main__':
     main_dir = join(dirname(__file__), '')
     args = docopt(__doc__,
-                  version='version 0.9.4',
+                  version='version 0.9.6',
                   options_first=True)
     #print(args)
 
