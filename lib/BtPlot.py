@@ -215,14 +215,13 @@ class PlotObj():
         with open(out_f, 'w') as fh:
             for cov_lib in sorted(self.cov_libs):
                 fh.write("# %s - %s\n" % (self.out_f, cov_lib))
-                fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format('Group', 'colour', 'count', 'visible (%)', 'span', 'visible(%)', 'n50', 'GC', 'GC (std)', 'cov_mean', 'cov_std', 'read map', 'read map (%)'))        
+                fh.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % ('Group', 'colour', 'count', 'visible (%)', 'span', 'visible(%)', 'n50', 'GC', 'GC (std)', 'cov_mean', 'cov_std', 'read map', 'read map (%)'))        
                 for stat in stats:
-                    fh.write("{:<10}\t{:>10}{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\t{:<5}\t{:<5}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\n".format(\
+                    fh.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (\
                             stat['name'], stat['colour'], stat['count_total'], stat['count_visible_perc'], stat['span_total'], \
                             stat['span_visible_perc'], stat['n50'], stat['gc_mean'], stat['gc_std'], stat['cov_mean'][cov_lib], \
                             stat['cov_std'][cov_lib], stat['reads_mapped'][cov_lib], stat['reads_mapped_perc'][cov_lib]))
-        #    for d in table_data:
-        #        fh.write("{:>10}\t{:>10}\t{:>10}\t{:>10}\t{:<10}\t{:<10}\t{:<10}\n".format(d['count_total'], d['count_visible_perc'], d['span_total'], d['span_visible_perc'], d['name'], d['label'], d['colour'] ))
+
 
     def compute_stats(self):
         stats = {}
