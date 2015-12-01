@@ -167,7 +167,7 @@ usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
 ```
 ## Additional features
 
-### bam2cov
+### blobtools bam2cov
 - covert bam to cov
 ```
 usage: blobtools bam2cov         -i FASTA -b BAM [-h|--help] 
