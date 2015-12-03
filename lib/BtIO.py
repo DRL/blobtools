@@ -96,7 +96,7 @@ def readSam(infile, set_of_blobs):
 
 def readBam(infile, set_of_blobs):
     reads_total, reads_mapped = checkBam(infile)
-    progress_unit = int(int(reads_mapped)/1000) +  # lazy fix
+    progress_unit = int(int(reads_mapped)/1000) + 1 # lazy fix
     base_cov_dict = {}
     read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
