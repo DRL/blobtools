@@ -23,9 +23,9 @@
         --nodes <NODES>             NCBI nodes.dmp file. Not required if '--db'
         --names <NAMES>             NCBI names.dmp file. Not required if '--db' 
         --db <NODESDB>              NodesDB file [default: data/nodesDB.txt]. 
-        -b, --bam <BAM>...          BAM file (requires samtools in $PATH)
-        -s, --sam <SAM>...          SAM file
-        -a, --cas <CAS>...          CAS file (requires clc_mapping_info in $PATH)
+        -b, --bam <BAM>...          BAM file(s) (requires samtools in $PATH)
+        -s, --sam <SAM>...          SAM file(s)
+        -a, --cas <CAS>...          CAS file(s) (requires clc_mapping_info in $PATH)
         -c, --cov <COV>...          TAB separated. (seqID\\tcoverage)
         -o, --out <OUT>             BlobDB output prefix 
         --title TITLE               Title of BlobDB [default: FASTA)  
