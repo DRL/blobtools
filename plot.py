@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     for cov_lib in plotObj.cov_libs:
         if (plotObj.title):
-            plotObj.title = "%s.%s" % (plotObj.title, cov_lib)
+            plotObj.title = "%s.%s" % (title, cov_lib)
 
         out_f = "%s.%s.%s.p%s.%s" % (title, hist_type, rank, max_group_plot, cov_lib)
         if out_prefix:
