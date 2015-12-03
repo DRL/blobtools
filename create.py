@@ -28,7 +28,7 @@
         -a, --cas <CAS>...          CAS file(s) (requires clc_mapping_info in $PATH)
         -c, --cov <COV>...          TAB separated. (seqID\\tcoverage)
         -o, --out <OUT>             BlobDB output prefix 
-        --title TITLE               Title of BlobDB [default: FASTA)  
+        --title TITLE               Title of BlobDB [default: output prefix)  
 """
 
 from __future__ import division

@@ -50,7 +50,8 @@ if __name__ == '__main__':
         if rank not in RANKS:
             BtLog.error('9', rank)
     if 'all' in ranks:
-        ranks = RANKS[0:-1]            
+        temp_ranks = RANKS[0:-1]
+        ranks = temp_ranks[::-1]           
 
     # Is list a list of sequence names or a file?
     seqs = []
