@@ -38,6 +38,8 @@ class BlobDb():
         header += "##\n"    
         header += "# %s" % sep.join(map(str, [ "name", "length", "GC", "N"  ])) 
         header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in self.covLibs]))
+        if (len(self.covLibs)) > 1:
+            header += "%s%s" % (sep, "cov_sum")
         for rank in ranks:
             header += "%s%s" % (sep, sep.join([rank + ".t", rank + ".s", rank + ".c"]))
             if hits_flag:
@@ -62,6 +64,9 @@ class BlobDb():
         line += "\n%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ])) 
         line += sep
         line += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs]))
+        if len(self.covLibs) > 1:
+            line += "%s%s" % (sep, sum([ blob['covs'][covLib] for covLib in self.covLibs]))
+
         for rank in ranks:
             line += sep
             tax = blob['taxonomy'][taxrule][rank]['tax']
