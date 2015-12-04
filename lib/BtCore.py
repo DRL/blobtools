@@ -35,6 +35,7 @@ class BlobDb():
         header += "%s\n" % "\n".join("## " + covLib['name'] + " : " + covLib["f"] for covLib in self.covLibs.values())
         header += "%s\n" % "\n".join("## " + hitLib['name'] + " : " + hitLib["f"] for hitLib in self.hitLibs.values())
         header += "## nodesDB : %s\n" % self.nodesDB_f
+        header += "## taxrule : %s\n" % taxrule
         header += "##\n"    
         header += "# %s" % sep.join(map(str, [ "name", "length", "GC", "N"  ])) 
         header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in self.covLibs]))
