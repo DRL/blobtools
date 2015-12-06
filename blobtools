@@ -5,11 +5,12 @@
 usage: blobtools <command> [<args>...] [--help]
 
 commands:
-  create    create a BlobDB
-  view      print BlobDB
-  plot      plot BlobDB as a blobplot
+  create        create a BlobDB
+  view          print BlobDB
+  plot          plot BlobDB as a blobplot
 
-  bam2cov   generate cov file from bam file
+  comparecov    compare BlobDB cov(s) to additional cov file
+  bam2cov       generate cov file from bam file
 
 -h --help    show this
 
@@ -24,7 +25,7 @@ from docopt import docopt
 if __name__ == '__main__':
     main_dir = join(dirname(__file__), '')
     args = docopt(__doc__,
-                  version='version 0.9.7',
+                  version='version 0.9.8',
                   options_first=True)
     #print(args)
 
@@ -37,5 +38,7 @@ if __name__ == '__main__':
         exit(call(['python', main_dir + 'plot.py'] + argv))
     elif args['<command>'] == 'bam2cov':
         exit(call(['python', main_dir + 'bam2cov.py'] + argv))
+    elif args['<command>'] == 'comparecov':
+        exit(call(['python', main_dir + 'comparecov.py'] + argv))  
     else:
         exit("%r is not a blobtools command. See 'blobtools -h'." % args['<command>'])
