@@ -179,7 +179,7 @@ if __name__ == '__main__':
         if (plotObj.title):
             plotObj.title = "%s.%s.%s" % (title, taxrule, cov_lib)
 
-        out_f = "%s.%s.%s.p%s.%s" % (title, hist_type, rank, max_group_plot, cov_lib)
+        out_f = "%s.%s.%s.p%s.%s.%s" % (title, hist_type, rank, max_group_plot, scale, cov_lib)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
         #if catcolour_dict:

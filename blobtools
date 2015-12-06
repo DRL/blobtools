@@ -11,6 +11,7 @@ commands:
 
   comparecov    compare BlobDB cov(s) to additional cov file
   bam2cov       generate cov file from bam file
+  sumcov        sum coverage from multiple COV files
 
 -h --help    show this
 
@@ -40,5 +41,7 @@ if __name__ == '__main__':
         exit(call(['python', main_dir + 'bam2cov.py'] + argv))
     elif args['<command>'] == 'comparecov':
         exit(call(['python', main_dir + 'comparecov.py'] + argv))  
+    elif args['<command>'] == 'sumcov':
+        exit(call(['python', main_dir + 'sumcov.py'] + argv))  
     else:
         exit("%r is not a blobtools command. See 'blobtools -h'." % args['<command>'])

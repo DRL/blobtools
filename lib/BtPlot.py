@@ -132,13 +132,17 @@ def set_format_scatterplot(axScatter, max_cov):
     axScatter.xaxis.labelpad = 20
     return axScatter
 
-def set_format_covplot(axScatter, x_max, y_max, x_label, y_label):
-    axScatter.set_xlabel(x_label, fontsize=35)
+def set_format_covplot(axScatter, x_max, y_max, x_label, y_label, scale, cov_lib):
+    axScatter.set_xlabel(x_label + " " + cov_lib, fontsize=35)
     axScatter.set_ylabel(y_label, fontsize=35)
     axScatter.grid(True, which="major", lw=2., color=WHITE, linestyle='-') 
     axScatter.set_axisbelow(True)
-    axScatter.set_xlim( (0.01, x_max+100) )
-    axScatter.set_ylim( (0.01, y_max+100) ) # This sets the max-Coverage so that all libraries + sum are at the same scale
+    if scale == 'log':
+        axScatter.set_xlim( (0.01, x_max+100) )
+        axScatter.set_ylim( (0.01, y_max+100) ) 
+    else:
+        axScatter.set_xlim( (-10, x_max + (x_max*0.1) ) )
+        axScatter.set_ylim( (-10, y_max + (y_max*0.1) ) ) 
     axScatter.xaxis.labelpad = 20
     axScatter.xaxis.labelpad = 20
     return axScatter
@@ -363,7 +367,7 @@ class PlotObj():
         # Setting up plots and axes
         plt.figure(1, figsize=(35,35), dpi=400)
         axScatter = plt.axes(rect_scatter, axisbg=BGGREY, yscale = scale, xscale = scale)
-        axScatter = set_format_covplot(axScatter, x_max, y_max, x_label, y_label)
+        axScatter = set_format_covplot(axScatter, x_max, y_max, x_label, y_label, scale, cov_lib)
         axHistx = plt.axes(rect_histx, axisbg=BGGREY)
         axHistx = set_format_hist_x_cov(axHistx, axScatter, scale)
         axHisty = plt.axes(rect_histy, axisbg=BGGREY)
