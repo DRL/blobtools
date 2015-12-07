@@ -7,7 +7,7 @@
     
     Options:
         --h --help                  show this
-        -i, --input <BLOBDB>        BlobDB file (created with "blobtools forge")
+        -i, --input <BLOBDB>        BlobDB file (created with "blobtools create")
         -o, --out <OUT>             Output file [default: STDOUT]
         -l, --list <LIST>           List of sequence names (comma-separated or file). 
                                     If comma-separated, no whitespaces allowed.

@@ -11,7 +11,7 @@
 
     Options:
         -h --help                   show this
-        -i, --infile BLOBDB         BlobDB file
+        -i, --infile BLOBDB         BlobDB file (created with "blobtools create")
         -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining 
                                      groups are placed in 'other' [default: 7]
         -l, --length INT            Minimum sequence length considered for plotting [default: 100]
