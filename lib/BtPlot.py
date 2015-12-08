@@ -501,7 +501,7 @@ class PlotObj():
                 ax_main.set_axis_bgcolor(BGGREY)
                 ax_group = plt.subplot(gs[1])
                 ax_group.set_axis_bgcolor(BGGREY)
-                rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, width = 0.5, tick_label=plot_data[cov_lib]['group'].labels, align='right', color = plot_data[cov_lib]['group'].colours)
+                rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, width = 0.5, tick_label=plot_data[cov_lib]['group'].labels, align='center', color = plot_data[cov_lib]['group'].colours)
                 for rect_g in rect_group:
                     height_g = float(rect_g.get_height())
                     ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.1f}%'.format(height_g*100), ha='center', va='bottom')
