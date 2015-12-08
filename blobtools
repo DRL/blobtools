@@ -6,7 +6,7 @@ usage: blobtools <command> [<args>...] [--help]
 
 commands:
   create        create a BlobDB
-  view          print BlobDB
+  view          print BlobDB as a table
   plot          plot BlobDB as a blobplot
 
   comparecov    compare BlobDB cov(s) to additional cov file
