@@ -460,6 +460,7 @@ class PlotObj():
         group_columns = len(self.plot_order)
         
         for cov_lib in self.cov_libs:
+            print cov_lib, self.cov_libs_total_reads_dict[cov_lib]
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
                 main_plot = PlotReadObj()
                 group_plot = PlotReadObj()
