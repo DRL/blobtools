@@ -452,7 +452,6 @@ class PlotObj():
 
     def plotReadCov(self, refcov_dict):
         mat.rcParams.update({'font.size': 24})
-        plot_data = {}
 
         main_columns = 2
         if (refcov_dict):
@@ -460,7 +459,7 @@ class PlotObj():
         group_columns = len(self.plot_order)
         
         for cov_lib in self.cov_libs:
-            print cov_lib, self.cov_libs_total_reads_dict[cov_lib]
+            plot_data = {}
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
                 main_plot = PlotReadObj()
                 group_plot = PlotReadObj()
@@ -492,7 +491,6 @@ class PlotObj():
                     group_plot.colours.append(self.colours[group])
                 
                 plot_data[cov_lib] = {'main' : main_plot, 'group' : group_plot}
-
                 x_pos_main = arange(main_columns)
                 x_pos_group = arange(len(self.plot_order))
         
