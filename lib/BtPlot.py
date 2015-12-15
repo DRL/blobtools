@@ -520,7 +520,8 @@ class PlotObj():
                 out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
                 print BtLog.status_d['8'] % out_f
                 plt.tight_layout()
-                plt.savefig(out_f, format=self.format)            
+                plt.savefig(out_f, format=self.format)
+                plt.close()            
                 
     def plotBlobs(self, cov_lib, info_flag):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
