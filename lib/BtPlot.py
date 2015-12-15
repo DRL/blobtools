@@ -458,8 +458,8 @@ class PlotObj():
             main_columns += 2
         group_columns = len(self.plot_order)
         
-        for group in self.stats:
-            print group, self.stats[group]['reads_mapped']
+        #for group in self.stats:
+        #    print group, self.stats[group]['reads_mapped']
         for cov_lib in self.cov_libs:
             print cov_lib
             plot_data = {}
