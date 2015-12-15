@@ -458,7 +458,7 @@ class PlotObj():
             main_columns += 2
         group_columns = len(self.plot_order)
         
-        print self.cov_libs
+        print self.cov_libs_total_reads_dict
         for cov_lib in self.cov_libs:
             print cov_lib
             plot_data = {}
