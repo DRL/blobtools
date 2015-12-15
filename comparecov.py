@@ -135,9 +135,14 @@ if __name__ == '__main__':
     blobDB = bt.BlobDb('new')
     blobDB.load(blobdb_f)
 
+    # clean cov_dict from coverages below
+    #for name in cov_dict:
+    #    print name, blobDB.dict_of_blobs[name]
+
     title = blobDB.title
     if plot_title:
         plot_title = title
+
 
     # Is taxrule sane and was it computed?
     if taxrule not in blobDB.taxrules:

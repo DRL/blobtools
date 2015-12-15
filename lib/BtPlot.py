@@ -401,10 +401,7 @@ class PlotObj():
             i += 1
             group_length_array = array(self.stats[group]['length'])
             group_cov_y_array = array([cov_dict[name] for name in self.stats[group]['name']])
-            print len(group_cov_y_array)
             group_cov_x_array = array(self.stats[group]['covs'][cov_lib])
-            print len(group_cov_x_array)
-            print len([l for l in self.stats[group]['length'] if l >= 100])
             # calculate values for legend
             if len(group_length_array) > 0:
                 group_span_in_mb = round(self.stats[group]['span_visible']/1000000, 2)
