@@ -75,23 +75,27 @@ def checkBam(infile):
 
 def readSam(infile, set_of_blobs):
     base_cov_dict = {}
+    read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
     reads_total = 0
     reads_mapped = 0
     with open(infile) as fh:
         for line in fh:
-            match = line.split("\t")
-            if match >= 11:
-                reads_total += 1
-                seq_name = match[2]
-                if not seq_name == '*':  
-                    if seq_name not in set_of_blobs:
-                        print BtLog.warn_d['2'] % (seq_name, infile)
-                    base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-                    if (base_cov):
-                        reads_mapped += 1
-                        base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
-                        read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+            if line.startswith("@"):
+                pass
+            else:
+                match = line.split("\t")
+                if match >= 11:
+                    reads_total += 1
+                    seq_name = match[2]
+                    if not seq_name == '*':  
+                        if seq_name not in set_of_blobs:
+                            print BtLog.warn_d['2'] % (seq_name, infile)
+                        base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
+                        if (base_cov):
+                            reads_mapped += 1
+                            base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
