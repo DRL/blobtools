@@ -458,6 +458,7 @@ class PlotObj():
             main_columns += 2
         group_columns = len(self.plot_order)
         
+        print self.cov_libs
         for cov_lib in self.cov_libs:
             print cov_lib
             plot_data = {}
@@ -467,7 +468,6 @@ class PlotObj():
                 # unmapped (assembly)
                 reads_total = self.cov_libs_total_reads_dict[cov_lib]
                 reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-                print reads_total, reads_unmapped, self.stats['all']
                 if cov_lib in refcov_dict:
                     reads_total_ref = refcov_dict[cov_lib]['reads_total']
                     reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped'] 
