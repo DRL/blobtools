@@ -213,14 +213,14 @@ class BlobDb():
             self.covLibs[fasta_type] = CovLibObj(fasta_type, fasta_type, fasta_f)
 
         for name, seq in BtIO.readFasta(fasta_f):
-            blObj = BlObj(name, seq)
+            blObj = BlObj(name.split()[0], seq)
             if not blObj.name in self.dict_of_blobs:
                 self.seqs += 1
                 self.length += blObj.length
                 self.n_count += blObj.n_count
                 
                 if (fasta_type):
-                    cov = BtIO.parseCovFromHeader(fasta_type, blObj.name)
+                    cov = BtIO.parseCovFromHeader(fasta_type, name)
                     self.covLibs[fasta_type].cov_sum += cov
                     blObj.addCov(fasta_type, cov)
 

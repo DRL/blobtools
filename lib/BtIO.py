@@ -30,7 +30,8 @@ def readFasta(infile):
             if l[0] == '>':
                 if (header):
                     yield header, ''.join(seqs)
-                header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
+                #header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
+                header, seqs = l[1:-1], []
             else:
                 seqs.append(l[:-1])
         yield header, ''.join(seqs)
@@ -75,27 +76,23 @@ def checkBam(infile):
 
 def readSam(infile, set_of_blobs):
     base_cov_dict = {}
-    read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
     reads_total = 0
     reads_mapped = 0
     with open(infile) as fh:
         for line in fh:
-            if line.startswith("@"):
-                pass
-            else:
-                match = line.split("\t")
-                if match >= 11:
-                    reads_total += 1
-                    seq_name = match[2]
-                    if not seq_name == '*':  
-                        if seq_name not in set_of_blobs:
-                            print BtLog.warn_d['2'] % (seq_name, infile)
-                        base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-                        if (base_cov):
-                            reads_mapped += 1
-                            base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
-                            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+            match = line.split("\t")
+            if match >= 11:
+                reads_total += 1
+                seq_name = match[2]
+                if not seq_name == '*':  
+                    if seq_name not in set_of_blobs:
+                        print BtLog.warn_d['2'] % (seq_name, infile)
+                    base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
+                    if (base_cov):
+                        reads_mapped += 1
+                        base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                        read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict        
 
 def readBam(infile, set_of_blobs):
@@ -138,7 +135,7 @@ def parseCovFromHeader(fasta_type, header ):
     elif fasta_type == 'velvet':
         return float(header.split("_")[-1])
     elif fasta_type == 'abyss':
-        temp = header.split(" ")
+        temp = map(int, filter(None, header.split(" "))[:3])
         return float(temp[2]/(temp[1]+1-75))
     else:
         pass
