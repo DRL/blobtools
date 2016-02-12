@@ -295,18 +295,6 @@ class BlobDb():
                     blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages)
                 else:
                     blObj.taxonomy[taxrule] = BtTax.noHit()
-
-    def counts(self):
-        count_dict = {
-            'seqs'     : self.seqs,
-            'length'   : self.length,
-            'Ns'       : self.n_count,
-            'AvgCov'   : {lib : round(covlibObj.cov_sum/self.seqs, 2) for lib, covlibObj in self.covLibs.items()},
-            'GC'       : round(sum([blObj.gc for blObj in self.dict_of_blobs.values()])/self.seqs, 2),
-            'MappedReads' : {lib : (covlibObj.reads_mapped) for lib, covlibObj in self.covLibs.items()},
-            'TotalReads' : {lib : (covlibObj.reads_total) for lib, covlibObj in self.covLibs.items()}
-        }
-        print count_dict
     
     def getBlobs(self):
         for blObj in [self.dict_of_blobs[key] for key in self.order_of_blobs]:

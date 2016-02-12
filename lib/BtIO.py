@@ -147,10 +147,9 @@ def readCov(infile, set_of_blobs):
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     cov_dict = {}
     seqs_parsed = 0
-    progress_unit = int(len(set_of_blobs)/100)
+    progress_unit = 1
     with open(infile) as fh:
         for line in fh:
-            BtLog.progress(seqs_parsed, 10, len(set_of_blobs))
             match = cov_line_re.search(line)
             if match:
                 seqs_parsed += 1

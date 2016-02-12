@@ -50,8 +50,8 @@ def getLineages(tree_lists, nodesDB):
 	return lineage
 
 def taxRule(taxrule, hits, lineages):
-	taxonomy = { rank : {'tax' : '', 'score' : 0.0, 'c_index' : 0 } for rank in RANKS} 
-	tempTax = { rank : {} for rank in RANKS} 
+	taxonomy = { rank : {'tax' : '', 'score' : 0.0, 'c_index' : 0 } for rank in RANKS } 
+	tempTax = { rank : {} for rank in RANKS } 
 	taxDict = getTaxDict(hits, lineages) # here libs are separated
 	if taxrule == 'bestsum':
 		for lib in sorted(taxDict):

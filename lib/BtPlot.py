@@ -299,7 +299,7 @@ class PlotObj():
         # gather data
         for group, labels in self.group_labels.items():
             for label in labels:    
-                stats[label]['name'] = self.data_dict[group]['name']
+                stats[label]['name'] = stats[label]['name'] + self.data_dict[group]['name']
                 stats[label]['groups'].add(group)
                 stats[label]['gc'] = stats[label]['gc'] + self.data_dict[group]['gc']
                 stats[label]['length'] = stats[label]['length'] + self.data_dict[group]['length']
