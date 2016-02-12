@@ -23,11 +23,12 @@ def progress(iteration, steps, max_value):
     if int(iteration == max_value):
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (100)
+    elif int(iteration) % int(steps) == 0:
+        sys.stdout.write('\r')
+        print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value))*100),
+        sys.stdout.flush()
     else:
-        if int(iteration) % int(steps) == 0:
-            sys.stdout.write('\r')
-            print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value)*100)),
-            sys.stdout.flush()
+        pass
 
 error_d = {
     '0' : '[ERROR:0]\t: File %s does not exist.',
