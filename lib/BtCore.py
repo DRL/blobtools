@@ -300,7 +300,7 @@ class BlobDb():
                 for name, cov in cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
-                    self.dict_of_blobs[name].read_cov = {covLib.name : read_cov_dict[name]}
+                    self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
 
             elif covLib.fmt == 'cov':
                 cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
