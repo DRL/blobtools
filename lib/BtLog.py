@@ -22,7 +22,7 @@ def error(message, *argv):
 def progress(iteration, steps, max_value):
     if int(iteration == max_value):
         sys.stdout.write('\r')
-        print "[PROGRESS]\t: %d%%\n" % (100)
+        print "[PROGRESS]\t: %d%%" % (100)
     elif int(iteration) % int(steps) == 0:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value))*100),
