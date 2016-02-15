@@ -531,6 +531,7 @@ class PlotObj():
                 plt.close()            
                 
     def plotBlobs(self, cov_lib, info_flag):
+
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
         # Setting up plots and axes
         plt.figure(1, figsize=(35,35), dpi=400)
@@ -587,12 +588,6 @@ class PlotObj():
                 if group == "no-hit":
                     alpha = 0.5
                 weights_array = group_length_array/1000
-                print group
-                print group_gc_array
-                print group_cov_array
-                print weights_array
-                print top_bins
-                print right_bins
                 # generate label for legend
                 fmt_seqs = "{:,}".format(group_number_of_seqs)
                 fmt_span = "{:,}".format(group_span_in_mb)

@@ -145,7 +145,7 @@ class BlobDb():
         data_dict = {}
         read_cov_dict = {}
         max_cov = 0.0
-        
+        print self.covLibs
         cov_lib_dict = self.covLibs
         #print cov_lib_dict
         cov_lib_names_l = self.covLibs.keys() # does not include cov_sum
@@ -203,8 +203,10 @@ class BlobDb():
                 cov_sum = 0.0
                 reads_mapped_sum = 0
                 for cov_lib in sorted(cov_lib_names_l):
-                    cov = float(blob['covs'][cov_lib]) 
-                    cov = cov if cov > 0.02 else 0.02
+                    cov = float(blob['covs'][cov_lib])
+                    if cov < 0.02:
+                        cov = 0.02
+                    #cov = cov if cov > 0.02 else 0.02
                     # increase max_cov
                     if cov > max_cov:
                         max_cov = cov
@@ -221,13 +223,13 @@ class BlobDb():
                         reads_mapped_sum += reads_mapped
                 
                 if len(cov_lib_names_l) > 1:
-                    cov_sum = cov_sum if cov_sum > 0.02 else 0.02
+                    if cov_sum < 0.02 :
+                        cov_sum = 0.02
                     data_dict[group]['covs']['sum'].append(cov_sum)
-                    if cov > max_cov:
-                        max_cov = cov
+                    if cov_sum > max_cov:
+                        max_cov = cov_sum
                     if (reads_mapped_sum):
                         data_dict[group]['reads_mapped']['sum'] += reads_mapped_sum
-
         #if len(cov_lib_names_l) > 1:
         #    for cov_lib, data in self.covLibs.items():
         #        cov_libs_reads_total['cov_sum'] = cov_libs_reads_total.get('cov_sum', 0) + data['reads_total'] 
@@ -312,6 +314,9 @@ class BlobDb():
             else:
                 pass        
             covLib.mean_cov = covLib.cov_sum/self.seqs
+            if covLib.cov_sum == 0.0:
+                print BtLog.error['26'] % (covLib.f)
+            print covLib.cov_sum
             self.covLibs[covLib.name] = covLib
 
 
@@ -377,7 +382,7 @@ class CovLibObj():
         self.name = name
         self.fmt = fmt
         self.f = abspath(f) if (f) else ''
-        self.cov_sum = 0
+        self.cov_sum = 0.0
         self.reads_total = 0
         self.reads_mapped = 0
         self.mean_cov = 0.0
