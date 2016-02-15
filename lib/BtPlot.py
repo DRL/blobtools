@@ -587,6 +587,12 @@ class PlotObj():
                 if group == "no-hit":
                     alpha = 0.5
                 weights_array = group_length_array/1000
+                print group
+                print group_gc_array
+                print group_cov_array
+                print weights_array
+                print top_bins
+                print right_bins
                 # generate label for legend
                 fmt_seqs = "{:,}".format(group_number_of_seqs)
                 fmt_span = "{:,}".format(group_span_in_mb)
@@ -596,12 +602,6 @@ class PlotObj():
                     print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
                 legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
                 legend_labels.append(label)
-                print group
-                print group_gc_array
-                print group_cov_array
-                print weights_array
-                print top_bins
-                print right_bins
                 if (self.hist_type == "span"):
                     axHistx.hist(group_gc_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
                     axHisty.hist(group_cov_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)

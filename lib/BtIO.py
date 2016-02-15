@@ -202,7 +202,7 @@ def readCas(infile, order_of_blobs):
                     seqs_parsed += 1
                 except:
                     pass
-            BtLog.progress(seqs_parsed, progress_unit, seqs_total)
+                BtLog.progress(seqs_parsed, progress_unit, seqs_total)
     return cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def readTax(infile, set_of_blobs):
