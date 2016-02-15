@@ -315,7 +315,7 @@ class BlobDb():
                 pass        
             covLib.mean_cov = covLib.cov_sum/self.seqs
             if covLib.cov_sum == 0.0:
-                print BtLog.error['26'] % (covLib.f)
+                print BtLog.error_d['26'] % (covLib.f)
             print covLib.cov_sum
             self.covLibs[covLib.name] = covLib
 
