@@ -23,11 +23,12 @@ def progress(iteration, steps, max_value):
     if int(iteration == max_value):
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (100)
+    elif int(iteration) % int(steps) == 0:
+        sys.stdout.write('\r')
+        print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value))*100),
+        sys.stdout.flush()
     else:
-        if int(iteration) % int(steps) == 0:
-            sys.stdout.write('\r')
-            print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value)*100)),
-            sys.stdout.flush()
+        pass
 
 error_d = {
     '0' : '[ERROR:0]\t: File %s does not exist.',
@@ -55,7 +56,8 @@ error_d = {
     '22' : '[ERROR:22]\t: Tax file %s seems to have no taxids.',
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
-    '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.'
+    '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
+    '26' : '[ERROR:26]\t: The cumulative coverage of cov lib %s is 0.0. Please check the mapping/coverage file.'
 }
 
 warn_d = {

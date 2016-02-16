@@ -14,6 +14,7 @@ import re
 import subprocess
 from os.path import basename, isfile, abspath
 import os
+import sys
 import lib.BtLog as BtLog
 
 def parseList(infile):
@@ -100,7 +101,7 @@ def readSam(infile, set_of_blobs):
 
 def readBam(infile, set_of_blobs):
     reads_total, reads_mapped = checkBam(infile)
-    progress_unit = int(int(reads_mapped)/1000) + 1 # lazy fix
+    progress_unit = int(reads_mapped/1000)
     base_cov_dict = {}
     read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
@@ -109,21 +110,21 @@ def readBam(infile, set_of_blobs):
     # ADD flag picard -F 1028 to not consider optical duplicates
     #command = "samtools view -F 1028 " + infile
     # only one counter since only yields mapped reads
+    seen_reads = 0
     parsed_reads = 0 
     for line in runCmd(command):
         match = line.split("\t")
-        if match >= 11:
-            seq_name = match[2]
-            base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-            if (base_cov):
-                parsed_reads += 1
-                if seq_name not in set_of_blobs:
-                    print BtLog.warn_d['2'] % (seq_name, infile)
-                else:
-                    base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
-                    read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
-        BtLog.progress(parsed_reads, progress_unit, reads_total)
-    BtLog.progress(reads_total, progress_unit, reads_total)
+        seen_reads += 1
+        seq_name = match[2]
+        base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
+        if (base_cov):
+            parsed_reads += 1
+            if seq_name not in set_of_blobs:
+                print BtLog.warn_d['2'] % (seq_name, infile)
+            else:
+                base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+                read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+        BtLog.progress(seen_reads, progress_unit, reads_mapped)
     if not int(reads_mapped) == int(parsed_reads):
         print warn_d['3'] % (reads_mapped, parsed_reads)
     return base_cov_dict, reads_total, parsed_reads, read_cov_dict
@@ -147,10 +148,9 @@ def readCov(infile, set_of_blobs):
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     cov_dict = {}
     seqs_parsed = 0
-    progress_unit = int(len(set_of_blobs)/100)
+    progress_unit = 1
     with open(infile) as fh:
         for line in fh:
-            BtLog.progress(seqs_parsed, 10, len(set_of_blobs))
             match = cov_line_re.search(line)
             if match:
                 seqs_parsed += 1
@@ -202,8 +202,7 @@ def readCas(infile, order_of_blobs):
                     seqs_parsed += 1
                 except:
                     pass
-            BtLog.progress(seqs_parsed, progress_unit, seqs_total)
-        BtLog.progress(seqs_total, progress_unit, seqs_total)
+                BtLog.progress(seqs_parsed, progress_unit, seqs_total)
     return cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def readTax(infile, set_of_blobs):

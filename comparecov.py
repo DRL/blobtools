@@ -21,8 +21,7 @@
 
         -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining 
                                      groups are placed in 'other' [default: 7]
-        -r, --rank RANK             Taxonomic rank used for colouring of blobs [default: superkingdom]
-                                     (Supported: superkingdom) 
+        -r, --rank RANK             Taxonomic rank used for colouring of blobs [default: phylum]
         -x, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy 
                                      (Supported: bestsum, bestsumorder) [default: bestsum]
         --sort <ORDER>              Sort order for plotting [default: span]

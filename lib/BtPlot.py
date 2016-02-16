@@ -212,12 +212,13 @@ class PlotReadObj():
         self.colours = []
 
 class PlotObj():
-    def __init__(self, data_dict, cov_libs, cov_libs_total_reads_d):
+    def __init__(self, data_dict, cov_lib_dict):
         self.labels = {'all'}
         self.group_labels = {}
-        self.cov_libs = cov_libs
+        self.cov_libs = cov_lib_dict.keys()
         self.data_dict = data_dict
-        self.cov_libs_total_reads_dict = cov_libs_total_reads_d
+        self.cov_libs_total_reads_dict = { x : cov_lib_dict[x]['reads_total'] for x in cov_lib_dict }
+        self.cov_libs_mapped_reads_dict = { x : cov_lib_dict[x]['reads_mapped'] for x in cov_lib_dict }
         self.stats = {}
         self.exclude_groups = []
         self.colours = {}
@@ -274,6 +275,8 @@ class PlotObj():
 
     def compute_stats(self):
         stats = {}
+        # Initiate stats dict
+        
         for label in self.labels:
             stats[label] = {
                             'name' : [],
@@ -297,9 +300,10 @@ class PlotObj():
                             }
 
         # gather data
+        #print len(stats), stats.keys()
         for group, labels in self.group_labels.items():
             for label in labels:    
-                stats[label]['name'] = self.data_dict[group]['name']
+                stats[label]['name'] = stats[label]['name'] + self.data_dict[group]['name']
                 stats[label]['groups'].add(group)
                 stats[label]['gc'] = stats[label]['gc'] + self.data_dict[group]['gc']
                 stats[label]['length'] = stats[label]['length'] + self.data_dict[group]['length']
@@ -312,7 +316,7 @@ class PlotObj():
                 for cov_lib in self.cov_libs:
                     stats[label]['covs'][cov_lib] = stats[label]['covs'][cov_lib] + self.data_dict[group]['covs'][cov_lib]
                     stats[label]['reads_mapped'][cov_lib] += self.data_dict[group]['reads_mapped'][cov_lib]
-  
+        
         for label in stats:
             stats[label]['gc_mean'] = mean(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0 else 0.0
             stats[label]['gc_std'] = std(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0 else 0.0
@@ -320,9 +324,12 @@ class PlotObj():
             for cov_lib in self.cov_libs:
                 stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0 else 0.0
                 stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0 else 0.0
-                if (self.cov_libs_total_reads_dict[cov_lib]):
+                if self.cov_libs_total_reads_dict[cov_lib]:
                     stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads_dict[cov_lib]
+        
         self.stats = stats
+        
+                
     
     def relabel_and_colour(self, colour_f, user_labels):
         if (colour_f):
@@ -460,7 +467,6 @@ class PlotObj():
         #for group in self.stats:
         #    print group, self.stats[group]['reads_mapped']
         for cov_lib in self.cov_libs:
-            print cov_lib
             plot_data = {}
             if not self.cov_libs_total_reads_dict[cov_lib] == 0:
                 main_plot = PlotReadObj()
@@ -505,11 +511,11 @@ class PlotObj():
                 rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, width = 0.5, tick_label=plot_data[cov_lib]['group'].labels, align='center', color = plot_data[cov_lib]['group'].colours)
                 for rect_g in rect_group:
                     height_g = float(rect_g.get_height())
-                    ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.1f}%'.format(height_g*100), ha='center', va='bottom')
+                    ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.2f}%'.format(height_g*100), ha='center', va='bottom')
                 rect_main = ax_main.bar(x_pos_main, plot_data[cov_lib]['main'].values, width = 0.5, tick_label=plot_data[cov_lib]['main'].labels, align='center', color = plot_data[cov_lib]['main'].colours)
                 for rect_m in rect_main:
                     height_m = float(rect_m.get_height())
-                    ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.1f}%'.format(height_m*100), ha='center', va='bottom')
+                    ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.2f}%'.format(height_m*100), ha='center', va='bottom')
                 ax_main.set_ylim(0, 1.1)
                 ax_group.set_ylim(0, 1.1)
                 ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
@@ -518,13 +524,14 @@ class PlotObj():
                 ax_group.set_xticklabels(plot_data[cov_lib]['group'].labels, rotation=45)
                 ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--') 
                 ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
-                out_f = "%s.%s.read_cov.%s" % (self.out_f, cov_lib, self.format)
+                out_f = "%s.read_cov.%s.%s" % (self.out_f, cov_lib, self.format)
                 print BtLog.status_d['8'] % out_f
                 plt.tight_layout()
                 plt.savefig(out_f, format=self.format)
                 plt.close()            
                 
     def plotBlobs(self, cov_lib, info_flag):
+
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
         # Setting up plots and axes
         plt.figure(1, figsize=(35,35), dpi=400)
@@ -601,13 +608,13 @@ class PlotObj():
                 if (self.multiplot): 
                     axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
                     plot_ref_legend(axScatter)
-                    m_out_f = "%s.%s.%s.blobs.%s" % (self.out_f, i, group.replace("/", "_").replace(" ", "_"), self.format)
+                    m_out_f = "%s.%s.blobs.%s.%s" % (self.out_f, i, group.replace("/", "_").replace(" ", "_"), self.format)
                     print BtLog.status_d['8'] % m_out_f
                     plt.savefig(m_out_f, format=self.format)
         if not (self.ignore_contig_length):
             plot_ref_legend(axScatter)
         axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-        out_f = "%s.%s.blobs.%s" % (self.out_f, cov_lib, self.format)
+        out_f = "%s.blobs.%s.%s" % (self.out_f, cov_lib, self.format)
         print BtLog.status_d['8'] % out_f
         plt.savefig(out_f, format=self.format) 
         plt.close()  
