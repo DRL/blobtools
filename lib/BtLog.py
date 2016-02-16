@@ -57,7 +57,7 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: The cumulative coverage of %s is 0.0. Please check you mapping/coverage file.'
+    '26' : '[ERROR:26]\t: The cumulative coverage of cov lib %s is 0.0. Please check the mapping/coverage file.'
 }
 
 warn_d = {
