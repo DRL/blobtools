@@ -246,7 +246,11 @@ def getNodesDB(**kwargs):
     '''
     nodesDB = {}
     nodesDB_f = ''    
-    if (kwargs['names'] and kwargs['nodes']):
+    if (kwargs['nodesDB']):
+        print BtLog.status_d['4'] % (kwargs['nodesDB'])
+        nodesDB = readNodesDB(kwargs['nodesDB'])
+        nodesDB_f = kwargs['nodesDB']
+    elif (kwargs['names'] and kwargs['nodes']):
         print BtLog.status_d['3'] % (kwargs['nodes'], kwargs['names'])
         nodesDB = {}
         nodes_count = 0
@@ -266,10 +270,6 @@ def getNodesDB(**kwargs):
                    nodesDB[names_col[0]]['name'] = names_col[2]
         nodesDB_f = kwargs['nodesDB']
         nodesDB['nodes_count'] = nodes_count
-    elif(kwargs['nodesDB']):
-        print BtLog.status_d['4'] % (kwargs['nodesDB'])
-        nodesDB = readNodesDB(kwargs['nodesDB'])
-        nodesDB_f = kwargs['nodesDB']
     else:
         BtLog.error('3')
     return nodesDB, nodesDB_f

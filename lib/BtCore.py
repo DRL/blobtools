@@ -145,7 +145,7 @@ class BlobDb():
         data_dict = {}
         read_cov_dict = {}
         max_cov = 0.0
-        print self.covLibs
+
         cov_lib_dict = self.covLibs
         #print cov_lib_dict
         cov_lib_names_l = self.covLibs.keys() # does not include cov_sum

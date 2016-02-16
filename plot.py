@@ -138,8 +138,8 @@ if __name__ == '__main__':
     if taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
     
-    data_dict, max_cov, cov_lib_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
-    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict)
+    data_dict, max_cov, cov_libs, cov_libs_total_reads = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
+    plotObj = BtPlot.PlotObj(data_dict, cov_libs, cov_libs_total_reads)
     plotObj.exclude_groups = exclude_groups
     plotObj.format = format
     plotObj.max_cov = max_cov
@@ -164,7 +164,7 @@ if __name__ == '__main__':
         if (plotObj.title):
             plotObj.title = "%s.%s.%s" % (title, taxrule, cov_lib)
 
-        out_f = "%s.%s.%s.p%s" % (title, hist_type, rank, max_group_plot)
+        out_f = "%s.%s.%s.p%s.%s" % (title, hist_type, rank, max_group_plot, cov_lib)
         if out_prefix:
             out_f = "%s.%s" % (out_prefix, out_f)
         if catcolour_dict:
