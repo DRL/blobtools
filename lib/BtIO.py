@@ -4,7 +4,7 @@
 """
 File        : BtIO.py
 Version     : 0.1
-Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com 
+Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 Bugs        : ?
 To do       : ?
 """
@@ -25,9 +25,9 @@ def parseList(infile):
     return seqs
 
 def readFasta(infile):
-    with open(infile) as fh: 
+    with open(infile) as fh:
         header, seqs = '', []
-        for l in fh: 
+        for l in fh:
             if l[0] == '>':
                 if (header):
                     yield header, ''.join(seqs)
@@ -89,15 +89,15 @@ def readSam(infile, set_of_blobs):
                 if match >= 11:
                     reads_total += 1
                     seq_name = match[2]
-                    if not seq_name == '*':  
+                    if not seq_name == '*':
                         if seq_name not in set_of_blobs:
                             print BtLog.warn_d['2'] % (seq_name, infile)
                         base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
                         if (base_cov):
                             reads_mapped += 1
-                            base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
-                            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
-    return base_cov_dict, reads_total, reads_mapped, read_cov_dict        
+                            base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov
+                            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
+    return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def readBam(infile, set_of_blobs):
     reads_total, reads_mapped = checkBam(infile)
@@ -111,7 +111,7 @@ def readBam(infile, set_of_blobs):
     #command = "samtools view -F 1028 " + infile
     # only one counter since only yields mapped reads
     seen_reads = 0
-    parsed_reads = 0 
+    parsed_reads = 0
     for line in runCmd(command):
         match = line.split("\t")
         seen_reads += 1
@@ -122,16 +122,16 @@ def readBam(infile, set_of_blobs):
             if seq_name not in set_of_blobs:
                 print BtLog.warn_d['2'] % (seq_name, infile)
             else:
-                base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
-                read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1 
+                base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov
+                read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
         BtLog.progress(seen_reads, progress_unit, reads_mapped)
     if not int(reads_mapped) == int(parsed_reads):
         print warn_d['3'] % (reads_mapped, parsed_reads)
     return base_cov_dict, reads_total, parsed_reads, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header ):
-    ''' 
-    Returns the coverage from the header of a FASTA 
+    '''
+    Returns the coverage from the header of a FASTA
     sequence depending on the assembly type
     '''
     if fasta_type == 'spades':
@@ -187,12 +187,12 @@ def readCas(infile, order_of_blobs):
     command = "clc_mapping_info -n " + infile
     cov_dict = {}
     read_cov_dict = {}
-    seqs_parsed = 0 
+    seqs_parsed = 0
     if (runCmd(command)):
         for line in runCmd(command):
             cas_line_match = cas_line_re.search(line)
             if cas_line_match:
-                idx = int(cas_line_match.group(1)) - 1 # -1 because index of contig list starts with zero 
+                idx = int(cas_line_match.group(1)) - 1 # -1 because index of contig list starts with zero
                 try:
                     name = order_of_blobs[idx]
                     reads = int(cas_line_match.group(3))
@@ -239,18 +239,15 @@ def parseColourDict(infile):
 
 def getNodesDB(**kwargs):
     '''
-    Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that 
-    gets JSON'ed into blobtools/data/nodes_db.json if this file 
-    does not exist. This file is used if neither "--names" and "--nodes" 
+    Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that
+    gets JSON'ed into blobtools/data/nodes_db.json if this file
+    does not exist. This file is used if neither "--names" and "--nodes"
     nor "--db" is specified.
     '''
     nodesDB = {}
-    nodesDB_f = ''    
-    if (kwargs['nodesDB']):
-        print BtLog.status_d['4'] % (kwargs['nodesDB'])
-        nodesDB = readNodesDB(kwargs['nodesDB'])
-        nodesDB_f = kwargs['nodesDB']
-    elif (kwargs['names'] and kwargs['nodes']):
+    nodesDB_f = ''
+
+    if (kwargs['names'] and kwargs['nodes']):
         print BtLog.status_d['3'] % (kwargs['nodes'], kwargs['names'])
         nodesDB = {}
         nodes_count = 0
@@ -258,7 +255,7 @@ def getNodesDB(**kwargs):
             for line in fh:
                 nodes_col = line.split("\t")
                 node = {}
-                node_id = nodes_col[0] 
+                node_id = nodes_col[0]
                 node['parent'] = nodes_col[2]
                 node['rank'] = nodes_col[4]
                 nodesDB[node_id] = node
@@ -270,6 +267,10 @@ def getNodesDB(**kwargs):
                    nodesDB[names_col[0]]['name'] = names_col[2]
         nodesDB_f = kwargs['nodesDB']
         nodesDB['nodes_count'] = nodes_count
+    elif (kwargs['nodesDB']):
+        print BtLog.status_d['4'] % (kwargs['nodesDB'])
+        nodesDB = readNodesDB(kwargs['nodesDB'])
+        nodesDB_f = kwargs['nodesDB']
     else:
         BtLog.error('3')
     return nodesDB, nodesDB_f
@@ -293,9 +294,9 @@ def writeNodesDB(nodesDB, nodesDB_f):
     nodes_count = nodesDB['nodes_count']
     i = 0
     with open(nodesDB_f, 'w') as fh:
-        fh.write("# nodes_count = %s\n" % nodes_count) 
+        fh.write("# nodes_count = %s\n" % nodes_count)
         for node in nodesDB:
-            if not node == "nodes_count": 
+            if not node == "nodes_count":
                 i += 1
                 BtLog.progress(i, 1000, nodes_count)
                 fh.write("%s\t%s\t%s\t%s\n" % (node, nodesDB[node]['rank'], nodesDB[node]['name'], nodesDB[node]['parent']))
@@ -316,26 +317,26 @@ def byteify(input):
 def writeJsonGzip(obj, outfile):
     import json
     import gzip
-    with gzip.open(outfile, 'wb') as fh:    
+    with gzip.open(outfile, 'wb') as fh:
         json.dump(obj, fh)
 
 def writeJson(obj, outfile):
     import json
-    with open(outfile, 'w') as fh:    
+    with open(outfile, 'w') as fh:
         json.dump(obj, fh)
 
 def readJsonGzip(infile):
     import json
     import gzip
-    with gzip.open(infile, 'rb') as fh:    
+    with gzip.open(infile, 'rb') as fh:
         obj = json.loads(fh.read().decode("ascii"))
     return byteify(obj)
 
 def readJson(infile):
     import json
-    with open(infile, 'r') as fh:    
+    with open(infile, 'r') as fh:
         obj = json.loads(fh.read().decode("ascii"))
     return byteify(obj)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     pass
