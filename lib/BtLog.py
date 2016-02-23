@@ -4,7 +4,7 @@
 """
 File        : BtLog.py
 Version     : 0.1
-Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com 
+Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 Bugs        : ?
 To do       : ?
 """
@@ -34,7 +34,7 @@ error_d = {
     '0' : '[ERROR:0]\t: File %s does not exist.',
     '1' : '[ERROR:1]\t: Please provide coverage information.',
     '2' : '[ERROR:2]\t: Assembly type is not valid (%s).',
-    '3' : '[ERROR:3]\t: nodesDB ("--db") or names.dmp/nodes.dmp ("--nodes", "--names") not specified.',
+    '3' : '[ERROR:3]\t: nodesDB ("--db") or names.dmp/nodes.dmp ("--nodes", "--names") could not be read.',
     '4' : '[ERROR:4]\t: BlobDB.parseFasta() - no sequences found. Check FASTA file.',
     '5' : '[ERROR:5]\t: Sequence header %s is not unique.',
     '6' : '[ERROR:6]\t: BlobDB.readBam() - sequence header %s in %s was not in FASTA.',
@@ -61,7 +61,7 @@ error_d = {
 }
 
 warn_d = {
-    '0' : '[WARN]\t: No tax files specified.', 
+    '0' : '[WARN]\t: No tax files specified.',
     '1' : '[WARN]\t: %s not in colour file %s ...',
     '2' : '[WARN]\t: %s in file %s is not part of the assembly',
     '3' : '[WARN]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
@@ -87,5 +87,5 @@ info_d = {
     '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt'
     }
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     pass

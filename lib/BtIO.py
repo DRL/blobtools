@@ -251,26 +251,32 @@ def getNodesDB(**kwargs):
         print BtLog.status_d['3'] % (kwargs['nodes'], kwargs['names'])
         nodesDB = {}
         nodes_count = 0
-        with open(kwargs['nodes']) as fh:
-            for line in fh:
-                nodes_col = line.split("\t")
-                node = {}
-                node_id = nodes_col[0]
-                node['parent'] = nodes_col[2]
-                node['rank'] = nodes_col[4]
-                nodesDB[node_id] = node
-                nodes_count += 1
-        with open(kwargs['names']) as fh:
-            for line in fh:
-                names_col = line.split("\t")
-                if names_col[6] == "scientific name":
-                   nodesDB[names_col[0]]['name'] = names_col[2]
-        nodesDB_f = kwargs['nodesDB']
-        nodesDB['nodes_count'] = nodes_count
+        try:
+            with open(kwargs['nodes']) as fh:
+                for line in fh:
+                    nodes_col = line.split("\t")
+                    node = {}
+                    node_id = nodes_col[0]
+                    node['parent'] = nodes_col[2]
+                    node['rank'] = nodes_col[4]
+                    nodesDB[node_id] = node
+                    nodes_count += 1
+            with open(kwargs['names']) as fh:
+                for line in fh:
+                    names_col = line.split("\t")
+                    if names_col[6] == "scientific name":
+                       nodesDB[names_col[0]]['name'] = names_col[2]
+            nodesDB_f = kwargs['nodesDB']
+            nodesDB['nodes_count'] = nodes_count
+        except:
+            BtLog.error('3')
     elif (kwargs['nodesDB']):
-        print BtLog.status_d['4'] % (kwargs['nodesDB'])
-        nodesDB = readNodesDB(kwargs['nodesDB'])
-        nodesDB_f = kwargs['nodesDB']
+        try:
+            print BtLog.status_d['4'] % (kwargs['nodesDB'])
+            nodesDB = readNodesDB(kwargs['nodesDB'])
+            nodesDB_f = kwargs['nodesDB']
+        except:
+            BtLog.error('3')
     else:
         BtLog.error('3')
     return nodesDB, nodesDB_f
