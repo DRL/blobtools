@@ -54,8 +54,6 @@ if __name__ == '__main__':
 
     # Parse FASTA
     blobDb.parseFasta(fasta_f, fasta_type)
-    # Parse coverage
-    blobDb.parseCovs(cov_libs)
 
     # Parse Tax
     blobDb.parseHits(hit_libs)
@@ -71,6 +69,9 @@ if __name__ == '__main__':
     # Computing taxonomy based on taxrules
     print BtLog.status_d['6'] % ",".join(taxrules)
     blobDb.computeTaxonomy(taxrules, nodesDB)
+
+    # Parse coverage
+    blobDb.parseCovs(cov_libs)
 
     # Generating BlobDB and writing to file
     print BtLog.status_d['7'] % out_f
