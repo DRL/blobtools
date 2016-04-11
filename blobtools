@@ -36,7 +36,7 @@ if __name__ == '__main__':
     elif args['<command>'] == 'view':
         exit(call(['python', main_dir + 'view.py'] + argv))
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
-        exit(call(['python', main_dir + 'plot.py'] + argv))
+        exit(call(['python', main_dir + 'blobplot.py'] + argv))
     elif args['<command>'] == 'bam2cov':
         exit(call(['python', main_dir + 'bam2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
