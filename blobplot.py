@@ -1,52 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools plot    -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
-                            [-r RANK] [-x TAXRULE] [--label GROUPS...] 
-                            [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
-                            [--colours FILE] [--include FILE] [--exclude FILE]
-                            [--format FORMAT] [--noblobs] [--noreads] 
-                            [--refcov FILE] [--catcolour FILE]
-                            [-h|--help] 
+"""usage: blobtools blobplot  -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
+                                [-r RANK] [-x TAXRULE] [--label GROUPS...]
+                                [-o PREFIX] [-m] [--sort ORDER] [--hist HIST] [--title]
+                                [--colours FILE] [--include FILE] [--exclude FILE]
+                                [--format FORMAT] [--noblobs] [--noreads]
+                                [--refcov FILE] [--catcolour FILE]
+                                [-h|--help]
 
     Options:
         -h --help                   show this
         -i, --infile BLOBDB         BlobDB file (created with "blobtools create")
-        -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining 
+        -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining
                                      groups are placed in 'other' [default: 7]
         -l, --length INT            Minimum sequence length considered for plotting [default: 100]
         -c, --cindex                Colour blobs by 'c index' [default: False]
         -n, --nohit                 Hide sequences without taxonomic annotation [default: False]
         -s, --noscale               Do not scale sequences by length [default: False]
         -o, --out PREFIX            Output prefix
-        -m, --multiplot             Multi-plot. Print plot after addition of each (taxonomic) group 
+        -m, --multiplot             Multi-plot. Print plot after addition of each (taxonomic) group
                                      [default: False]
         --sort <ORDER>              Sort order for plotting [default: span]
                                      span  : plot with decreasing span
-                                     count : plot with decreasing count 
-        --hist <HIST>               Data for histograms [default: span] 
+                                     count : plot with decreasing count
+        --hist <HIST>               Data for histograms [default: span]
                                      span  : span-weighted histograms
                                      count : count histograms
         --title                     Add title of BlobDB to plot [default: False]
         -r, --rank RANK             Taxonomic rank used for colouring of blobs [default: phylum]
-                                     (Supported: species, genus, family, order, phylum, superkingdom) 
-        -x, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy 
+                                     (Supported: species, genus, family, order, phylum, superkingdom)
+        -x, --taxrule TAXRULE       Taxrule which has been used for computing taxonomy
                                      (Supported: bestsum, bestsumorder) [default: bestsum]
-        --label GROUPS...           Relabel (taxonomic) groups (not 'all' or 'other'), 
+        --label GROUPS...           Relabel (taxonomic) groups (not 'all' or 'other'),
                                      e.g. "Bacteria=Actinobacteria,Proteobacteria"
         --colours COLOURFILE        File containing colours for (taxonomic) groups
         --exclude GROUPS..          Place these (taxonomic) groups in 'other',
                                      e.g. "Actinobacteria,Proteobacteria"
-        --format FORMAT             Figure format for plot (png, pdf, eps, jpeg, 
+        --format FORMAT             Figure format for plot (png, pdf, eps, jpeg,
                                         ps, svg, svgz, tiff) [default: png]
         --noblobs                   Omit blobplot [default: False]
         --noreads                   Omit plot of reads mapping [default: False]
-        --refcov FILE               File containing number of "total" and "mapped" reads 
+        --refcov FILE               File containing number of "total" and "mapped" reads
                                      per coverage file. (e.g.: bam0,900,100). If provided, info
-                                     will be used in read coverage plot(s). 
-        --catcolour FILE            Colour plot based on categories from FILE 
-                                     (format : "seq\tcategory"). 
-                                    
+                                     will be used in read coverage plot(s).
+        --catcolour FILE            Colour plot based on categories from FILE
+                                     (format : "seq\tcategory").
+
 """
 
 from __future__ import division
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     #print data_dir
     args = docopt(__doc__)
     blobdb_f = args['--infile']
-    rank = args['--rank'] 
+    rank = args['--rank']
     c_index = args['--cindex']
     min_length = int(args['--length'])
     multiplot = args['--multiplot']
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     labels = args['--label']
     colour_f = args['--colours']
     exclude_groups = args['--exclude']
-    format = args['--format'] 
+    format = args['--format']
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
     refcov_f = args['--refcov']
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     # Are sort_order and hist_type sane?
     if not sort_order in ['span', 'count']:
         BtLog.error('14', sort_order)
-    if not hist_type in ['span', 'count']:            
+    if not hist_type in ['span', 'count']:
         BtLog.error('15', hist_type)
 
     # is taxrule provided?
@@ -104,15 +104,15 @@ if __name__ == '__main__':
         BtLog.error('8', taxrule)
 
     # compute labels if supplied
-    
+
     user_labels = BtPlot.parse_labels(labels)
-    
+
     if (exclude_groups):
         if "," in exclude_groups:
             exclude_groups = exclude_groups.rsplit(",")
         else:
             exclude_groups = exclude_groups
-    
+
     refcov_dict = {}
     if (refcov_f):
         refcov_dict = BtPlot.parseRefCov(refcov_f)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
         BtLog.error('24')
     elif (catcolour_f):
         catcolour_dict = BtPlot.parseCatColour(catcolour_f)
-    else: 
+    else:
         pass
 
     # Load BlobDb
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # Is taxrule sane and was it computed?
     if taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
-    
+
     data_dict, max_cov, cov_lib_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict)
     plotObj.exclude_groups = exclude_groups
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     plotObj.max_group_plot = max_group_plot
     plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
     plotObj.labels.update(plotObj.group_order)
-    
+
     if (user_labels):
         for group, label in user_labels.items():
             plotObj.labels.add(label)
