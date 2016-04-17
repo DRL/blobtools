@@ -178,12 +178,16 @@ usage: blobtools blobplot  -i BLOBDB [-p INT] [-l INT] [-c] [-n] [-s]
 ### blobtools bam2cov
 - extract base-coverage for each contig from BAM file
 ```
-usage: blobtools bam2cov         -i FASTA -b BAM [-h|--help]
+usage: blobtools bam2cov         -i FASTA -b BAM [--mq MQ] [--no_base_cov]
+                                    [-h|--help]
 
     Options:
         -h --help                   show this
         -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
         -b, --bam <BAM>             BAM file (requires samtools in $PATH)
+        --mq <MQ>                   minimum Mapping Quality (MQ) [default: 1]
+        --no_base_cov               only parse read coverage (faster, but ...
+                                        can only be used for "blobtools blobplot --noblobs")
 ```
 ### blobtools covplot
 - plots blobDB cov(s) vs additional cov file (only works at superkingdom level at the moment)
