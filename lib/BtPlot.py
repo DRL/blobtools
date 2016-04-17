@@ -74,16 +74,26 @@ def parseCatColour(catcolour_f):
 
 def parseCovFile(cov_f):
     cov_dict = {}
+    old_format = 1
+    seq_name = ''
+    cov = 0.0
     with open(cov_f) as fh:
         for l in fh:
-            try:
-                seq_name, cov = l.rstrip("\n").split("\t")
-                if float(cov) < 0.02:
-                    cov_dict[seq_name] = 0.02
-                else:
-                    cov_dict[seq_name] = float(cov)
-            except:
-                BtLog.error('25', cov_f)
+            if l.startswith("#"):
+                old_format = 0
+            else:
+                try:
+                    field = l.rstrip("\n").split("\t")
+                    if not (old_format):
+                        seq_name, cov = field[0], field[2]
+                    else:
+                        seq_name, cov = field[0], field[1]
+                    if float(cov) < 0.02:
+                        cov_dict[seq_name] = 0.02
+                    else:
+                        cov_dict[seq_name] = float(cov)
+                except:
+                    BtLog.error('25', cov_f)
     return cov_dict
 
 
@@ -407,7 +417,7 @@ class PlotObj():
         for group in self.plot_order:
             i += 1
             group_length_array = array(self.stats[group]['length'])
-            group_cov_y_array = array([cov_dict[name] for name in self.stats[group]['name']]) # fix it!
+            group_cov_y_array = array([cov_dict.get(name, 0.02) for name in self.stats[group]['name']])
             group_cov_x_array = array(self.stats[group]['covs'][cov_lib])
             # calculate values for legend
             if len(group_length_array) > 0:

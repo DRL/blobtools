@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools bam2cov         -i FASTA -b BAM [-h|--help] 
-    
+"""usage: blobtools bam2cov         -i FASTA -b BAM [--mq MQ] [--no_base_cov]
+                                    [-h|--help]
+
     Options:
         -h --help                   show this
-        -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.  
+        -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
         -b, --bam <BAM>             BAM file (requires samtools in $PATH)
+        --mq <MQ>                   minimum Mapping Quality (MQ) [default: 1]
+        --no_base_cov               only parse read coverage (faster, but ...
+                                        can only be used for "blobtools blobplot --noblobs")
 """
 
 from __future__ import division
@@ -18,11 +22,12 @@ import os
 
 class Fasta():
     def __init__(self, name, seq):
-        self.name = name 
+        self.name = name
         self.length = len(seq)
         self.n_count = seq.count('N')
         self.agct_count = self.length - self.n_count
-        self.cov = 0.0
+        self.base_cov = 0.0
+        self.read_cov = 0
 
 def which(program):
     def is_exe(fpath):
@@ -47,9 +52,9 @@ def runCmd(command):
     return iter(p.stdout.readline, b'')
 
 def readFasta(infile):
-    with open(infile) as fh: 
+    with open(infile) as fh:
         header, seqs = '', []
-        for l in fh: 
+        for l in fh:
             if l[0] == '>':
                 if (header):
                     yield header, ''.join(seqs)
@@ -86,49 +91,58 @@ def readBam(infile, fasta_headers):
     progress_unit = int(int(reads_total)/1000)
     base_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
-    # execute samtools to get only mapped reads
-    command = "samtools view -F 4 " + infile
+
+    read_cov_dict = {}
+    # execute samtools to get only mapped reads from primary alignment
+    command = "samtools view -q " + str(mq) + " -F 256 -F 4 " + infile
     # only one counter since only yields mapped reads
-    parsed_reads = 0 
+    parsed_reads = 0
     for line in runCmd(command):
         match = line.split("\t")
-        if match >= 11:
-            seq_name = match[2]
-            base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-            if (base_cov):
-                parsed_reads += 1
-                if seq_name not in fasta_headers:
-                    print BtLog.warn_d['2'] % (seq_name, infile)
-                else:
-                    base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov 
+        seq_name = match[2]
+        if seq_name not in fasta_headers:
+            print BtLog.warn_d['2'] % (seq_name, infile)
+        else:
+            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
+            if not (no_base_cov_flag):
+                base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
+                if (base_cov):
+                    base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov
+            parsed_reads += 1
         BtLog.progress(parsed_reads, progress_unit, reads_total)
     BtLog.progress(reads_total, progress_unit, reads_total)
-
-    if not int(reads_mapped) == int(parsed_reads):
-        print warn_d['3'] % (reads_mapped, parsed_reads)
-    return base_cov_dict, reads_total, parsed_reads
+    return base_cov_dict, read_cov_dict, reads_total, parsed_reads
 
 def parseBam(bam_f, fasta_dict):
-    base_cov_dict, reads_total, reads_mapped = readBam(bam_f, set(fasta_dict.keys()))
+    base_cov_dict, read_cov_dict, reads_total, reads_mapped = readBam(bam_f, set(fasta_dict.keys()))
     if reads_total == 0:
         print BtLog.warn_d['4'] % bam_f
     for name, base_cov in base_cov_dict.items():
-        fasta_dict[name].cov = base_cov / fasta_dict[name].agct_count
-    return fasta_dict
+        fasta_dict[name].base_cov = base_cov / fasta_dict[name].agct_count
+    for name, read_cov in read_cov_dict.items():
+        fasta_dict[name].read_cov = read_cov
+    return fasta_dict, reads_total, reads_mapped
 
-def writeCov(fasta_dict, out_f):
+def writeCov(fasta_dict, reads_total, reads_mapped, out_f):
     with open(out_f, 'w') as fh:
+        fh.write("# Total Reads = %s\n" % (reads_total))
+        fh.write("# Mapped Reads = %s\n" % (reads_mapped))
+        fh.write("# Unmapped Reads = %s\n" % (reads_total - reads_mapped))
+        fh.write("# Parameters : MQ = %s, No_base_cov_flag = %s\n" % (mq, no_base_cov_flag))
+        fh.write("# %s\t%s\t%s\n" % ("contig_id", "read_cov", "base_cov"))
         for name, fasta_obj in fasta_dict.items():
-            fh.write("%s\t%s\n" % (name, fasta_obj.cov))
+            fh.write("%s\t%s\t%s\n" % (name, fasta_obj.read_cov, fasta_obj.base_cov))
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    
+
     fasta_f = args['--infile']
     bam_f = args['--bam']
     out_f = os.path.basename(bam_f) + ".cov"
+    mq = int(args['--mq'])
+    no_base_cov_flag = args['--no_base_cov']
 
     fasta_dict = parseFasta(fasta_f)
-    fasta_dict = parseBam(bam_f, fasta_dict)
-    writeCov(fasta_dict, out_f)
+    fasta_dict, reads_total, reads_mapped = parseBam(bam_f, fasta_dict)
+    writeCov(fasta_dict, reads_total, reads_mapped, out_f)
 

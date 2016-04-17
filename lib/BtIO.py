@@ -146,22 +146,52 @@ def parseCovFromHeader(fasta_type, header ):
         pass
 
 def readCov(infile, set_of_blobs):
-    cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
-    cov_dict = {}
+    old_cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
+    base_cov_dict = {}
+
+    cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)\t(\d+\.*\d*)")
+    reads_total = 0
+    reads_mapped = 0
+    read_cov_dict = {}
+
     seqs_parsed = 0
     progress_unit = 1
+    old_format = 1
     with open(infile) as fh:
         for line in fh:
-            match = cov_line_re.search(line)
-            if match:
-                seqs_parsed += 1
-                name, cov = match.group(1), float(match.group(2))
-                if name not in set_of_blobs:
-                    print BtLog.warn_d['2'] % (name, infile)
-                cov_dict[name] = cov
+            if line.startswith("#"):
+                old_format = 0
+            if old_format == 0:
+                if line.startswith("# Total Reads"):
+                    reads_total = int(line.split(" = ")[1])
+                elif line.startswith("# Mapped Reads"):
+                    reads_mapped = int(line.split(" = ")[1])
+                elif line.startswith("# Unmapped Reads"):
+                    pass
+                elif line.startswith("# Parameters"):
+                    pass
+                elif line.startswith("# contig_id"):
+                    pass
+                else:
+                    match = cov_line_re.search(line)
+                    if match:
+                        seqs_parsed += 1
+                        name, read_cov, base_cov = match.group(1), int(match.group(2)), float(match.group(3))
+                        if name not in set_of_blobs:
+                            print BtLog.warn_d['2'] % (name, infile)
+                        read_cov_dict[name] = read_cov
+                        base_cov_dict[name] = base_cov
+            else:
+                match = old_cov_line_re.search(line)
+                if match:
+                    seqs_parsed += 1
+                    name, base_cov = match.group(1), float(match.group(2))
+                    if name not in set_of_blobs:
+                        print BtLog.warn_d['2'] % (name, infile)
+                    base_cov_dict[name] = base_cov
             BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
-        BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
-    return cov_dict
+        #BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
+    return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def checkCas(infile):
     print BtLog.status_d['12']
