@@ -107,7 +107,7 @@ def readBam(infile, set_of_blobs):
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
     # execute samtools to get only mapped reads
     #command = "samtools view -F 12 -F 256" + infile
-    command = "samtools view -F 4" + infile
+    command = "samtools view -F 4 -F 256 " + infile
     # ADD flag picard -F 1028 to not consider optical duplicates
     #command = "samtools view -F 1028 " + infile
     # only one counter since only yields mapped reads
