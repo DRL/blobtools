@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools bam2cov         -i FASTA -b BAM [--mq MQ] [--no_base_cov]
+"""usage: blobtools bam2cov         -i FASTA -b BAM [-o PREFIX] [--mq MQ] [--no_base_cov]
                                     [-h|--help]
 
     Options:
         -h --help                   show this
         -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
         -b, --bam <BAM>             BAM file (requires samtools in $PATH)
+        -o, --output <PREFIX>       Output prefix
         --mq <MQ>                   minimum Mapping Quality (MQ) [default: 1]
         --no_base_cov               only parse read coverage (faster, but ...
                                         can only be used for "blobtools blobplot --noblobs")
@@ -65,6 +66,7 @@ def readFasta(infile):
 
 def parseFasta(infile):
     fasta_dict = {}
+    print BtLog.status_d['1'] % ("FASTA", fasta_f)
     for name, seq in readFasta(infile):
         fasta = Fasta(name, seq)
         fasta_dict[fasta.name] = fasta
@@ -124,6 +126,7 @@ def parseBam(bam_f, fasta_dict):
     return fasta_dict, reads_total, reads_mapped
 
 def writeCov(fasta_dict, reads_total, reads_mapped, out_f):
+    print BtLog.status_d['13'] % out_f
     with open(out_f, 'w') as fh:
         fh.write("# Total Reads = %s\n" % (reads_total))
         fh.write("# Mapped Reads = %s\n" % (reads_mapped))
@@ -135,10 +138,15 @@ def writeCov(fasta_dict, reads_total, reads_mapped, out_f):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-
     fasta_f = args['--infile']
     bam_f = args['--bam']
     out_f = os.path.basename(bam_f) + ".cov"
+    prefix = args['--output']
+    if (prefix):
+        if prefix.endswith("/"):
+            out_f = prefix + out_f
+        else:
+            out_f = prefix + "." + out_f
     mq = int(args['--mq'])
     no_base_cov_flag = args['--no_base_cov']
 

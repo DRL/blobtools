@@ -5,6 +5,8 @@
 usage: blobtools <command> [<args>...] [--help]
 
 commands:
+  version       print version number
+
   create        create a BlobDB
   view          print BlobDB as a table
   blobplot      plot BlobDB as a blobplot
@@ -26,9 +28,8 @@ from docopt import docopt
 if __name__ == '__main__':
     main_dir = join(dirname(__file__), '')
     args = docopt(__doc__,
-                  version='version 0.9.13',
+                  version='blobtools v0.9.16',
                   options_first=True)
-    #print(args)
 
     argv = [args['<command>']] + args['<args>']
     if args['<command>'] == 'create':
@@ -36,10 +37,12 @@ if __name__ == '__main__':
     elif args['<command>'] == 'view':
         exit(call(['python', main_dir + 'view.py'] + argv))
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
+        argv[0] = "blobplot"
         exit(call(['python', main_dir + 'blobplot.py'] + argv))
     elif args['<command>'] == 'bam2cov':
         exit(call(['python', main_dir + 'bam2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
+        argv[0] = "blobplot"
         exit(call(['python', main_dir + 'covplot.py'] + argv))
     elif args['<command>'] == 'sumcov':
         exit(call(['python', main_dir + 'sumcov.py'] + argv))

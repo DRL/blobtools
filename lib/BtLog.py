@@ -80,7 +80,8 @@ status_d = {
     '9' : '[STATUS]\t: Reading BlobDb %s',
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
     '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
-    '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\''
+    '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\'',
+    '13': '[STATUS]\t: \tWriting %s'
 }
 
 info_d = {
