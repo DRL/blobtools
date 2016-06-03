@@ -145,9 +145,9 @@ def parseCovFromHeader(fasta_type, header ):
     elif fasta_type == 'platanus':
         temp = header.rstrip("\n").split("_")
         if len(temp) >= 3:
-            return float(temp[3].replace("cov", "")) # scaffold/scaffoldBubble/contig
+            return float(temp[2].replace("cov", "")) # scaffold/scaffoldBubble/contig
         else:
-            return float(temp[2].replace("cov", "")) # gapClosed
+            return float(temp[1].replace("cov", "")) # gapClosed
     else:
         pass
 
