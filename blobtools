@@ -28,7 +28,7 @@ from docopt import docopt
 if __name__ == '__main__':
     main_dir = join(dirname(__file__), '')
     args = docopt(__doc__,
-                  version='blobtools v0.9.16',
+                  version='blobtools v0.9.17',
                   options_first=True)
 
     argv = [args['<command>']] + args['<args>']
