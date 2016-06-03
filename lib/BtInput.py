@@ -4,7 +4,7 @@
 """
 File        : BtInput.py
 Version     : 0.1
-Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com 
+Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 Bugs        : ?
 To do       : ?
 """
@@ -19,7 +19,7 @@ import lib.BtCore as bt
 
 def validate_input_create(main_dir, args):
     '''
-    Accepts: 
+    Accepts:
         - main_dir
         - docopt args
     Returns:
@@ -32,7 +32,7 @@ def validate_input_create(main_dir, args):
         - taxrules
         - out_f
     '''
-    ASSEMBLY_TYPES = [None, 'spades', 'soap', 'abyss', 'velvet']
+    ASSEMBLY_TYPES = [None, 'spades', 'soap', 'abyss', 'velvet', 'platanus']
 
     fasta_f = args['--infile']
     fasta_type = args['--type']
@@ -51,7 +51,7 @@ def validate_input_create(main_dir, args):
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
     title = args['--title'] if (args['--title']) else out_f
-    
+
     # Do files exist ?
     files = [x for x in list([fasta_f] + sam_fs + bam_fs + cov_fs + cas_fs + [names_f] + [nodes_f] + hit_fs) if x is not None]
     for f in files:
@@ -74,11 +74,11 @@ def validate_input_create(main_dir, args):
     cov_libs = [bt.CovLibObj('bam' + str(idx), 'bam', lib_f) for idx, lib_f in enumerate(bam_fs)] + \
                [bt.CovLibObj('sam' + str(idx), 'sam', lib_f) for idx, lib_f in enumerate(sam_fs)] + \
                [bt.CovLibObj('cas' + str(idx), 'cas', lib_f) for idx, lib_f in enumerate(cas_fs)] + \
-               [bt.CovLibObj('cov' + str(idx), 'cov', lib_f) for idx, lib_f in enumerate(cov_fs)] 
+               [bt.CovLibObj('cov' + str(idx), 'cov', lib_f) for idx, lib_f in enumerate(cov_fs)]
 
     hit_libs = [bt.hitLibObj('tax' + str(idx), 'tax', lib_f) for idx, lib_f in enumerate(hit_fs)]
 
     return title, fasta_f, fasta_type, cov_libs, hit_libs, taxrules, nodesDB_f, nodes_f, names_f, out_f
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     pass
