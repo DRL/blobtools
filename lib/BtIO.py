@@ -139,9 +139,15 @@ def parseCovFromHeader(fasta_type, header ):
         return float(header.split("_")[-3])
     elif fasta_type == 'velvet':
         return float(header.split("_")[-1])
-    elif fasta_type == 'abyss':
+    elif fasta_type == 'abyss' or fasta_type == 'soap':
         temp = header.split(" ")
         return float(temp[2]/(temp[1]+1-75))
+    elif fasta_type == 'platanus':
+        temp = header.rsplit("\n").split("_")
+        if len(temp) >= 3:
+            return float(temp[3].replace("cov", "")) # scaffold/scaffoldBubble/contig
+        else:
+            return float(temp[2].replace("cov", "")) # gapClosed
     else:
         pass
 
