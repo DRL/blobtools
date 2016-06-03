@@ -311,7 +311,8 @@ class BlobDb():
                 for name, cov in base_cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
-                    self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
+                    if name in read_cov_dict:
+                        self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
             else:
                 pass
             covLib.mean_cov = covLib.cov_sum/self.seqs
