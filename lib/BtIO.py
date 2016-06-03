@@ -143,7 +143,7 @@ def parseCovFromHeader(fasta_type, header ):
         temp = header.split(" ")
         return float(temp[2]/(temp[1]+1-75))
     elif fasta_type == 'platanus':
-        temp = header.rsplit("\n").split("_")
+        temp = header.rstrip("\n").split("_")
         if len(temp) >= 3:
             return float(temp[3].replace("cov", "")) # scaffold/scaffoldBubble/contig
         else:
