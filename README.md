@@ -84,7 +84,7 @@ usage: blobtools create     -i FASTA [-y FASTATYPE] [-o OUTFILE] [--title TITLE]
         -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
         -y, --type FASTATYPE        Assembly program used to create FASTA. If specified,
                                     coverage will be parsed from FASTA header.
-                                    (Parsing supported for 'spades', 'soap', 'velvet', 'abyss')
+                                    (Parsing supported for 'spades', 'soap', 'velvet', 'abyss', 'platanus')
         -t, --taxfile TAX...        Taxonomy file in format (qseqid\ttaxid\tbitscore)
                                     (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
         -x, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
