@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """usage: blobtools view    -i <BLOBDB> [-x <TAXRULE>] [--rank <TAXRANK>...] [--hits]
-                            [--list <LIST>] [--out <OUT>]
+                            [--list <LIST>] [--out <OUT>] [--concoct]
                             [--h|--help] 
     
     Options:
@@ -17,6 +17,7 @@
                                     (supported: 'species', 'genus', 'family', 'order', 
                                     'phylum', 'superkingdom', 'all') [default: phylum]
         -b, --hits                  Displays taxonomic hits from tax files
+        -c, --concoct               Generate concoct files
 """
 
 from __future__ import division
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     taxrule = args['--taxrule']
     hits_flag = args['--hits']
     seq_list = args['--list']
+    concoct_prefix = args['--concoct']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -71,4 +73,5 @@ if __name__ == '__main__':
     if (blobDB.hitLibs) and taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
     blobDB.view(out_f, ranks, taxrule, hits_flag, seqs)
-
+    if (concoct_prefix):
+        blobDB.concoct_view(ranks, taxrule, hits_flag, seqs)

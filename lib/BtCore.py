@@ -60,6 +60,25 @@ class BlobDb():
             with open(out_f, 'w') as fh:
                 fh.write(header + body)
 
+    def concoct_view(self, ranks, taxrule, hits_flag, seqs):
+        sep = "\t"
+        body = ''
+        body_tax = ''
+        contig_list = ''
+        header = "contig " + " ".join(covLib['name'] for covLib in self.covLibs.values()) + "\n"
+        for name in self.order_of_blobs:
+            blob = self.dict_of_blobs[name]
+            contig_name = blob['name']
+            body += contig_name + sep + sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs])) + "\n"
+            body_tax += contig_name + ","
+            for rank in ranks:
+                body_tax += blob['taxonomy'][taxrule][rank]['tax']
+            body_tax += "\n"
+        with open("concoct_coverage_info", 'w') as ccf:
+            ccf.write(header + body)
+        with open("concoct_taxonomy_info", 'w') as ctf:
+            ctf.write(body_tax)
+
     def getViewLine(self, blob, taxrule, ranks, sep, hits_flag):
         line = ''
         line += "\n%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ]))
