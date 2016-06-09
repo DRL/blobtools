@@ -41,7 +41,7 @@ if __name__ == '__main__':
     taxrule = args['--taxrule']
     hits_flag = args['--hits']
     seq_list = args['--list']
-    concoct_prefix = args['--concoct']
+    concoct = args['--concoct']
 
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
@@ -73,5 +73,5 @@ if __name__ == '__main__':
     if (blobDB.hitLibs) and taxrule not in blobDB.taxrules:
         BtLog.error('11', taxrule, blobDB.taxrules)
     blobDB.view(out_f, ranks, taxrule, hits_flag, seqs)
-    if (concoct_prefix):
+    if (concoct):
         blobDB.concoct_view(ranks, taxrule, hits_flag, seqs)
