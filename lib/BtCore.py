@@ -26,10 +26,43 @@ class BlobDb():
         self.nodesDB_f = ''
         self.taxrules = []
 
-    def view(self, out_f, ranks, taxrule, hits_flag, seqs):
+    def view(self, views, ranks, taxrule, hits_flag, seqs):
+        # headers
+        for viewObj in views:
+            if viewObj.name == 'table':
+                viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag)
+            if viewObj.name == 'concoct_cov':
+                viewObj.header = self.getConcoctCovHeader()
+        # bodies
+        if not (seqs):
+            seqs = self.order_of_blobs
+        for seq in seqs:
+            blob = self.dict_of_blobs[seq]
+            for viewObj in views:
+                if viewObj.name == 'table':
+                    viewObj.body += self.getTableLine(blob, taxrule, ranks, hits_flag)
+                if viewObj.name == 'concoct_cov':
+                    viewObj.body += self.getConcoctCovLine(blob)
+                if viewObj.name == 'concoct_tax':
+                    for rank in ranks:
+                        if not rank in viewObj.body:
+                            viewObj.body[rank] = ''
+                        viewObj.body[rank] += self.getConcoctTaxLine(blob, rank, taxrule)
+        for viewObj in views:
+            viewObj.output()
+
+    def getConcoctCovHeader(self):
+        return "contig\t%s\n" % "\t".join(covLib['name'] for covLib in self.covLibs.values())
+
+    def getConcoctTaxLine(self, blob, rank, taxrule):
+        return "%s,%s\n" % (blob['name'], blob['taxonomy'][taxrule][rank]['tax'])
+
+    def getConcoctCovLine(self, blob):
+        return "%s\t%s\n" % (blob['name'], "\t".join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs])))
+
+    def getTableHeader(self, taxrule, ranks, hits_flag):
         sep = "\t"
         header = ''
-        body = ''
         header += "##\n"
         header += "## assembly : %s\n" % self.assembly_f
         header += "%s\n" % "\n".join("## " + covLib['name'] + " : " + covLib["f"] for covLib in self.covLibs.values())
@@ -37,64 +70,37 @@ class BlobDb():
         header += "## nodesDB : %s\n" % self.nodesDB_f
         header += "## taxrule : %s\n" % taxrule
         header += "##\n"
-        header += "# %s" % sep.join(map(str, [ "name", "length", "GC", "N"  ]))
+        header += "# %s" % sep.join(map(str, ["name", "length", "GC", "N"]))
+        col = 4
         header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in self.covLibs]))
+        col += len(self.covLibs)
         if (len(self.covLibs)) > 1:
+            col += 1
             header += "%s%s" % (sep, "cov_sum")
         for rank in ranks:
-            header += "%s%s" % (sep, sep.join([rank + ".t", rank + ".s", rank + ".c"]))
+            header += "%s%s" % (sep, sep.join([rank + ".t." + str(col + 1), rank + ".s." + str(col + 2), rank + ".c." + str(col + 3)]))
+            col += 3
             if hits_flag:
-                header += "%s%s" % (sep, rank + ".hits")
-        if (seqs):
-            for seq in seqs:
-                blob = self.dict_of_blobs[seq]
-                body += self.getViewLine(blob, taxrule, ranks, sep, hits_flag)
-        else:
-            for name in self.order_of_blobs:
-                blob = self.dict_of_blobs[name]
-                body += self.getViewLine(blob, taxrule, ranks, sep, hits_flag)
+                header += "%s%s" % (sep, rank + ".hits." + str(col + 1))
+                col += 1
+        return header
 
-        if out_f == "STDOUT":
-            print header + body
-        else:
-            with open(out_f, 'w') as fh:
-                fh.write(header + body)
-
-    def concoct_view(self, ranks, taxrule, hits_flag, seqs):
+    def getTableLine(self, blob, taxrule, ranks, hits_flag):
         sep = "\t"
-        body = ''
-        body_tax = ''
-        contig_list = ''
-        header = "contig " + sep.join(covLib['name'] for covLib in self.covLibs.values()) + "\n"
-        for name in self.order_of_blobs:
-            blob = self.dict_of_blobs[name]
-            contig_name = blob['name']
-            body += contig_name + sep + sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs])) + "\n"
-            body_tax += contig_name + ","
-            for rank in ranks:
-                body_tax += blob['taxonomy'][taxrule][rank]['tax']
-            body_tax += "\n"
-        with open("concoct_coverage_info.tsv", 'w') as ccf:
-            ccf.write(header + body)
-        with open("concoct_taxonomy_info.csv", 'w') as ctf:
-            ctf.write(body_tax)
-
-    def getViewLine(self, blob, taxrule, ranks, sep, hits_flag):
         line = ''
         line += "\n%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ]))
         line += sep
         line += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs]))
         if len(self.covLibs) > 1:
             line += "%s%s" % (sep, sum([ blob['covs'][covLib] for covLib in self.covLibs]))
-
         for rank in ranks:
             line += sep
             tax = blob['taxonomy'][taxrule][rank]['tax']
             score = blob['taxonomy'][taxrule][rank]['score']
             c_index = blob['taxonomy'][taxrule][rank]['c_index']
             line += "%s" % sep.join(map(str, [tax, score, c_index ]))
-            line += sep
             if hits_flag:
+                line += sep
                 for tax_lib_name in sorted(self.hitLibs):
                     if tax_lib_name in blob['hits']:
                         line += "%s=" % tax_lib_name
@@ -412,6 +418,29 @@ class hitLibObj():
         self.name = name
         self.fmt = fmt
         self.f = abspath(f) if (f) else ''
+
+class ViewObj():
+    def __init__(self, name, out_f, suffix, header, body):
+        self.name = name
+        self.out_f = out_f
+        self.suffix = suffix
+        self.header = header
+        self.body = body
+
+    def output(self):
+        if isinstance(self.body, dict):
+            for category in self.body:
+                out_f = "%s.%s.%s" % (self.out_f, category, self.suffix)
+                print BtLog.status_d['13'] % (out_f)
+                with open(out_f, "w") as fh:
+                    fh.write(self.header + self.body[category])
+        elif isinstance(self.body, basestring):
+            out_f = "%s.%s" % (self.out_f, self.suffix)
+            print BtLog.status_d['13'] % (out_f)
+            with open(out_f, "w") as fh:
+                fh.write(self.header + self.body)
+        else:
+            sys.exit("[ERROR] - 001")
 
 if __name__ == '__main__':
     pass
