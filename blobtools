@@ -42,7 +42,7 @@ if __name__ == '__main__':
     elif args['<command>'] == 'bam2cov':
         exit(call(['python', main_dir + 'bam2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
-        argv[0] = "blobplot"
+        argv[0] = "covplot"
         exit(call(['python', main_dir + 'covplot.py'] + argv))
     elif args['<command>'] == 'sumcov':
         exit(call(['python', main_dir + 'sumcov.py'] + argv))
