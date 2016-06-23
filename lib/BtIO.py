@@ -107,7 +107,7 @@ def readBam(infile, set_of_blobs):
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
     # execute samtools to get only mapped reads
     #command = "samtools view -F 12 -F 256" + infile
-    command = "samtools view -F 4 -F 256 " + infile
+    command = "samtools view -F 4 -F 256 -F 2048 " + infile
     # ADD flag picard -F 1028 to not consider optical duplicates
     #command = "samtools view -F 1028 " + infile
     # only one counter since only yields mapped reads
@@ -136,7 +136,9 @@ def parseCovFromHeader(fasta_type, header ):
     sequence depending on the assembly type
     '''
     if fasta_type == 'spades':
-        return float(header.split("_")[-3])
+        spades_match_re = re.compile(r"_cov_(\d+\.*\d*)")
+        cov = re.findall(r"_cov_(\d+\.*\d*)", header)
+        return float(spades_match_re.findall(header)[0])
     elif fasta_type == 'velvet':
         return float(header.split("_")[-1])
     elif fasta_type == 'abyss' or fasta_type == 'soap':
