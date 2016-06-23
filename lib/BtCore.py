@@ -27,40 +27,48 @@ class BlobDb():
         self.taxrules = []
 
     def view(self, views, ranks, taxrule, hits_flag, seqs):
+        cov_lib_names = [covLib for covLib in self.covLibs]
+        tax_lib_names = [taxLib for taxLib in sorted(self.hitLibs)]
+        lineages = self.lineages
         # headers
+
         for viewObj in views:
             if viewObj.name == 'table':
-                viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag)
+                viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag, cov_lib_names)
             if viewObj.name == 'concoct_cov':
-                viewObj.header = self.getConcoctCovHeader()
+                viewObj.header = self.getConcoctCovHeader(cov_lib_names)
         # bodies
         if not (seqs):
             seqs = self.order_of_blobs
-        for seq in seqs:
+
+        body = {}
+        for i, seq in enumerate(seqs):
+            BtLog.progress(i, 1000, len(seqs))
             blob = self.dict_of_blobs[seq]
             for viewObj in views:
                 if viewObj.name == 'table':
-                    viewObj.body += self.getTableLine(blob, taxrule, ranks, hits_flag)
+                    viewObj.body.append(self.getTableLine(blob, taxrule, ranks, hits_flag, cov_lib_names, tax_lib_names, lineages))
                 if viewObj.name == 'concoct_cov':
-                    viewObj.body += self.getConcoctCovLine(blob)
+                    viewObj.body.append(self.getConcoctCovLine(blob, cov_lib_names))
                 if viewObj.name == 'concoct_tax':
                     for rank in ranks:
                         if not rank in viewObj.body:
-                            viewObj.body[rank] = ''
-                        viewObj.body[rank] += self.getConcoctTaxLine(blob, rank, taxrule)
+                            viewObj.body[rank] = []
+                        viewObj.body[rank].append(self.getConcoctTaxLine(blob, rank, taxrule))
+        BtLog.progress(len(seqs), 1000, len(seqs))
         for viewObj in views:
             viewObj.output()
 
-    def getConcoctCovHeader(self):
-        return "contig\t%s\n" % "\t".join(covLib['name'] for covLib in self.covLibs.values())
+    def getConcoctCovHeader(self, cov_lib_names):
+        return "contig\t%s\n" % "\t".join(cov_lib_names)
 
     def getConcoctTaxLine(self, blob, rank, taxrule):
         return "%s,%s\n" % (blob['name'], blob['taxonomy'][taxrule][rank]['tax'])
 
-    def getConcoctCovLine(self, blob):
-        return "%s\t%s\n" % (blob['name'], "\t".join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs])))
+    def getConcoctCovLine(self, blob, cov_lib_names):
+        return "%s\t%s\n" % (blob['name'], "\t".join(map(str, [ blob['covs'][covLib] for covLib in cov_lib_names])))
 
-    def getTableHeader(self, taxrule, ranks, hits_flag):
+    def getTableHeader(self, taxrule, ranks, hits_flag, cov_lib_names):
         sep = "\t"
         header = ''
         header += "##\n"
@@ -72,9 +80,9 @@ class BlobDb():
         header += "##\n"
         header += "# %s" % sep.join(map(str, ["name", "length", "GC", "N"]))
         col = 4
-        header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in self.covLibs]))
-        col += len(self.covLibs)
-        if (len(self.covLibs)) > 1:
+        header += "%s%s" % (sep, sep.join([cov_lib_name for cov_lib_name in cov_lib_names]))
+        col += len(cov_lib_names)
+        if (len(cov_lib_names)) > 1:
             col += 1
             header += "%s%s" % (sep, "cov_sum")
         for rank in ranks:
@@ -85,14 +93,14 @@ class BlobDb():
                 col += 1
         return header
 
-    def getTableLine(self, blob, taxrule, ranks, hits_flag):
+    def getTableLine(self, blob, taxrule, ranks, hits_flag, cov_lib_names, tax_lib_names, lineages):
         sep = "\t"
         line = ''
         line += "\n%s" % sep.join(map(str, [ blob['name'], blob['length'], blob['gc'], blob['n_count']  ]))
         line += sep
-        line += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in self.covLibs]))
-        if len(self.covLibs) > 1:
-            line += "%s%s" % (sep, sum([ blob['covs'][covLib] for covLib in self.covLibs]))
+        line += "%s" % sep.join(map(str, [ blob['covs'][covLib] for covLib in cov_lib_names]))
+        if len(cov_lib_names) > 1:
+            line += "%s%s" % (sep, sum([ blob['covs'][covLib] for covLib in cov_lib_names]))
         for rank in ranks:
             line += sep
             tax = blob['taxonomy'][taxrule][rank]['tax']
@@ -101,12 +109,12 @@ class BlobDb():
             line += "%s" % sep.join(map(str, [tax, score, c_index ]))
             if hits_flag:
                 line += sep
-                for tax_lib_name in sorted(self.hitLibs):
+                for tax_lib_name in tax_lib_names:
                     if tax_lib_name in blob['hits']:
                         line += "%s=" % tax_lib_name
                         sum_dict = {}
                         for hit in blob['hits'][tax_lib_name]:
-                            tax_rank = self.lineages[hit['taxId']][rank]
+                            tax_rank = lineages[hit['taxId']][rank]
                             sum_dict[tax_rank] = sum_dict.get(tax_rank, 0.0) + hit['score']
                         line += "%s" % "|".join([":".join(map(str, [tax_rank, sum_dict[tax_rank]])) for tax_rank in sorted(sum_dict, key=sum_dict.get, reverse=True)])
                     else:
@@ -129,6 +137,9 @@ class BlobDb():
                 'taxrules' : self.taxrules
                 }
         return dump
+
+    def new_dump(self):
+        pass
 
     def load(self, BlobDb_f):
         blobDict = BtIO.readJson(BlobDb_f)
@@ -422,10 +433,10 @@ class hitLibObj():
 class ViewObj():
     def __init__(self, name, out_f, suffix, header, body):
         self.name = name
-        self.out_f = out_f
+        self.out_f = out_f # open fh
         self.suffix = suffix
-        self.header = header
-        self.body = body
+        self.header = header # do not do string
+        self.body = body # do not do string, test with list and join
 
     def output(self):
         if isinstance(self.body, dict):
@@ -433,12 +444,12 @@ class ViewObj():
                 out_f = "%s.%s.%s" % (self.out_f, category, self.suffix)
                 print BtLog.status_d['13'] % (out_f)
                 with open(out_f, "w") as fh:
-                    fh.write(self.header + self.body[category])
-        elif isinstance(self.body, basestring):
+                    fh.write(self.header + "".join(self.body[category]))
+        elif isinstance(self.body, list):
             out_f = "%s.%s" % (self.out_f, self.suffix)
             print BtLog.status_d['13'] % (out_f)
             with open(out_f, "w") as fh:
-                fh.write(self.header + self.body)
+                fh.write(self.header + "".join(self.body))
         else:
             sys.exit("[ERROR] - 001")
 

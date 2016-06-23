@@ -367,6 +367,7 @@ def writeJson(obj, outfile):
     import json
     with open(outfile, 'w') as fh:
         json.dump(obj, fh)
+        #json.dump(obj, fh, indent=4, separators=(',', ': '))
 
 def readJsonGzip(infile):
     import json
@@ -376,7 +377,10 @@ def readJsonGzip(infile):
     return byteify(obj)
 
 def readJson(infile):
-    import json
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
     with open(infile, 'r') as fh:
         obj = json.loads(fh.read().decode("ascii"))
     return byteify(obj)

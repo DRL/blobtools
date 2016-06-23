@@ -71,7 +71,9 @@ if __name__ == '__main__':
 
     # Load BlobDb
     blobDB = bt.BlobDb('new')
+    print BtLog.status_d['9'] % (blobdb_f)
     blobDB.load(blobdb_f)
+    print BtLog.status_d['9'] % (blobdb_f), BtLog.status_d['2']
 
     # Is taxrule sane and was it computed?
     if (blobDB.hitLibs) and taxrule not in blobDB.taxrules:
@@ -80,11 +82,11 @@ if __name__ == '__main__':
     # view(s)
     views = []
     if not (notable):
-        tableView = bt.ViewObj(name="table", out_f=out_f, suffix="table.txt", header="", body="")
+        tableView = bt.ViewObj(name="table", out_f=out_f, suffix="table.txt", header="", body=[])
         views.append(tableView)
     if (concoct):
         concoctTaxView = bt.ViewObj(name="concoct_tax", out_f=out_f, suffix="concoct_taxonomy_info.csv", header="", body=dict())
         views.append(concoctTaxView)
-        concoctCovView = bt.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", header="", body="")
+        concoctCovView = bt.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", header="", body=[])
         views.append(concoctCovView)
     blobDB.view(views, ranks, taxrule, hits_flag, seqs)
