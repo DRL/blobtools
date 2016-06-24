@@ -55,9 +55,6 @@ if __name__ == '__main__':
     # Parse FASTA
     blobDb.parseFasta(fasta_f, fasta_type)
 
-    # Parse Tax
-    blobDb.parseHits(hit_libs)
-
     # Parse nodesDB
     nodesDB, nodesDB_f = BtIO.getNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_f)
     blobDb.nodesDB_f = nodesDB_f
@@ -66,9 +63,14 @@ if __name__ == '__main__':
         print BtLog.status_d['5'] % nodesDB_f
         BtIO.writeNodesDB(nodesDB, nodesDB_f)
 
-    # Computing taxonomy based on taxrules
-    print BtLog.status_d['6'] % ",".join(taxrules)
-    blobDb.computeTaxonomy(taxrules, nodesDB)
+    if not (hit_libs):
+        print BtLog.warn_d['0']
+    else:
+        # Parse Tax
+        blobDb.parseHits(hit_libs)
+        # Computing taxonomy based on taxrules
+        print BtLog.status_d['6'] % ",".join(taxrules)
+        blobDb.computeTaxonomy(taxrules, nodesDB)
 
     # Parse coverage
     blobDb.parseCovs(cov_libs)

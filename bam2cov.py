@@ -6,6 +6,7 @@
 
     Options:
         -h --help                   show this
+
         -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
         -b, --bam <BAM>             BAM file (requires samtools in $PATH)
         -o, --output <PREFIX>       Output prefix

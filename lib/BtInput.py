@@ -63,8 +63,9 @@ def validate_input_create(main_dir, args):
         nodesDB_f = os.path.join(main_dir, nodesDB_f)
     if not os.path.isfile(nodesDB_f) and not ((names_f) and (nodes_f)):
         BtLog.error('3')
-    if not (hit_fs):
-        BtLog.error('18')
+    #if not (hit_fs):
+    #    pass
+
     # can FASTA parser deal with assemblies
     if not fasta_type in ASSEMBLY_TYPES:
         BtLog.error('2', ",".join(ASSEMBLY_TYPES[1:]))

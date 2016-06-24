@@ -10,10 +10,12 @@ commands:
   create        create a BlobDB
   view          print BlobDB as a table
   blobplot      plot BlobDB as a blobplot
-
   covplot       compare BlobDB cov(s) to additional cov file
+
   bam2cov       generate cov file from bam file
   sumcov        sum coverage from multiple COV files
+  seqfilter     filter FASTA sequences based on header in list
+  taxify        assign taxids to blast-results based on list
 
 -h --help    show this
 
@@ -27,6 +29,7 @@ from docopt import docopt
 
 if __name__ == '__main__':
     main_dir = join(dirname(__file__), '')
+    lib_dir = join(main_dir, 'lib/')
     args = docopt(__doc__,
                   version='blobtools v0.9.18',
                   options_first=True)
@@ -44,7 +47,9 @@ if __name__ == '__main__':
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
         exit(call(['python', main_dir + 'covplot.py'] + argv))
-    elif args['<command>'] == 'sumcov':
-        exit(call(['python', main_dir + 'sumcov.py'] + argv))
+    elif args['<command>'] == 'seqfilter':
+        exit(call(['python', main_dir + 'seqfilter.py'] + argv))
+    elif args['<command>'] == 'taxify':
+        exit(call(['python', main_dir + 'taxify.py'] + argv))
     else:
         exit("%r is not a blobtools command. See 'blobtools -h'." % args['<command>'])

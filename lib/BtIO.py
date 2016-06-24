@@ -19,10 +19,27 @@ import lib.BtLog as BtLog
 
 def parseList(infile):
     with open(infile) as fh:
-        seqs = []
+        items = []
         for l in fh:
-            seqs.append(l.rstrip("\n"))
-    return seqs
+            items.append(l.rstrip("\n"))
+    return items
+
+def parseDict(infile, key, value):
+    with open(infile) as fh:
+        items = {}
+        k_idx = int(key)
+        v_idx = int(value)
+        for l in fh:
+            temp = l.rstrip("\n").split()
+            items[temp[k_idx]] = temp[v_idx]
+    return items
+
+def parseSet(infile):
+    with open(infile) as fh:
+        items = set()
+        for l in fh:
+            items.add(l.rstrip("\n").lstrip(">"))
+    return items
 
 def readFasta(infile):
     with open(infile) as fh:
@@ -130,13 +147,15 @@ def readBam(infile, set_of_blobs):
         print warn_d['3'] % (reads_mapped, parsed_reads)
     return base_cov_dict, reads_total, parsed_reads, read_cov_dict
 
-def parseCovFromHeader(fasta_type, header ):
+def parseCovFromHeader(fasta_type, header):
     '''
     Returns the coverage from the header of a FASTA
     sequence depending on the assembly type
     '''
     if fasta_type == 'spades':
-        return float(header.split("_")[-3])
+        spades_match_re = re.compile(r"_cov_(\d+\.*\d*)")
+        cov = re.findall(r"_cov_(\d+\.*\d*)", header)
+        return float(spades_match_re.findall(header)[0])
     elif fasta_type == 'velvet':
         return float(header.split("_")[-1])
     elif fasta_type == 'abyss' or fasta_type == 'soap':

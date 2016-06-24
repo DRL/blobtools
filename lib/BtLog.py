@@ -56,11 +56,12 @@ error_d = {
     '22' : '[ERROR:22]\t: Tax file %s seems to have no taxids.',
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
-    '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.'
+    '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
+    '26' : '[ERROR:26]\t: Please specify the nature of the similarity search result (--blast or --diamond).'
 }
 
 warn_d = {
-    '0' : '[WARN]\t: No tax files specified.',
+    '0' : '[WARN]\t\t: No tax files specified.',
     '1' : '[WARN]\t: %s not in colour file %s ...',
     '2' : '[WARN]\t: %s in file %s is not part of the assembly',
     '3' : '[WARN]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
@@ -69,6 +70,7 @@ warn_d = {
     '6' : '[WARN]\t: The cumulative coverage of cov lib %s is 0.0. Please check the mapping/coverage file.'
 }
 status_d = {
+    '0': '[STATUS]\t: Nothing to be done. %s',
     '1' : '[STATUS]\t: Parsing %s - %s',
     '2' : '... Done',
     '3' : '[STATUS]\t: Creating nodesDB from %s and %s',
