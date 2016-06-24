@@ -9,6 +9,7 @@
         -t, --taxids <TAXIDS>         TAXID file
         -o, --out <PREFIX>            Output prefix
         -e, --evalue <EVALUE>         E-value cutoff (default: 1e-25)
+        -b, --bitscore <BITSCORE>
         --rnacentral                  TAXFILE is BLAST and TAXIDS is from rnacentral (SILVA analysis)
         --diamond                     TAXFILE is Diamond output (*.daa)
 """
