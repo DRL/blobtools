@@ -28,7 +28,7 @@ from os.path import join, dirname
 try:
     from docopt import docopt
 except ImportError:
-    sys.exit("[ERROR]\t: The module docopt is not installed. Please install it to run blobtools\n\tpip install docopt")
+    sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
 __version__ = "blobtools v0.9.18"
