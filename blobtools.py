@@ -25,7 +25,12 @@ from __future__ import division
 import sys
 from subprocess import call
 from os.path import join, dirname
-from docopt import docopt
+try:
+    from docopt import docopt
+except ImportError:
+    sys.exit("[ERROR]\t: The module docopt is not installed. \
+        Please install it to run blobtools\n\tpip install docopt")
+
 
 __version__ = "blobtools v0.9.18"
 MAINDIR = join(dirname(__file__), '')
