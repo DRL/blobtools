@@ -6,19 +6,18 @@ usage: blobtools <command> [<args>...] [--help] [--version]
 
 commands:
 
+    create        create a BlobDB
+    view          print BlobDB as a table
+    blobplot      plot BlobDB as a blobplot
+    covplot       compare BlobDB cov(s) to additional cov file
 
-  create        create a BlobDB
-  view          print BlobDB as a table
-  blobplot      plot BlobDB as a blobplot
-  covplot       compare BlobDB cov(s) to additional cov file
+    bam2cov       generate cov file from bam file
+    sumcov        sum coverage from multiple COV files
+    seqfilter     filter FASTA sequences based on header in list
+    taxify        assign taxids to blast-results based on list
 
-  bam2cov       generate cov file from bam file
-  sumcov        sum coverage from multiple COV files
-  seqfilter     filter FASTA sequences based on header in list
-  taxify        assign taxids to blast-results based on list
-
--h, --help      show this
--v, --version   show version number
+    -h, --help      show this
+    -v, --version   show version number
 
 """
 
