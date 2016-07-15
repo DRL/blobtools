@@ -15,7 +15,7 @@ class BlobDb():
         self.title = title
         self.assembly_f = ''
         self.dict_of_blobs = {}
-        self.order_of_blobs = []
+        self.order_of_blobs = [] # ordereddict
         self.set_of_taxIds = set()
         self.lineages = {}
         self.length = 0
@@ -25,27 +25,42 @@ class BlobDb():
         self.hitLibs = {}
         self.nodesDB_f = ''
         self.taxrules = []
+        self.version = ''
 
-    def view(self, views, ranks, taxrule, hits_flag, seqs):
-        cov_lib_names = [covLib for covLib in self.covLibs]
+    def view(self, **kwargs):
+        # arguments
+        print BtLog.status_d['14']
+        viewObjs = kwargs['viewObjs']
+        ranks = kwargs['ranks']
+        taxrule = kwargs['taxrule']
+        hits_flag = kwargs['hits_flag']
+        seqs = kwargs['seqs']
+        cov_libs = kwargs['cov_libs']
+        # Default sequences if no subset
+        if not (seqs):
+            seqs = self.order_of_blobs
+        # Default cov_libs if no subset
+        cov_lib_names = cov_libs
+        if not (cov_libs):
+            cov_lib_names = [covLib for covLib in self.covLibs]
+
         tax_lib_names = [taxLib for taxLib in sorted(self.hitLibs)]
         lineages = self.lineages
         # headers
-
-        for viewObj in views:
+        for viewObj in viewObjs:
             if viewObj.name == 'table':
                 viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag, cov_lib_names)
             if viewObj.name == 'concoct_cov':
                 viewObj.header = self.getConcoctCovHeader(cov_lib_names)
-        # bodies
-        if not (seqs):
-            seqs = self.order_of_blobs
+            if viewObj.name == 'cov':
+                viewObj.header = self.getCovHeader(cov_lib_names)
 
-        body = {}
+        # bodies
+        body = []
         for i, seq in enumerate(seqs):
             BtLog.progress(i, 1000, len(seqs))
             blob = self.dict_of_blobs[seq]
-            for viewObj in views:
+            for viewObj in viewObjs:
                 if viewObj.name == 'table':
                     viewObj.body.append(self.getTableLine(blob, taxrule, ranks, hits_flag, cov_lib_names, tax_lib_names, lineages))
                 if viewObj.name == 'concoct_cov':
@@ -55,15 +70,44 @@ class BlobDb():
                         if not rank in viewObj.body:
                             viewObj.body[rank] = []
                         viewObj.body[rank].append(self.getConcoctTaxLine(blob, rank, taxrule))
+                if viewObj.name == 'cov':
+                    viewObj.body.append(self.getCovLine(blob, cov_lib_names))
         BtLog.progress(len(seqs), 1000, len(seqs))
-        for viewObj in views:
+        for viewObj in viewObjs:
             viewObj.output()
+
+    def getCovHeader(self, cov_lib_names):
+        cov_lib_name = cov_lib_names[0]
+        header = '## %s\n' % (self.version)
+        if isinstance(self.covLibs[cov_lib_name], CovLibObj):
+            # CovLibObjs
+            header += "## Total Reads = %s\n" % (self.covLibs[cov_lib_name].reads_total)
+            header += "## Mapped Reads = %s\n" % (self.covLibs[cov_lib_name].reads_mapped)
+            header += "## Unmapped Reads = %s\n" % (self.covLibs[cov_lib_name].reads_total - self.covLibs[cov_lib_name].reads_mapped)
+            header += "## Source(s) : %s\n" % (self.covLibs[cov_lib_name].f)
+        else:
+            # CovLibObjs turned dicts
+            header += "## Total Reads = %s\n" % (self.covLibs[cov_lib_name]['reads_total'])
+            header += "## Mapped Reads = %s\n" % (self.covLibs[cov_lib_name]['reads_mapped'])
+            header += "## Unmapped Reads = %s\n" % (self.covLibs[cov_lib_name]['reads_total'] - self.covLibs[cov_lib_name]['reads_mapped'])
+            header += "## Source(s) : %s\n" % (self.covLibs[cov_lib_name]['f'])
+        header += "# %s\t%s\t%s\n" % ("contig_id", "read_cov", "base_cov")
+        return header
+
+    def getCovLine(self, blob, cov_lib_names):
+        if isinstance(blob, BlObj):
+            # BlobObj
+            return "%s\t%s\t%s\n" % (blob.name, blob.read_cov[cov_lib_names[0]], blob.covs[cov_lib_names[0]])
+        else:
+            # BlobObj turned dict
+            return "%s\t%s\t%s\n" % (blob['name'], blob['read_cov'][cov_lib_names[0]], blob['covs'][cov_lib_names[0]])
 
     def getConcoctCovHeader(self, cov_lib_names):
         return "contig\t%s\n" % "\t".join(cov_lib_names)
 
     def getConcoctTaxLine(self, blob, rank, taxrule):
-        return "%s,%s\n" % (blob['name'], blob['taxonomy'][taxrule][rank]['tax'])
+        if taxrule in blob['taxonomy']:
+            return "%s,%s\n" % (blob['name'], blob['taxonomy'][taxrule][rank]['tax'])
 
     def getConcoctCovLine(self, blob, cov_lib_names):
         return "%s\t%s\n" % (blob['name'], "\t".join(map(str, [ blob['covs'][covLib] for covLib in cov_lib_names])))
@@ -71,12 +115,15 @@ class BlobDb():
     def getTableHeader(self, taxrule, ranks, hits_flag, cov_lib_names):
         sep = "\t"
         header = ''
-        header += "##\n"
-        header += "## assembly : %s\n" % self.assembly_f
-        header += "%s\n" % "\n".join("## " + covLib['name'] + " : " + covLib["f"] for covLib in self.covLibs.values())
-        header += "%s\n" % "\n".join("## " + hitLib['name'] + " : " + hitLib["f"] for hitLib in self.hitLibs.values())
-        header += "## nodesDB : %s\n" % self.nodesDB_f
-        header += "## taxrule : %s\n" % taxrule
+        header += '## %s\n' % (self.version)
+        header += "## assembly\t: %s\n" % self.assembly_f
+        header += "%s\n" % "\n".join("## coverage\t: " + covLib['name'] + " - " + covLib["f"] for covLib in self.covLibs.values())
+        if (self.hitLibs):
+            header += "%s\n" % "\n".join("## taxonomy\t: " + hitLib['name'] + " - " + hitLib["f"] for hitLib in self.hitLibs.values())
+        else:
+            header += "## taxonomy\t: no taxonomy information found\n"
+        header += "## nodesDB\t: %s\n" % self.nodesDB_f
+        header += "## taxrule\t: %s\n" % taxrule
         header += "##\n"
         header += "# %s" % sep.join(map(str, ["name", "length", "GC", "N"]))
         col = 4
@@ -103,11 +150,13 @@ class BlobDb():
             line += "%s%s" % (sep, sum([ blob['covs'][covLib] for covLib in cov_lib_names]))
         for rank in ranks:
             line += sep
-            tax = blob['taxonomy'][taxrule][rank]['tax']
-            score = blob['taxonomy'][taxrule][rank]['score']
-            c_index = blob['taxonomy'][taxrule][rank]['c_index']
+            tax, score, c_index = 'N/A', 'N/A', 'N/A'
+            if taxrule in blob['taxonomy']:
+                tax = blob['taxonomy'][taxrule][rank]['tax']
+                score = blob['taxonomy'][taxrule][rank]['score']
+                c_index = blob['taxonomy'][taxrule][rank]['c_index']
             line += "%s" % sep.join(map(str, [tax, score, c_index ]))
-            if hits_flag:
+            if (hits_flag) and (taxrule in blob['taxonomy']):
                 line += sep
                 for tax_lib_name in tax_lib_names:
                     if tax_lib_name in blob['hits']:
@@ -134,7 +183,8 @@ class BlobDb():
                 'nodesDB_f' : self.nodesDB_f,
                 'covLibs' : {name : covLibObj.__dict__ for name, covLibObj in self.covLibs.items()},
                 'hitLibs' : {name : hitLibObj.__dict__ for name, hitLibObj in self.hitLibs.items()},
-                'taxrules' : self.taxrules
+                'taxrules' : self.taxrules,
+                'version' : self.version
                 }
         return dump
 
@@ -142,7 +192,7 @@ class BlobDb():
         pass
 
     def load(self, BlobDb_f):
-        blobDict = BtIO.readJson(BlobDb_f)
+        blobDict = BtIO.parseJson(BlobDb_f)
         for k, v in blobDict.items():
             setattr(self, k, v)
         self.set_of_taxIds = blobDict['lineages'].keys()
@@ -310,16 +360,20 @@ class BlobDb():
         if self.seqs == 0 or self.length == 0:
             BtLog.error('1')
 
-    def parseCovs(self, covLibObjs):
+    def parseCoverage(self, **kwargs):
+        # arguments
+        covLibObjs = kwargs['covLibObjs']
+        no_base_cov = kwargs['no_base_cov']
+
         for covLib in covLibObjs:
             self.addCovLib(covLib)
             print BtLog.status_d['1'] % (covLib.name, covLib.f)
             if covLib.fmt == 'bam' or covLib.fmt == 'sam':
                 base_cov_dict = {}
                 if covLib.fmt == 'bam':
-                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readBam(covLib.f, set(self.dict_of_blobs))
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseBam(covLib.f, set(self.dict_of_blobs), no_base_cov) # False, because one wants always base and read count
                 else:
-                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readSam(covLib.f, set(self.dict_of_blobs))
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseSam(covLib.f, set(self.dict_of_blobs))
 
                 if covLib.reads_total == 0:
                     print BtLog.warn_d['4'] % covLib.f
@@ -331,7 +385,7 @@ class BlobDb():
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
 
             elif covLib.fmt == 'cas':
-                cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readCas(covLib.f, self.order_of_blobs)
+                cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseCas(covLib.f, self.order_of_blobs)
                 if covLib.reads_total == 0:
                     print BtLog.warn_d['4'] % covLib.f
                 for name, cov in cov_dict.items():
@@ -340,7 +394,7 @@ class BlobDb():
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
 
             elif covLib.fmt == 'cov':
-                base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
+                base_cov_dict, covLib.reads_total, covLib.reads_mapped, covLib.reads_unmapped, read_cov_dict = BtIO.parseCov(covLib.f, set(self.dict_of_blobs))
                 #cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
                 if not len(base_cov_dict) == self.seqs:
                     print BtLog.warn_d['4'] % covLib.f
@@ -370,6 +424,7 @@ class BlobDb():
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
 
     def computeTaxonomy(self, taxrules, nodesDB):
+        print BtLog.status_d['6'] % ",".join(taxrules)
         tree_lists = BtTax.getTreeList(self.set_of_taxIds, nodesDB)
         self.lineages = BtTax.getLineages(tree_lists, nodesDB)
         self.taxrules = taxrules
@@ -422,9 +477,10 @@ class CovLibObj():
         self.cov_sum = 0.0
         self.reads_total = 0
         self.reads_mapped = 0
+        self.reads_unmapped = 0
         self.mean_cov = 0.0
 
-class hitLibObj():
+class HitLibObj():
     def __init__(self, name, fmt, f):
         self.name = name
         self.fmt = fmt
@@ -442,14 +498,20 @@ class ViewObj():
         if isinstance(self.body, dict):
             for category in self.body:
                 out_f = "%s.%s.%s" % (self.out_f, category, self.suffix)
-                print BtLog.status_d['13'] % (out_f)
-                with open(out_f, "w") as fh:
-                    fh.write(self.header + "".join(self.body[category]))
+                if self.header and self.body:
+                    print BtLog.status_d['13'] % (out_f)
+                    with open(out_f, "w") as fh:
+                        fh.write(self.header + "".join(self.body[category]))
+                else:
+                    pass
         elif isinstance(self.body, list):
             out_f = "%s.%s" % (self.out_f, self.suffix)
-            print BtLog.status_d['13'] % (out_f)
-            with open(out_f, "w") as fh:
-                fh.write(self.header + "".join(self.body))
+            if self.header and self.body:
+                print BtLog.status_d['13'] % (out_f)
+                with open(out_f, "w") as fh:
+                    fh.write(self.header + "".join(self.body))
+            else:
+                pass
         else:
             sys.exit("[ERROR] - 001")
 

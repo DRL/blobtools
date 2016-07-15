@@ -275,7 +275,7 @@ class PlotObj():
         with open(out_f, 'w') as fh:
             for cov_lib in sorted(self.cov_libs):
                 fh.write("# %s - %s\n" % (self.out_f, cov_lib))
-                fh.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % ('Group', 'colour', 'count', 'visible (%)', 'span', 'visible(%)', 'n50', 'GC', 'GC (std)', 'cov_mean', 'cov_std', 'read map', 'read map (%)'))
+                fh.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % ('Group', 'colour', 'count', 'visible-%', 'span', 'visible-%', 'n50', 'GC-mean', 'GC-std', 'Cov-mean', 'Cov-std', 'Mapped-reads', 'Mapped-reads-%'))
                 for stat in stats:
                     fh.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (\
                             stat['name'], stat['colour'], stat['count_visible'], stat['count_visible_perc'], stat['span_visible'], \
@@ -328,12 +328,12 @@ class PlotObj():
                     stats[label]['reads_mapped'][cov_lib] += self.data_dict[group]['reads_mapped'][cov_lib]
 
         for label in stats:
-            stats[label]['gc_mean'] = mean(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0 else 0.0
-            stats[label]['gc_std'] = std(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0 else 0.0
-            stats[label]['n50'] = n50(stats[label]['length']) if stats[label]['count_visible'] > 0 else 0.0
+            stats[label]['gc_mean'] = mean(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0.0 else 0.0
+            stats[label]['gc_std'] = std(array(stats[label]['gc'])) if stats[label]['count_visible'] > 0.0 else 0.0
+            stats[label]['n50'] = n50(stats[label]['length']) if stats[label]['count_visible'] > 0.0 else 0.0
             for cov_lib in self.cov_libs:
-                stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0 else 0.0
-                stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0 else 0.0
+                stats[label]['cov_mean'][cov_lib] = mean(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0.0 else 0.0
+                stats[label]['cov_std'][cov_lib] = std(array(stats[label]['covs'][cov_lib])) if stats[label]['count_visible'] > 0.0 else 0.0
                 if self.cov_libs_total_reads_dict[cov_lib]:
                     stats[label]['reads_mapped_perc'][cov_lib] = stats[label]['reads_mapped'][cov_lib]/self.cov_libs_total_reads_dict[cov_lib]
 
@@ -343,7 +343,7 @@ class PlotObj():
 
     def relabel_and_colour(self, colour_f, user_labels):
         if (colour_f):
-            colour_dict = BtIO.parseColourDict(colour_f)
+            colour_dict = BtIO.parseDict(colour_f, 0, 1)
         else:
             groups = self.group_order[0:self.max_group_plot]
             colour_groups = [group if not (group in user_labels) else user_labels[group] for group in groups]

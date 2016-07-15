@@ -17,10 +17,10 @@ def error(message, *argv):
         print error_d[message]
     else:
         print error_d[message] % (argv)
-    exit(1)
+    exit(1) # change to exit with the actual ERROR number (different than 0)
 
 def progress(iteration, steps, max_value):
-    if int(iteration == max_value):
+    if int(iteration) == max_value:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (100)
     elif int(iteration) % int(steps) == 0:
@@ -34,7 +34,7 @@ error_d = {
     '0' : '[ERROR:0]\t: File %s does not exist.',
     '1' : '[ERROR:1]\t: Please provide coverage information.',
     '2' : '[ERROR:2]\t: Assembly type is not valid (%s).',
-    '3' : '[ERROR:3]\t: nodesDB ("--db") or names.dmp/nodes.dmp ("--nodes", "--names") could not be read.',
+    '3' : '[ERROR:3]\t: names.dmp/nodes.dmp ("--names", "--nodes") could not be read. %s, %s',
     '4' : '[ERROR:4]\t: BlobDB.parseFasta() - no sequences found. Check FASTA file.',
     '5' : '[ERROR:5]\t: Sequence header %s is not unique.',
     '6' : '[ERROR:6]\t: BlobDB.readBam() - sequence header %s in %s was not in FASTA.',
@@ -57,25 +57,30 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: Please specify the nature of the similarity search result (--blast or --diamond).'
+    '26' : '[ERROR:26]\t: Please specify the nature of the similarity search result (--blast or --diamond).',
+    '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
+    '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
+    '29' : '[ERROR:29]\t: No mapping reads found in %s'
+
 }
 
 warn_d = {
     '0' : '[WARN]\t\t: No tax files specified.',
-    '1' : '[WARN]\t: %s not in colour file %s ...',
-    '2' : '[WARN]\t: %s in file %s is not part of the assembly',
-    '3' : '[WARN]\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
-    '4' : '[WARN]\t: No coverage data found in %s',
-    '5' : '[WARN]\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
-    '6' : '[WARN]\t: The cumulative coverage of cov lib %s is 0.0. Please check the mapping/coverage file.'
+    '1' : '[WARN]\t\t: %s not in colour file %s ...',
+    '2' : '[WARN]\t\t: %s in file %s is not part of the assembly',
+    '3' : '[WARN]\t\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
+    '4' : '[WARN]\t\t: No coverage data found in %s',
+    '5' : '[WARN]\t\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
+    '6' : '[WARN]\t\t: Sum of coverage in cov lib %s is 0.0. Please ignore this warning if "--no_base_cov" was specified.',
+    '7' : '[WARN]\t\t: No taxonomy information found.'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',
     '1' : '[STATUS]\t: Parsing %s - %s',
     '2' : '... Done',
     '3' : '[STATUS]\t: Creating nodesDB from %s and %s',
-    '4' : '[STATUS]\t: Retrieving nodesDB from %s',
-    '5' : '[STATUS]\t: Store nodesDB in location %s',
+    '4' : '[STATUS]\t: names.dmp/nodes.dmp not specified. Retrieving nodesDB from %s',
+    '5' : '[STATUS]\t: Store nodesDB in default location %s',
     '6' : '[STATUS]\t: Computing taxonomy using taxrule(s) %s',
     '7' : '[STATUS]\t: Generating BlobDB and writing to file %s',
     '8' : '[STATUS]\t: Plotting %s',
@@ -83,7 +88,8 @@ status_d = {
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
     '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
     '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\'',
-    '13': '[STATUS]\t: \tWriting %s'
+    '13': '[STATUS]\t: Writing %s',
+    '14': '[STATUS]\t: Preparing view(s) ...'
 }
 
 info_d = {

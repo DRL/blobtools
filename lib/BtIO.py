@@ -12,12 +12,15 @@ To do       : ?
 from __future__ import division
 import re
 import subprocess
-from os.path import basename, isfile, abspath
+from os.path import basename, isfile, abspath, splitext, join
 import os
 import sys
 import lib.BtLog as BtLog
+from itertools import groupby
 
 def parseList(infile):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     with open(infile) as fh:
         items = []
         for l in fh:
@@ -25,6 +28,8 @@ def parseList(infile):
     return items
 
 def parseDict(infile, key, value):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     with open(infile) as fh:
         items = {}
         k_idx = int(key)
@@ -35,13 +40,23 @@ def parseDict(infile, key, value):
     return items
 
 def parseSet(infile):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     with open(infile) as fh:
         items = set()
         for l in fh:
             items.add(l.rstrip("\n").lstrip(">"))
     return items
 
+def parseFastaNameOrder(infile):
+    fasta_order = []
+    for name, seq in readFasta(infile):
+        fasta_order.append(name)
+    return fasta_order
+
 def readFasta(infile):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     with open(infile) as fh:
         header, seqs = '', []
         for l in fh:
@@ -77,6 +92,8 @@ def which(program):
 
 def checkBam(infile):
     print BtLog.status_d['10']
+    if not isfile(infile):
+         BtLog.error('0', infile)
     if not (which('samtools')):
         BtLog.error('7')
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
@@ -88,10 +105,15 @@ def checkBam(infile):
         output += line
     reads_mapped = int(reads_mapped_re.search(output).group(1))
     reads_total = int(reads_total_re.search(output).group(1))
+    # check whether there are reads in BAM
+    if not (reads_total) or not (reads_mapped):
+          BtLog.error('29' % infile)
     print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return reads_total, reads_mapped
 
-def readSam(infile, set_of_blobs):
+def parseSam(infile, set_of_blobs):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     base_cov_dict = {}
     read_cov_dict = {}
     cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
@@ -116,42 +138,55 @@ def readSam(infile, set_of_blobs):
                             read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
-def readBam(infile, set_of_blobs):
+def parseBaseCovFromCigar(cigar_string):
+    cigar_list = [''.join(g) for _, g in groupby(cigar_string.replace('=', 'M').replace('X', 'M'), str.isalpha)]
+    return sum([int(c) for idx, c in enumerate(cigar_list[:-1]) if (cigar_list[idx+1] == 'M')])
+
+def parseBaseCovFromCigarRegex(cigar_string, cigar_match_re):
+    return sum([int(matching) for matching in cigar_match_re.findall(cigar_string)])
+
+def parseBam(infile, set_of_blobs, no_base_cov_flag):
+    '''
+    checkBam returns reads_total and reads_mapped
+    base_cov_dict is list of coverages for each contigs, since list appending should be faster
+
+    '''
+    if not isfile(infile):
+         BtLog.error('0', infile)
     reads_total, reads_mapped = checkBam(infile)
     progress_unit = int(reads_mapped/1000)
-    base_cov_dict = {}
-    read_cov_dict = {}
-    cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
-    # execute samtools to get only mapped reads
-    #command = "samtools view -F 12 -F 256" + infile
-    command = "samtools view -F 4 -F 256 " + infile
-    # ADD flag picard -F 1028 to not consider optical duplicates
-    #command = "samtools view -F 1028 " + infile
-    # only one counter since only yields mapped reads
+    base_cov_dict = {blob : 0 for blob in set_of_blobs}
+    read_cov_dict = {blob : 0 for blob in set_of_blobs}
+    cigar_match_re = re.compile(r"(\d+)M|X|=") # only gets digits before M,X,='s
+    # execute samtools to get only mapped reads (no optial duplicates, no 2nd-ary alignment)
+    command = "samtools view -F 1028 -F 4 -F 256 " + infile
     seen_reads = 0
-    parsed_reads = 0
     for line in runCmd(command):
         match = line.split("\t")
         seen_reads += 1
-        seq_name = match[2]
-        base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-        if (base_cov):
-            parsed_reads += 1
-            if seq_name not in set_of_blobs:
-                print BtLog.warn_d['2'] % (seq_name, infile)
-            else:
-                base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov
-                read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
+        #seq_name = match[2]
+        if match[2] in set_of_blobs:
+            if not (no_base_cov_flag):
+                #base_cov_dict[match[2]].append(parseBaseCovFromCigar(match[5]))
+                base_cov_dict[match[2]] += parseBaseCovFromCigarRegex(match[5], cigar_match_re)
+            read_cov_dict[match[2]] += 1
+        else:
+            print BtLog.warn_d['2'] % (match[2], infile)
         BtLog.progress(seen_reads, progress_unit, reads_mapped)
-    if not int(reads_mapped) == int(parsed_reads):
-        print warn_d['3'] % (reads_mapped, parsed_reads)
-    return base_cov_dict, reads_total, parsed_reads, read_cov_dict
+    if not int(reads_mapped) == int(seen_reads):
+        print BtLog.warn_d['3'] % (reads_mapped, seen_reads)
+    #base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
+    #print base_cov
+    return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header):
     '''
     Returns the coverage from the header of a FASTA
     sequence depending on the assembly type
     '''
+    ASSEMBLY_TYPES = [None, 'spades', 'soap', 'abyss', 'velvet', 'platanus']
+    if not fasta_type in ASSEMBLY_TYPES:
+        BtLog.error('2', ",".join(ASSEMBLY_TYPES[1:]))
     if fasta_type == 'spades':
         spades_match_re = re.compile(r"_cov_(\d+\.*\d*)")
         cov = re.findall(r"_cov_(\d+\.*\d*)", header)
@@ -170,13 +205,16 @@ def parseCovFromHeader(fasta_type, header):
     else:
         pass
 
-def readCov(infile, set_of_blobs):
+def parseCov(infile, set_of_blobs):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     old_cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     base_cov_dict = {}
 
     cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)\t(\d+\.*\d*)")
     reads_total = 0
     reads_mapped = 0
+    reads_unmapped = 0
     read_cov_dict = {}
 
     seqs_parsed = 0
@@ -187,16 +225,15 @@ def readCov(infile, set_of_blobs):
             if line.startswith("#"):
                 old_format = 0
             if old_format == 0:
-                if line.startswith("# Total Reads"):
-                    reads_total = int(line.split(" = ")[1])
-                elif line.startswith("# Mapped Reads"):
-                    reads_mapped = int(line.split(" = ")[1])
-                elif line.startswith("# Unmapped Reads"):
-                    pass
-                elif line.startswith("# Parameters"):
-                    pass
-                elif line.startswith("# contig_id"):
-                    pass
+                if line.startswith('#'):
+                    if line.startswith("## Total Reads"):
+                        reads_total = int(line.split(" = ")[1])
+                    elif line.startswith("## Mapped Reads"):
+                        reads_mapped = int(line.split(" = ")[1])
+                    elif line.startswith("## Unmapped Reads"):
+                        reads_unmapped = int(line.split(" = ")[1])
+                    else:
+                        pass
                 else:
                     match = cov_line_re.search(line)
                     if match:
@@ -216,10 +253,12 @@ def readCov(infile, set_of_blobs):
                     base_cov_dict[name] = base_cov
             BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
         #BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
-    return base_cov_dict, reads_total, reads_mapped, read_cov_dict
+    return base_cov_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict
 
 def checkCas(infile):
     print BtLog.status_d['12']
+    if not isfile(infile):
+         BtLog.error('0', infile)
     if not (which('clc_mapping_info')):
         BtLog.error('20')
     seqs_total_re = re.compile(r"\s+Contigs\s+(\d+)")
@@ -236,7 +275,9 @@ def checkCas(infile):
     print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return seqs_total, reads_total, reads_mapped
 
-def readCas(infile, order_of_blobs):
+def parseCas(infile, order_of_blobs):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     seqs_total, reads_total, reads_mapped = checkCas(infile)
     progress_unit = int(len(order_of_blobs)/100)
     cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
@@ -268,6 +309,8 @@ def readTax(infile, set_of_blobs):
         - catch matches in variables
         - add as key-value pairs to hitDict
     '''
+    if not isfile(infile):
+         BtLog.error('0', infile)
     hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
@@ -284,16 +327,21 @@ def readTax(infile, set_of_blobs):
                     BtLog.error('22', infile)
                 yield hitDict
 
-def parseColourDict(infile):
-    colour_dict = {}
-    with open(infile) as fh:
-        for line in fh:
-            colour, group = line.rstrip("\n").split("=")
-            if colour.startswith("#"):
-                colour_dict[group] = colour
-    return colour_dict
+def getOutFile(base_file, prefix, suffix):
+    EXTENSIONS = ['.fasta', '.fa', '.fna', '.txt', '.cov', '.out', '.json']
+    out_f, extension = splitext(basename(base_file))
+    if not extension in EXTENSIONS:
+        out_f = '%s%s' % (out_f, extension)
+    if (prefix):
+        if prefix.endswith("/"):
+            out_f = "%s" % (join(prefix, out_f))
+        else:
+            out_f = "%s.%s" % (prefix, out_f)
+    if (suffix):
+        out_f = "%s.%s" % (out_f, suffix)
+    return out_f
 
-def getNodesDB(**kwargs):
+def parseNodesDB(**kwargs):
     '''
     Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that
     gets JSON'ed into blobtools/data/nodes_db.json if this file
@@ -301,41 +349,63 @@ def getNodesDB(**kwargs):
     nor "--db" is specified.
     '''
     nodesDB = {}
-    nodesDB_f = ''
+    names_f = kwargs['names']
+    nodes_f = kwargs['nodes']
+    nodesDB_f = kwargs['nodesDB']
+    nodesDB_default = kwargs['nodesDBdefault']
 
-    if (kwargs['names'] and kwargs['nodes']):
-        print BtLog.status_d['3'] % (kwargs['nodes'], kwargs['names'])
-        nodesDB = {}
-        nodes_count = 0
+    if (nodes_f and names_f):
+        if not isfile(names_f):
+            BtLog.error('0', names_f)
+        if not isfile(nodes_f):
+            BtLog.error('0', nodes_f)
+        print BtLog.status_d['3'] % (nodes_f, names_f)
         try:
-            with open(kwargs['nodes']) as fh:
-                for line in fh:
-                    nodes_col = line.split("\t")
-                    node = {}
-                    node_id = nodes_col[0]
-                    node['parent'] = nodes_col[2]
-                    node['rank'] = nodes_col[4]
-                    nodesDB[node_id] = node
-                    nodes_count += 1
-            with open(kwargs['names']) as fh:
-                for line in fh:
-                    names_col = line.split("\t")
-                    if names_col[6] == "scientific name":
-                       nodesDB[names_col[0]]['name'] = names_col[2]
-            nodesDB_f = kwargs['nodesDB']
-            nodesDB['nodes_count'] = nodes_count
+            nodesDB = readNamesNodes(names_f, nodes_f)
         except:
-            BtLog.error('3')
-    elif (kwargs['nodesDB']):
+            BtLog.error('3', nodes_f, names_f)
+    elif (nodesDB_f):
+        if not isfile(nodesDB_f):
+            BtLog.error('0', nodesDB_f)
+        print BtLog.status_d['4'] % (nodesDB_f)
         try:
-            print BtLog.status_d['4'] % (kwargs['nodesDB'])
-            nodesDB = readNodesDB(kwargs['nodesDB'])
-            nodesDB_f = kwargs['nodesDB']
+            nodesDB = readNodesDB(nodesDB_f)
         except:
-            BtLog.error('3')
-    else:
-        BtLog.error('3')
+            BtLog.error('27', nodesDB_f)
+    elif (nodesDB_default):
+        if not isfile(nodesDB_default):
+            BtLog.error('28')
+        print BtLog.status_d['4'] % (nodesDB_default)
+        try:
+            nodesDB = readNodesDB(nodesDB_default)
+        except:
+            BtLog.error('27', nodesDB_default)
+
+    # Write nodesDB if not available
+    if not isfile(nodesDB_default):
+        writeNodesDB(nodesDB, nodesDB_default)
+
     return nodesDB, nodesDB_f
+
+def readNamesNodes(names_f, nodes_f):
+    nodesDB = {}
+    nodes_count = 0
+    with open(nodes_f) as fh:
+        for line in fh:
+            nodes_col = line.split("\t")
+            node = {}
+            node_id = nodes_col[0]
+            node['parent'] = nodes_col[2]
+            node['rank'] = nodes_col[4]
+            nodesDB[node_id] = node
+            nodes_count += 1
+    with open(names_f) as fh:
+        for line in fh:
+            names_col = line.split("\t")
+            if names_col[6] == "scientific name":
+               nodesDB[names_col[0]]['name'] = names_col[2]
+    nodesDB['nodes_count'] = nodes_count
+    return nodesDB
 
 def readNodesDB(nodesDB_f):
     nodesDB = {}
@@ -352,7 +422,19 @@ def readNodesDB(nodesDB_f):
                 BtLog.progress(i, 1000, nodes_count)
     return nodesDB
 
+#def writeCov(covLibObj, blobDB, out_f):
+#    print BtLog.status_d['13'] % out_f
+#    with open(out_f, 'w') as fh:
+#        fh.write("# Total Reads = %s\n" % (covLibObj.reads_total))
+#        fh.write("# Mapped Reads = %s\n" % (covLibObj.reads_mapped))
+#        fh.write("# Unmapped Reads = %s\n" % (covLibObj.reads_total - covLibObj.reads_mapped))
+#        fh.write("# Source(s) : %s\n" % (covLibObj.f))
+#        fh.write("# %s\t%s\t%s\n" % ("contig_id", "read_cov", "base_cov"))
+#        for name in blobDB.order_of_blobs:
+#            fh.write("%s\t%s\t%s\n" % (name, covLibObj.get(name, "0"), base_cov_dict.get(name, "0")))
+
 def writeNodesDB(nodesDB, nodesDB_f):
+    print BtLog.status_d['5'] % nodesDB_f
     nodes_count = nodesDB['nodes_count']
     i = 0
     with open(nodesDB_f, 'w') as fh:
@@ -386,16 +468,18 @@ def writeJson(obj, outfile):
     import json
     with open(outfile, 'w') as fh:
         json.dump(obj, fh)
-        #json.dump(obj, fh, indent=4, separators=(',', ': '))
+        #json.dump(obj, fh, indent=4, separators=(',', ': ')) #
 
-def readJsonGzip(infile):
+def parseJsonGzip(infile):
     import json
     import gzip
     with gzip.open(infile, 'rb') as fh:
         obj = json.loads(fh.read().decode("ascii"))
     return byteify(obj)
 
-def readJson(infile):
+def parseJson(infile):
+    if not isfile(infile):
+         BtLog.error('0', infile)
     try:
         import simplejson as json
     except ImportError:
