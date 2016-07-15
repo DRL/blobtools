@@ -19,6 +19,12 @@ commands:
     -h, --help      show this
     -v, --version   show version number
 
+examples:
+
+    1. blobtools create -i assembly.fna -b reads.vs.assembly.bam -t assembly.vs.nt.blast.out -o test
+    2. blobtools view -i test.blobDB.json
+    3. blobtools blobplot -i test.blobDB.json
+
 """
 
 from __future__ import division
