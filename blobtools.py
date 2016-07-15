@@ -6,6 +6,7 @@ usage: blobtools <command> [<args>...] [--help] [--version]
 
 commands:
 
+
   create        create a BlobDB
   view          print BlobDB as a table
   blobplot      plot BlobDB as a blobplot
@@ -16,7 +17,8 @@ commands:
   seqfilter     filter FASTA sequences based on header in list
   taxify        assign taxids to blast-results based on list
 
--h --help    show this
+-h, --help      show this
+-v, --version   show version number
 
 """
 
