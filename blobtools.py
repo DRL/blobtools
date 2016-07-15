@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-usage: blobtools <command> [<args>...] [--help]
+usage: blobtools <command> [<args>...] [--help] [--version]
 
 commands:
-  version       print version number
 
   create        create a BlobDB
   view          print BlobDB as a table
