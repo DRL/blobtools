@@ -23,7 +23,7 @@ def progress(iteration, steps, max_value):
     if int(iteration) == max_value:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (100)
-    elif int(iteration) % int(steps) == 0:
+    elif int(iteration) % steps == 0:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value))*100),
         sys.stdout.flush()
@@ -60,14 +60,18 @@ error_d = {
     '26' : '[ERROR:26]\t: Please specify the nature of the similarity search result (--blast or --diamond).',
     '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
-    '29' : '[ERROR:29]\t: No mapping reads found in %s'
+    '29' : '[ERROR:29]\t: No mapping reads found in %s',
+    '30' : '[ERROR:30]\t: The module docopt is not installed. Please install it to run blobtools\n\tpip install docopt',
+    '31' : '[ERROR:31]\t: Please specify a read mapping file',
+    '32' : '[ERROR:32]\t: Choose either --cumulative or --multiplot',
+    '33' : '[ERROR:33] : CovLib(s) not found. The available covlibs are: \n%s'
 
 }
 
 warn_d = {
     '0' : '[WARN]\t\t: No tax files specified.',
     '1' : '[WARN]\t\t: %s not in colour file %s ...',
-    '2' : '[WARN]\t\t: %s in file %s is not part of the assembly',
+    '2' : '[WARN]\t\t: %s is not part of the assembly',
     '3' : '[WARN]\t\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
     '4' : '[WARN]\t\t: No coverage data found in %s',
     '5' : '[WARN]\t\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
@@ -89,7 +93,10 @@ status_d = {
     '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
     '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\'',
     '13': '[STATUS]\t: Writing %s',
-    '14': '[STATUS]\t: Preparing view(s) ...'
+    '14': '[STATUS]\t: Preparing view(s) ...',
+    '15': '[STATUS]\t: \tLoading BlobDb into memory ...',
+    '16': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while) ...',
+    '17': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while, consider installing the \'ujson\' module) ...'
 }
 
 info_d = {

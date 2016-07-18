@@ -26,7 +26,7 @@ from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
 from sys import path
-#path.append(dirname(dirname(abspath(__file__))))
+path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
 import lib.BtCore as Bt

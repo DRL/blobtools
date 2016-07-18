@@ -16,7 +16,7 @@ from os.path import basename, isfile, abspath, splitext, join
 import os
 import sys
 import lib.BtLog as BtLog
-from itertools import groupby
+from collections import deque
 
 def parseList(infile):
     if not isfile(infile):
@@ -72,7 +72,9 @@ def runCmd(command):
     cmd = command.split() # sanitation
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+                         stderr=subprocess.STDOUT,
+                         universal_newlines=True,
+                         bufsize=-1) # buffersize of system
     return iter(p.stdout.readline, b'')
 
 def which(program):
@@ -111,39 +113,45 @@ def checkBam(infile):
     print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return reads_total, reads_mapped
 
-def parseSam(infile, set_of_blobs):
+def parseSam(infile, set_of_blobs, no_base_cov_flag):
     if not isfile(infile):
          BtLog.error('0', infile)
-    base_cov_dict = {}
-    read_cov_dict = {}
-    cigar_match_re = re.compile(r"(\d+)M") # only gets digits before M's
+    base_cov_dict = {blob : [] for blob in set_of_blobs}
+    read_cov_dict = {blob : 0 for blob in set_of_blobs}
+    cigar_match_re = re.compile(r"(\d+)M|X|=") # only gets digits before M,X,='s
     reads_total = 0
     reads_mapped = 0
-    with open(infile) as fh:
-        for line in fh:
-            if line.startswith("@"):
-                pass
-            else:
-                match = line.split("\t")
-                if match >= 11:
+    if not (no_base_cov_flag):
+        with open(infile) as fh:
+            for line in fh:
+                if line.startswith("@"):
+                    pass
+                else:
                     reads_total += 1
-                    seq_name = match[2]
-                    if not seq_name == '*':
-                        if seq_name not in set_of_blobs:
-                            print BtLog.warn_d['2'] % (seq_name, infile)
-                        base_cov = sum([int(matching) for matching in cigar_match_re.findall(match[5])])
-                        if (base_cov):
-                            reads_mapped += 1
-                            base_cov_dict[seq_name] = base_cov_dict.get(seq_name, 0) + base_cov
-                            read_cov_dict[seq_name] = read_cov_dict.get(seq_name, 0) + 1
+                    match = line.split()
+                    if not match[2] == '*':
+                        reads_mapped += 1
+                        try:
+                            base_cov_dict[match[2]].append(sum([int(matching) for matching in cigar_match_re.findall(match[5])]))
+                            read_cov_dict[match[2]] += 1
+                        except:
+                            print BtLog.warn_d['2'] % (match[2])
+    else:
+        with open(infile) as fh:
+            for line in fh:
+                if line.startswith("@"):
+                    pass
+                else:
+                    reads_total += 1
+                    match = line.split()
+                    if not match[2] == '*':
+                        reads_mapped += 1
+                        try:
+                            read_cov_dict[match[2]] += 1
+                        except:
+                            print BtLog.warn_d['2'] % (match[2])
+    base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
-
-def parseBaseCovFromCigar(cigar_string):
-    cigar_list = [''.join(g) for _, g in groupby(cigar_string.replace('=', 'M').replace('X', 'M'), str.isalpha)]
-    return sum([int(c) for idx, c in enumerate(cigar_list[:-1]) if (cigar_list[idx+1] == 'M')])
-
-def parseBaseCovFromCigarRegex(cigar_string, cigar_match_re):
-    return sum([int(matching) for matching in cigar_match_re.findall(cigar_string)])
 
 def parseBam(infile, set_of_blobs, no_base_cov_flag):
     '''
@@ -155,28 +163,40 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
          BtLog.error('0', infile)
     reads_total, reads_mapped = checkBam(infile)
     progress_unit = int(reads_mapped/1000)
-    base_cov_dict = {blob : 0 for blob in set_of_blobs}
+    base_cov_dict = {blob : [] for blob in set_of_blobs}
+    #base_cov_dict = {blob : 0 for blob in set_of_blobs}
     read_cov_dict = {blob : 0 for blob in set_of_blobs}
     cigar_match_re = re.compile(r"(\d+)M|X|=") # only gets digits before M,X,='s
     # execute samtools to get only mapped reads (no optial duplicates, no 2nd-ary alignment)
     command = "samtools view -F 1028 -F 4 -F 256 " + infile
     seen_reads = 0
-    for line in runCmd(command):
-        match = line.split("\t")
-        seen_reads += 1
-        #seq_name = match[2]
-        if match[2] in set_of_blobs:
-            if not (no_base_cov_flag):
-                #base_cov_dict[match[2]].append(parseBaseCovFromCigar(match[5]))
-                base_cov_dict[match[2]] += parseBaseCovFromCigarRegex(match[5], cigar_match_re)
-            read_cov_dict[match[2]] += 1
-        else:
-            print BtLog.warn_d['2'] % (match[2], infile)
-        BtLog.progress(seen_reads, progress_unit, reads_mapped)
+    #import time
+    #start = time.time()
+    if not (no_base_cov_flag):
+        for line in runCmd(command):
+            seen_reads += 1
+            match = line.split()
+            try:
+                base_cov_dict[match[2]].append(sum([int(matching) for matching in cigar_match_re.findall(match[5])]))
+                #base_cov_dict[match[2]] += sum([int(matching) for matching in cigar_match_re.findall(match[5])])
+                read_cov_dict[match[2]] += 1
+            except:
+                print BtLog.warn_d['2'] % (match[2])
+            BtLog.progress(seen_reads, progress_unit, reads_mapped)
+    else:
+        for line in runCmd(command):
+            seen_reads += 1
+            match = line.split()
+            try:
+                read_cov_dict[match[2]] += 1
+            except:
+                print BtLog.warn_d['2'] % (match[2])
+            BtLog.progress(seen_reads, progress_unit, reads_mapped)
     if not int(reads_mapped) == int(seen_reads):
         print BtLog.warn_d['3'] % (reads_mapped, seen_reads)
-    #base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
-    #print base_cov
+    base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
+    #end = time.time()
+    #print (end-start)
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header):
@@ -184,7 +204,7 @@ def parseCovFromHeader(fasta_type, header):
     Returns the coverage from the header of a FASTA
     sequence depending on the assembly type
     '''
-    ASSEMBLY_TYPES = [None, 'spades', 'soap', 'abyss', 'velvet', 'platanus']
+    ASSEMBLY_TYPES = [None, 'spades', 'velvet', 'platanus']
     if not fasta_type in ASSEMBLY_TYPES:
         BtLog.error('2', ",".join(ASSEMBLY_TYPES[1:]))
     if fasta_type == 'spades':
@@ -193,9 +213,9 @@ def parseCovFromHeader(fasta_type, header):
         return float(spades_match_re.findall(header)[0])
     elif fasta_type == 'velvet':
         return float(header.split("_")[-1])
-    elif fasta_type == 'abyss' or fasta_type == 'soap':
-        temp = header.split(" ")
-        return float(temp[2]/(temp[1]+1-75))
+    #elif fasta_type == 'abyss' or fasta_type == 'soap':
+    #    temp = header.split(" ")
+    #    return float(temp[2]/(temp[1]+1-75))
     elif fasta_type == 'platanus':
         temp = header.rstrip("\n").split("_")
         if len(temp) >= 3:
@@ -241,8 +261,9 @@ def parseCov(infile, set_of_blobs):
                         name, read_cov, base_cov = match.group(1), int(match.group(2)), float(match.group(3))
                         if name not in set_of_blobs:
                             print BtLog.warn_d['2'] % (name, infile)
-                        read_cov_dict[name] = read_cov
-                        base_cov_dict[name] = base_cov
+                        else:
+                            read_cov_dict[name] = read_cov
+                            base_cov_dict[name] = base_cov
             else:
                 match = old_cov_line_re.search(line)
                 if match:
@@ -250,7 +271,8 @@ def parseCov(infile, set_of_blobs):
                     name, base_cov = match.group(1), float(match.group(2))
                     if name not in set_of_blobs:
                         print BtLog.warn_d['2'] % (name, infile)
-                    base_cov_dict[name] = base_cov
+                    else:
+                        base_cov_dict[name] = base_cov
             BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
         #BtLog.progress(len(set_of_blobs), progress_unit, len(set_of_blobs))
     return base_cov_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict
@@ -345,7 +367,7 @@ def parseNodesDB(**kwargs):
     '''
     Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that
     gets JSON'ed into blobtools/data/nodes_db.json if this file
-    does not exist. This file is used if neither "--names" and "--nodes"
+    does not exist. Nodes_db.json is used if neither "--names" and "--nodes"
     nor "--db" is specified.
     '''
     nodesDB = {}
@@ -380,6 +402,7 @@ def parseNodesDB(**kwargs):
             nodesDB = readNodesDB(nodesDB_default)
         except:
             BtLog.error('27', nodesDB_default)
+        nodesDB_f = nodesDB_default
 
     # Write nodesDB if not available
     if not isfile(nodesDB_default):
@@ -421,17 +444,6 @@ def readNodesDB(nodesDB_f):
                 nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
                 BtLog.progress(i, 1000, nodes_count)
     return nodesDB
-
-#def writeCov(covLibObj, blobDB, out_f):
-#    print BtLog.status_d['13'] % out_f
-#    with open(out_f, 'w') as fh:
-#        fh.write("# Total Reads = %s\n" % (covLibObj.reads_total))
-#        fh.write("# Mapped Reads = %s\n" % (covLibObj.reads_mapped))
-#        fh.write("# Unmapped Reads = %s\n" % (covLibObj.reads_total - covLibObj.reads_mapped))
-#        fh.write("# Source(s) : %s\n" % (covLibObj.f))
-#        fh.write("# %s\t%s\t%s\n" % ("contig_id", "read_cov", "base_cov"))
-#        for name in blobDB.order_of_blobs:
-#            fh.write("%s\t%s\t%s\n" % (name, covLibObj.get(name, "0"), base_cov_dict.get(name, "0")))
 
 def writeNodesDB(nodesDB, nodesDB_f):
     print BtLog.status_d['5'] % nodesDB_f
@@ -478,14 +490,31 @@ def parseJsonGzip(infile):
     return byteify(obj)
 
 def parseJson(infile):
+    '''http://artem.krylysov.com/blog/2015/09/29/benchmark-python-json-libraries/'''
     if not isfile(infile):
          BtLog.error('0', infile)
-    try:
-        import simplejson as json
-    except ImportError:
-        import json
+    json_parser = ''
     with open(infile, 'r') as fh:
-        obj = json.loads(fh.read().decode("ascii"))
+        print BtLog.status_d['15']
+        json_string = fh.read()
+    try:
+        import ujson as json # fastest
+        json_parser = 'ujson'
+        print BtLog.status_d['16'] % json_parser
+    except ImportError:
+        try:
+            import simplejson as json # fast
+            json_parser = 'simplejson'
+        except ImportError:
+            import json # default
+            json_parser = 'json'
+        print BtLog.status_d['17'] % json_parser
+    #import time
+    #start = time.time()
+    obj = json.loads(json_string.decode("ascii"))
+    #end = time.time()
+    #sys.exit()
+    #print (time.time() - start)
     return byteify(obj)
 
 if __name__ == "__main__":

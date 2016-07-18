@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools bam2cov         -i FASTA [-b BAM...] [-a CAS...] [-s SAM...]
+"""usage: blobtools map2cov         -i FASTA [-b BAM...] [-a CAS...] [-s SAM...]
                                     [-o PREFIX] [--no_base_cov]
                                     [-h|--help]
 
@@ -21,7 +21,7 @@ from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
 from sys import path
-#path.append(dirname(dirname(abspath(__file__))))
+path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
 import lib.BtLog as BtLog
@@ -41,6 +41,8 @@ if __name__ == '__main__':
     cov_libs = [Bt.CovLibObj('bam' + str(idx), 'bam', lib_f) for idx, lib_f in enumerate(bam_fs)] + \
            [Bt.CovLibObj('sam' + str(idx), 'sam', lib_f) for idx, lib_f in enumerate(sam_fs)] + \
            [Bt.CovLibObj('cas' + str(idx), 'cas', lib_f) for idx, lib_f in enumerate(cas_fs)]
+    if not (cov_libs):
+        BtLog.error('31')
     blobDb = Bt.BlobDb('cov')
     blobDb.version = blobtools.__version__
     blobDb.parseFasta(fasta_f, None)

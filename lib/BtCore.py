@@ -238,9 +238,9 @@ class BlobDb():
 
         if len(cov_lib_names_l) > 1:
             # more than one cov_lib, cov_sum_lib has to be created
-            cov_lib_dict['sum'] = CovLibObj('sum', 'sum', None).__dict__ # ugly
-            cov_lib_dict['sum']['reads_total'] = sum([cov_lib_dict[x]['reads_total'] for x in cov_lib_dict])
-            cov_lib_dict['sum']['reads_mapped'] = sum([cov_lib_dict[x]['reads_mapped'] for x in cov_lib_dict])
+            cov_lib_dict['covsum'] = CovLibObj('covsum', 'covsum', None).__dict__ # ugly
+            cov_lib_dict['covsum']['reads_total'] = sum([cov_lib_dict[x]['reads_total'] for x in cov_lib_dict])
+            cov_lib_dict['covsum']['reads_mapped'] = sum([cov_lib_dict[x]['reads_mapped'] for x in cov_lib_dict])
 
         #print self.covLibs
         #cov_libs_reads_total = {cov_lib : data['reads_total'] for cov_lib, data in self.covLibs.items()}
@@ -311,11 +311,11 @@ class BlobDb():
                 if len(cov_lib_names_l) > 1:
                     if cov_sum < 0.02 :
                         cov_sum = 0.02
-                    data_dict[group]['covs']['sum'].append(cov_sum)
+                    data_dict[group]['covs']['covsum'].append(cov_sum)
                     if cov_sum > max_cov:
                         max_cov = cov_sum
                     if (reads_mapped_sum):
-                        data_dict[group]['reads_mapped']['sum'] += reads_mapped_sum
+                        data_dict[group]['reads_mapped']['covsum'] += reads_mapped_sum
         #if len(cov_lib_names_l) > 1:
         #    for cov_lib, data in self.covLibs.items():
         #        cov_libs_reads_total['cov_sum'] = cov_libs_reads_total.get('cov_sum', 0) + data['reads_total']
@@ -371,9 +371,9 @@ class BlobDb():
             if covLib.fmt == 'bam' or covLib.fmt == 'sam':
                 base_cov_dict = {}
                 if covLib.fmt == 'bam':
-                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseBam(covLib.f, set(self.dict_of_blobs), no_base_cov) # False, because one wants always base and read count
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseBam(covLib.f, set(self.dict_of_blobs), no_base_cov)
                 else:
-                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseSam(covLib.f, set(self.dict_of_blobs))
+                    base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseSam(covLib.f, set(self.dict_of_blobs), no_base_cov)
 
                 if covLib.reads_total == 0:
                     print BtLog.warn_d['4'] % covLib.f
@@ -423,7 +423,7 @@ class BlobDb():
                 self.set_of_taxIds.add(hitDict['taxId'])
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
 
-    def computeTaxonomy(self, taxrules, nodesDB):
+    def computeTaxonomy(self, taxrules, nodesDB, min_bitscore_diff, tax_collision_random):
         print BtLog.status_d['6'] % ",".join(taxrules)
         tree_lists = BtTax.getTreeList(self.set_of_taxIds, nodesDB)
         self.lineages = BtTax.getLineages(tree_lists, nodesDB)
@@ -434,7 +434,7 @@ class BlobDb():
             BtLog.progress(i, 100, self.seqs)
             for taxrule in taxrules:
                 if (blObj.hits):
-                    blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages)
+                    blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages, min_bitscore_diff, tax_collision_random)
                 else:
                     blObj.taxonomy[taxrule] = BtTax.noHit()
 
@@ -489,29 +489,23 @@ class HitLibObj():
 class ViewObj():
     def __init__(self, name, out_f, suffix, header, body):
         self.name = name
-        self.out_f = out_f # open fh
+        self.out_f = out_f
         self.suffix = suffix
-        self.header = header # do not do string
-        self.body = body # do not do string, test with list and join
+        self.header = header
+        self.body = body
 
     def output(self):
         if isinstance(self.body, dict):
             for category in self.body:
                 out_f = "%s.%s.%s" % (self.out_f, category, self.suffix)
-                if self.header and self.body:
-                    print BtLog.status_d['13'] % (out_f)
-                    with open(out_f, "w") as fh:
-                        fh.write(self.header + "".join(self.body[category]))
-                else:
-                    pass
-        elif isinstance(self.body, list):
-            out_f = "%s.%s" % (self.out_f, self.suffix)
-            if self.header and self.body:
                 print BtLog.status_d['13'] % (out_f)
                 with open(out_f, "w") as fh:
-                    fh.write(self.header + "".join(self.body))
-            else:
-                pass
+                    fh.write(self.header + "".join(self.body[category]))
+        elif isinstance(self.body, list):
+            out_f = "%s.%s" % (self.out_f, self.suffix)
+            print BtLog.status_d['13'] % (out_f)
+            with open(out_f, "w") as fh:
+                fh.write(self.header + "".join(self.body))
         else:
             sys.exit("[ERROR] - 001")
 

@@ -11,7 +11,7 @@ commands:
     blobplot      plot BlobDB as a blobplot
     covplot       compare BlobDB cov(s) to additional cov file
 
-    bam2cov       generate cov file from bam file
+    map2cov       generate cov file from bam file
     sumcov        sum coverage from multiple COV files
     seqfilter     filter FASTA sequences based on header in list
     taxify        assign taxids to blast-results based on list
@@ -19,11 +19,18 @@ commands:
     -h, --help      show this
     -v, --version   show version number
 
+See 'blobtools <command> --help' for more information on a specific command.
+
 examples:
 
-    1. blobtools create -i assembly.fna -b reads.vs.assembly.bam -t assembly.vs.nt.blast.out -o test
-    2. blobtools view -i test.blobDB.json
-    3. blobtools blobplot -i test.blobDB.json
+    # Create a BlobDB
+    ./blobtools create -i test.fna -b test.bam -t test.blast.out -o test
+
+    # Generate a tabular view
+    ./blobtools view -i test.blobDB.json
+
+    # Generate a blobplot
+    ./blobtools blobplot -i test.blobDB.json
 
 """
 
@@ -56,8 +63,8 @@ if __name__ == '__main__':
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
         argv[0] = "blobplot"
         exit(call(['python', SRCDIR + 'blobplot.py'] + argv))
-    elif args['<command>'] == 'bam2cov':
-        exit(call(['python', SRCDIR + 'bam2cov.py'] + argv))
+    elif args['<command>'] == 'map2cov':
+        exit(call(['python', SRCDIR + 'map2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
         exit(call(['python', SRCDIR + 'covplot.py'] + argv))
@@ -68,4 +75,5 @@ if __name__ == '__main__':
     elif args['<command>'] == 'taxify':
         exit(call(['python', SRCDIR + 'taxify.py'] + argv))
     else:
-        exit("%r is not a blobtools command. See 'blobtools -h'." % args['<command>'])
+        exit(call(['./blobtools', '--help']))
+

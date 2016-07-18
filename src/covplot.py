@@ -3,7 +3,7 @@
 
 """usage: blobtools covplot  -i BLOBDB -c COV [-p INT] [-l INT] [-n] [-s]
                                 [--xlabel XLABEL] [--ylabel YLABEL]
-                                [--log] [--xmax FLOAT] [--ymax FLOAT]
+                                [--xmax FLOAT] [--ymax FLOAT]
                                 [-r RANK] [-x TAXRULE] [-o PREFIX] [-m] [--title]
                                 [--sort ORDER] [--hist HIST] [--format FORMAT]
                                 [-h|--help]
@@ -15,7 +15,6 @@
 
         --xlabel XLABEL             Label for x-axis [default: BlobDB_cov]
         --ylabel YLABEL             Label for y-axis [default: CovFile_cov]
-        --log                       Plot log-scale axes
         --xmax FLOAT                Maximum values for x-axis [default: 1e10]
         --ymax FLOAT                Maximum values for y-axis [default: 1e10]
 
@@ -65,7 +64,6 @@ if __name__ == '__main__':
     cov_f = args['--cov']
     x_label = args['--xlabel']
     y_label = args['--ylabel']
-    scale = args['--log']
     x_max = float(args['--xmax'])
     y_max = float(args['--ymax'])
     rank = args['--rank']

@@ -4,31 +4,35 @@
 """usage: blobtools create     -i FASTA [-y FASTATYPE] [-o PREFIX] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>]
-                              [-t TAX...] [-x TAXRULE...]
+                              [-t TAX...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
                               [-h|--help]
 
     Options:
-        -h --help                   show this
-        -i, --infile FASTA          FASTA file of assembly. Headers are split at whitespaces.
-        -y, --type FASTATYPE        Assembly program used to create FASTA. If specified,
-                                    coverage will be parsed from FASTA header.
-                                    (Parsing supported for 'spades', 'soap', 'velvet', 'abyss', 'platanus')
-        -t, --taxfile TAX...        Taxonomy file in format (qseqid\\ttaxid\\tbitscore)
-                                    (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
-        -x, --taxrule <TAXRULE>...  Taxrule determines how taxonomy of blobs is computed [default: bestsum]
-                                    "bestsum"       : sum bitscore across all hits for each taxonomic rank
-                                    "bestsumorder"  : sum bitscore across all hits for each taxonomic rank.
+        -h --help                       show this
+        -i, --infile FASTA              FASTA file of assembly. Headers are split at whitespaces.
+        -y, --type FASTATYPE            Assembly program used to create FASTA. If specified,
+                                        coverage will be parsed from FASTA header.
+                                        (Parsing supported for 'spades', 'soap', 'velvet', 'abyss', 'platanus')
+        -t, --taxfile TAX...            Taxonomy file in format (qseqid\\ttaxid\\tbitscore)
+                                        (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
+        -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs is computed [default: bestsum]
+                                        "bestsum"       : sum bitscore across all hits for each taxonomic rank
+                                        "bestsumorder"  : sum bitscore across all hits for each taxonomic rank.
                                                   - If first <TAX> file supplies hits, bestsum is calculated.
                                                   - If no hit is found, the next <TAX> file is used.
-        --nodes <NODES>             NCBI nodes.dmp file. Not required if '--db'
-        --names <NAMES>             NCBI names.dmp file. Not required if '--db'
-        --db <NODESDB>              NodesDB file (default: $BLOBTOOLS/data/nodesDB.txt).
-        -b, --bam <BAM>...          BAM file(s) (requires samtools in $PATH)
-        -s, --sam <SAM>...          SAM file(s)
-        -a, --cas <CAS>...          CAS file(s) (requires clc_mapping_info in $PATH)
-        -c, --cov <COV>...          TAB separated. (seqID\\tcoverage)
-        -o, --out <PREFIX>          BlobDB output prefix
-        --title TITLE               Title of BlobDB [default: output prefix)
+        -m, --min_diff <FLOAT>          Minimal score difference between highest scoring
+                                        taxonomies (otherwise "unresolved") [default: 0.0]
+        --tax_collision_random          Random allocation of taxonomy if highest scoring
+                                        taxonomies have equal scores (otherwise "unresolved")
+        --nodes <NODES>                 NCBI nodes.dmp file. Not required if '--db'
+        --names <NAMES>                 NCBI names.dmp file. Not required if '--db'
+        --db <NODESDB>                  NodesDB file (default: $BLOBTOOLS/data/nodesDB.txt).
+        -b, --bam <BAM>...              BAM file(s) (requires samtools in $PATH)
+        -s, --sam <SAM>...              SAM file(s)
+        -a, --cas <CAS>...              CAS file(s) (requires clc_mapping_info in $PATH)
+        -c, --cov <COV>...              TAB separated. (seqID\\tcoverage)
+        -o, --out <PREFIX>              BlobDB output prefix
+        --title TITLE                   Title of BlobDB [default: output prefix)
 """
 
 from __future__ import division
@@ -46,9 +50,7 @@ import lib.BtIO as BtIO
 if __name__ == '__main__':
 
     #main_dir = dirname(__file__)
-    #print data_dir
     args = docopt(__doc__)
-    #print args
     fasta_f = args['--infile']
     fasta_type = args['--type']
     sam_fs = args['--sam']
@@ -61,6 +63,8 @@ if __name__ == '__main__':
     names_f = args['--names']
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
+    min_bitscore_diff = float(args['--min_diff'])
+    tax_collision_random = args['--tax_collision_random']
     title = args['--title']
 
     # outfile
@@ -86,14 +90,14 @@ if __name__ == '__main__':
     blobDb.parseFasta(fasta_f, fasta_type)
 
     # Parse nodesDB OR names.dmp, nodes.dmp
-    #nodesDB_default = join(blobtools.DATADIR, "nodesDB.txt")
-    #nodesDB, nodesDB_f = BtIO.parseNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_f, nodesDBdefault=nodesDB_default)
-    #blobDb.nodesDB_f = nodesDB_f
+    nodesDB_default = join(blobtools.DATADIR, "nodesDB.txt")
+    nodesDB, nodesDB_f = BtIO.parseNodesDB(nodes=nodes_f, names=names_f, nodesDB=nodesDB_f, nodesDBdefault=nodesDB_default)
+    blobDb.nodesDB_f = nodesDB_f
 
     # Parse similarity hits
     if (hit_libs):
         blobDb.parseHits(hit_libs)
-        blobDb.computeTaxonomy(taxrules, nodesDB)
+        blobDb.computeTaxonomy(taxrules, nodesDB, min_bitscore_diff, tax_collision_random)
     else:
         print BtLog.warn_d['0']
 
