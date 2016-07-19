@@ -220,6 +220,7 @@ class PlotObj():
         self.format = ''
         self.legend_flag = ''
         self.cumulative_flag = ''
+        self.ref_cov_dict = {} # needed for read cov plot
 
         self.cov_y_dict = {}
         self.xlabel = ''
@@ -390,7 +391,6 @@ class PlotObj():
             self.group_labels[group].add('all')
         if 'other' in self.labels:
             self.plot_order.append('other')
-        print self.group_labels
 
     def OldplotScatterCov(self, cov_lib, cov_dict, info_flag, x_label, y_label, scale, x_max, y_max):
         rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
@@ -479,7 +479,7 @@ class PlotObj():
         plt.savefig(out_f, format=self.format)
         plt.close()
 
-    def plotReadCov(self, refcov_dict):
+    def OldplotReadCov(self, refcov_dict):
         mat.rcParams.update({'font.size': 24})
         main_columns = 2
         if (refcov_dict):
@@ -555,6 +555,7 @@ class PlotObj():
     def setupPlot(self):
         plot = self.plot
         if plot == 'blobplot' or plot == 'covplot':
+            # returns: fig, axScatter, axHistx, axHisty, axLegend
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
             fig = plt.figure(1, figsize=(35,35), dpi=400)
@@ -580,6 +581,26 @@ class PlotObj():
             axLegend.yaxis.set_major_locator(plt.NullLocator())
             axLegend.yaxis.set_major_formatter(nullfmt)
             return fig, axScatter, axHistx, axHisty, axLegend
+        elif plot == 'readcovplot':
+            # returns: fig, ax_main, ax_group
+            fig = plt.figure(1, figsize=(30, 10), dpi=300)
+            #mat.rcParams.update({'font.size': 24})
+            main_columns = 2
+            if (self.ref_cov_dict):
+                main_columns += 2
+            group_columns = len(self.plot_order)
+            gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
+            ax_main = plt.subplot(gs[0])
+            ax_main.set_axis_bgcolor(BGGREY)
+            ax_main_x_positions = arange(main_columns)
+            ax_main.set_ylim(0, 1.1)
+            ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
+            ax_group = plt.subplot(gs[1])
+            ax_group.set_axis_bgcolor(BGGREY)
+            ax_group_x_positions = arange(len(self.plot_order))
+            ax_group.set_ylim(0, 1.1)
+            ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
+            return fig, ax_main, ax_group
         else:
             return None, None, None, None, None
 
