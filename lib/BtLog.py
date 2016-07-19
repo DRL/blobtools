@@ -64,7 +64,8 @@ error_d = {
     '30' : '[ERROR:30]\t: The module docopt is not installed. Please install it to run blobtools\n\tpip install docopt',
     '31' : '[ERROR:31]\t: Please specify a read mapping file',
     '32' : '[ERROR:32]\t: Choose either --cumulative or --multiplot',
-    '33' : '[ERROR:33] : CovLib(s) not found. The available covlibs are: \n%s'
+    '33' : '[ERROR:33] : CovLib(s) not found. The available covlibs are: \n%s',
+    '34' : '[ERROR:34] : Invalid plot type : %s'
 
 }
 
@@ -96,7 +97,8 @@ status_d = {
     '14': '[STATUS]\t: Preparing view(s) ...',
     '15': '[STATUS]\t: \tLoading BlobDb into memory ...',
     '16': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while) ...',
-    '17': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while, consider installing the \'ujson\' module) ...'
+    '17': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while, consider installing the \'ujson\' module) ...',
+    '18': '[STATUS]\t: Extracting data for plots ...'
 }
 
 info_d = {

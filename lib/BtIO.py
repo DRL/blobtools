@@ -27,16 +27,83 @@ def parseList(infile):
             items.append(l.rstrip("\n"))
     return items
 
+def parseReferenceCov(infile):
+    refcov_dict = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                try:
+                    cov_lib, reads_total_ref, reads_mapped_ref = l.split(",")
+                    refcov_dict[cov_lib] = {'reads_total' : int(reads_total_ref),
+                                            'reads_mapped' : int(reads_mapped_ref)}
+                except:
+                    BtLog.error('21', infile)
+    return refcov_dict
+
+def parseCmdlist(temp):
+    _list = []
+    if (temp):
+        if "," in temp:
+            _list = temp.split(",")
+        else:
+            _list.append(temp)
+    return _list
+
+def parseCmdLabels(labels):
+    label_d = {}
+    name, groups = '', ''
+    if (labels):
+        try:
+            for label in labels:
+                name, groups = str(label).split("=")
+                if "," in groups:
+                    for group in groups.split(","):
+                        label_d[group] = name
+                else:
+                    label_d[groups] = name
+        except:
+            BtLog.error('17', labels)
+    return label_d
+
+def parseCatColour(infile):
+    catcolour_dict = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                try:
+                    seq_name, category = l.rstrip("\n").split(",")
+                    catcolour_dict[seq_name] = category
+                except:
+                    BtLog.error('23', infile)
+    return catcolour_dict
+
 def parseDict(infile, key, value):
-    if not isfile(infile):
-         BtLog.error('0', infile)
-    with open(infile) as fh:
-        items = {}
-        k_idx = int(key)
-        v_idx = int(value)
-        for l in fh:
-            temp = l.rstrip("\n").split()
-            items[temp[k_idx]] = temp[v_idx]
+    items = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            items = {}
+            k_idx = int(key)
+            v_idx = int(value)
+            for l in fh:
+                temp = l.rstrip("\n").split()
+                items[temp[k_idx]] = temp[v_idx]
+    return items
+
+def parseColours(infile):
+    items = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                temp = l.rstrip("\n").split(",")
+                items[temp[0]] = temp[1]
     return items
 
 def parseSet(infile):

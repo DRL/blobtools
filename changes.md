@@ -21,10 +21,13 @@
         - cov: outputs coverage files (for using them in scattercov)
 - blobtools map2cov (previously bam2cov):
     - supports BAM, SAM and CAS files (uses parsers in BtIO)
+
+
 - blobtools blobplot
     - changed behaviour of "--multiplot", now plots each group separately, then a final plot all together.
     - new flag "--cumulative". Previous "--multiplot" behaviour: incremental addition of groups
     - new flag "--legend". Plots legend in a separate figure, useful for slides.
+    - new flag "--lib". Allows selecting particular covlib(s) to plot.
     - fixed bug causing different plots to share filenames, causing overwriting
     - changed scaling of blobs in plots:
         - previously, blobs had an area of (length/1000*65) pixels^2. But if an assembly had a few very big contigs, these covered the smaller ones.
@@ -33,4 +36,32 @@
             - all other contigs get scaled accordingly
         - reference scale was changed as well:
             - scale shows area of 0.05, 0.1 and 0.25 of longest contig
+    - behaviour of colour_f changed, so that now all groups that are not named in colour_f are colour in white
+    -
+
+- blobtools covplot
+    - new flag "--lib". Allows selecting particular covlib(s) to plot.
+    - both x/y-axes have the same limits (max-cov + 1000)
+
+
+New feature:
+
+problematic sequences in databases (nr)
+- by type (transposons)
+- find non-informative sequences and ignore
+- take contigs that have "weird colour"
+- extract sequence, blast,
+- overenthusiasticly predicted proteins
+- ribosomal promotor associated proteins (ORF in rRNA)
+- aging genes in plants (ORF in rRNA)
+
+
+Format
+
+cov
+    - covs
+taxrule
+    - name
+        - rank
+length
 

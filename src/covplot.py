@@ -3,7 +3,7 @@
 
 """usage: blobtools covplot  -i BLOBDB -c COV [-p INT] [-l INT] [-n] [-s]
                                 [--xlabel XLABEL] [--ylabel YLABEL]
-                                [--xmax FLOAT] [--ymax FLOAT]
+                                [--max FLOAT]
                                 [-r RANK] [-x TAXRULE] [-o PREFIX] [-m] [--title]
                                 [--sort ORDER] [--hist HIST] [--format FORMAT]
                                 [-h|--help]
@@ -11,12 +11,11 @@
     Options:
         -h --help                   show this
         -i, --infile BLOBDB         BlobDB file
-        -c, --cov COV               COV file used for y-axis
+        -c, --cov COV               COV file to be used in y-axis
 
         --xlabel XLABEL             Label for x-axis [default: BlobDB_cov]
         --ylabel YLABEL             Label for y-axis [default: CovFile_cov]
-        --xmax FLOAT                Maximum values for x-axis [default: 1e10]
-        --ymax FLOAT                Maximum values for y-axis [default: 1e10]
+        --max FLOAT                 Maximum values for x/y-axis [default: 1e10]
 
         -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining
                                      groups are placed in 'other' [default: 7]
@@ -46,7 +45,7 @@ from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
 from sys import path
-#path.append(dirname(dirname(abspath(__file__))))
+path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
 import lib.BtLog as BtLog
@@ -61,12 +60,8 @@ if __name__ == '__main__':
     #print data_dir
     args = docopt(__doc__)
     blobdb_f = args['--infile']
-    cov_f = args['--cov']
-    x_label = args['--xlabel']
-    y_label = args['--ylabel']
-    x_max = float(args['--xmax'])
-    y_max = float(args['--ymax'])
     rank = args['--rank']
+    c_index = args['--cindex']
     min_length = int(args['--length'])
     multiplot = args['--multiplot']
     hide_nohits = args['--nohit']
@@ -75,26 +70,23 @@ if __name__ == '__main__':
     sort_order = args['--sort']
     taxrule = args['--taxrule']
     hist_type = args['--hist']
-    plot_title = args['--title']
+    no_title = args['--notitle']
     ignore_contig_length = args['--noscale']
-    #labels = args['--label']
-    #colour_f = args['--colours']
-    #exclude_groups = args['--exclude']
+    labels = args['--label']
+    colour_f = args['--colours']
+    exclude_groups = args['--exclude']
     format = args['--format']
-    #no_plot_blobs = args['--noblobs']
-    #no_plot_reads = args['--noreads']
-    #refcov_f = args['--refcov']
-    #catcolour_f = args['--catcolour']
+    no_plot_blobs = args['--noblobs']
+    no_plot_reads = args['--noreads']
+    refcov_f = args['--refcov']
+    catcolour_f = args['--catcolour']
+    legend_flag = args['--legend']
+    cumulative_flag = args['--cumulative']
+    cov_lib_selection = args['--lib']
 
-    # Does blobdb_f exist ?
-    if not isfile(blobdb_f):
-        BtLog.error('0', blobdb_f)
-
-    # Does cov_f exist ?
-    if not isfile(cov_f):
-        BtLog.error('0', cov_f)
-    # parse cov file in dict
-    cov_dict = BtPlot.parseCovFile(cov_f)
+    x_label = args['--xlabel']
+    y_label = args['--ylabel']
+    axis_max = float(args['--max'])
 
     # Are ranks sane ?
     if rank not in RANKS:
@@ -134,7 +126,7 @@ if __name__ == '__main__':
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
-    blobDB = bt.BlobDb('new')
+    blobDB = Bt.BlobDb('new')
     blobDB.load(blobdb_f)
 
     # clean cov_dict from coverages below
@@ -151,18 +143,8 @@ if __name__ == '__main__':
         BtLog.error('11', taxrule, blobDB.taxrules)
 
     data_dict, max_cov, cov_lib_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, False, False)
-    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict)
-    #plotObj.exclude_groups = exclude_groups
-    if max_cov < x_max:
-        x_max = max_cov
-    if max_cov < y_max:
-        y_max = max_cov
-
-    if (scale):
-        scale = 'log'
-    else:
-        scale = 'linear'
-
+    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection)
+    plotObj.cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(covLib.f, set(blobDB.dict_of_blobs))
     plotObj.max_cov = max_cov
     plotObj.title = title
     plotObj.format = format
