@@ -16,19 +16,19 @@ import lib.BtIO as BtIO
 import lib.BtTax as BtTax
 import matplotlib as mat
 from matplotlib import cm
-from matplotlib.ticker import NullFormatter
+from matplotlib.ticker import NullFormatter, MultipleLocator, AutoMinorLocator
 from matplotlib.lines import Line2D
 from matplotlib.colors import rgb2hex
 mat.use('agg')
 import matplotlib.pyplot as plt
 from itertools import izip
 
-mat.rcParams.update({'font.size': 30})
+mat.rcParams.update({'font.size': 36})
 mat.rcParams['xtick.major.pad'] = '8'
 mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
-FONTSIZE = 24
+LEGEND_FONTSIZE = 24
 COLOURMAP = "Spectral" # "Set1", "Paired", "Set2", "Spectral"
 BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#4d4d4d')
 nullfmt = NullFormatter()
@@ -82,35 +82,48 @@ def set_canvas():
     return rect_scatter, rect_histx, rect_histy, rect_legend
 
 def set_format_scatterplot(axScatter, **kwargs):
+    min_x, max_x = None, None
+    min_y, max_y = None, None
     if kwargs['plot'] == 'blobplot':
+        min_x, max_x = 0, 1
+        major_xticks = MultipleLocator(0.2)
+        minor_xticks = AutoMinorLocator(20)
+        min_y, max_y = 0.005, kwargs['max_cov']+1000
         axScatter.set_yscale('log')
         axScatter.set_xscale('linear')
-        axScatter.set_xlim( (0, 1) )
-        axScatter.set_ylim( (0.005, kwargs['max_cov']+1000) ) # This sets the max-Coverage so that all libraries + sum are at the same scale
-        axScatter.set_xlabel("GC proportion", fontsize=35)
-        axScatter.set_ylabel("Coverage", fontsize=35)
+        axScatter.set_xlabel("GC proportion")
+        axScatter.set_ylabel("Coverage")
+        axScatter.xaxis.set_major_locator(major_xticks)
+        axScatter.xaxis.set_minor_locator(minor_xticks)
     elif kwargs['plot'] == 'covplot':
+        min_x, max_x = 0.005, kwargs['max_cov']+1000
+        min_y, max_y = 0.005, kwargs['max_cov']+1000
         axScatter.set_yscale('log')
         axScatter.set_xscale('log')
-        axScatter.set_xlim( (0, 1) )
-        axScatter.set_ylim( (0.005, kwargs['max_cov']+1000) ) # This sets the max-Coverage so that all libraries + sum are at the same scale
-        axScatter.set_xlabel(kwargs['xlabel'], fontsize=35)
-        axScatter.set_ylabel(kwargs['ylabel'], fontsize=35)
+        axScatter.set_xlabel(kwargs['xlabel'])
+        axScatter.set_ylabel(kwargs['ylabel'])
     else:
         BtLog.error('34' % kwargs['plot'])
+    axScatter.set_xlim( (min_x, max_x) )
+    axScatter.set_ylim( (min_y, max_y) ) # This sets the max-Coverage so that all libraries + sum are at the same scale
     axScatter.grid(True, which="major", lw=2., color=WHITE, linestyle='-')
     axScatter.set_axisbelow(True)
     axScatter.xaxis.labelpad = 20
-    axScatter.xaxis.labelpad = 20
+    axScatter.yaxis.labelpad = 20
+    axScatter.yaxis.get_major_ticks()[0].label1.set_visible(False)
+    axScatter.tick_params(axis='both', which='both', direction='out')
     return axScatter
 
 def set_format_hist_x(axHistx, axScatter):
     axHistx.set_xlim(axScatter.get_xlim())
     axHistx.set_xscale(axScatter.get_xscale())
     axHistx.grid(True, which="major", lw=2., color= WHITE, linestyle='-')
+    axHistx.xaxis.set_major_locator(axScatter.xaxis.get_major_locator()) # no labels since redundant
+    axHistx.xaxis.set_minor_locator(axScatter.xaxis.get_minor_locator())
     axHistx.xaxis.set_major_formatter(nullfmt) # no labels since redundant
     axHistx.set_axisbelow(True)
     axHistx.yaxis.labelpad = 20
+    axHistx.tick_params(axis='both', which='both', direction='out')
     return axHistx
 
 def set_format_hist_y(axHisty, axScatter):
@@ -120,6 +133,7 @@ def set_format_hist_y(axHisty, axScatter):
     axHisty.yaxis.set_major_formatter(nullfmt) # no labels since redundant
     axHisty.set_axisbelow(True)
     axHisty.xaxis.labelpad = 20
+    axHisty.tick_params(axis='both', which='both', direction='out')
     return axHisty
 
 def get_ref_label(max_length, max_marker_size, fraction):
@@ -137,7 +151,7 @@ def plot_ref_legend(axScatter, max_length, max_marker_size, ignore_contig_length
         ref_1 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref1_markersize),  markerfacecolor=GREY))
         ref_2 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref2_markersize), markerfacecolor=GREY))
         ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref3_markersize), markerfacecolor=GREY))
-        axScatter.legend([ref_1,ref_2,ref_3], [ref1_string, ref2_string, ref3_string], numpoints=1, ncol = 3, loc = 8, fontsize=FONTSIZE, borderpad=1.2, labelspacing=1.8, handlelength=1, handletextpad=1)
+        axScatter.legend([ref_1,ref_2,ref_3], [ref1_string, ref2_string, ref3_string], numpoints=1, ncol = 3, loc = 8, fontsize=LEGEND_FONTSIZE, borderpad=1.2, labelspacing=1.8, handlelength=1, handletextpad=1)
 
 def plot_legend(fig, axLegend, out_f, legend_flag, format, cumulative_flag):
     if (legend_flag):
@@ -220,13 +234,14 @@ class PlotObj():
         self.format = ''
         self.legend_flag = ''
         self.cumulative_flag = ''
-        self.ref_cov_dict = {} # needed for read cov plot
 
         self.cov_y_dict = {}
         self.xlabel = ''
         self.ylabel = ''
         self.xmax = ''
         self.ymax = ''
+
+        self.refcov_dict = {}
 
     def subselect_cov_libs(self, cov_lib_dict, cov_lib_selection):
         selected_cov_libs = []
@@ -479,83 +494,8 @@ class PlotObj():
         plt.savefig(out_f, format=self.format)
         plt.close()
 
-    def OldplotReadCov(self, refcov_dict):
-        mat.rcParams.update({'font.size': 24})
-        main_columns = 2
-        if (refcov_dict):
-            main_columns += 2
-        group_columns = len(self.plot_order)
-
-        #for group in self.stats:
-        #    print group, self.stats[group]['reads_mapped']
-        for cov_lib in self.cov_libs:
-            plot_data = {}
-            if not self.cov_libs_total_reads_dict[cov_lib] == 0:
-                main_plot = PlotReadObj()
-                group_plot = PlotReadObj()
-                # unmapped (assembly)
-                reads_total = self.cov_libs_total_reads_dict[cov_lib]
-                reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-                if cov_lib in refcov_dict:
-                    reads_total_ref = refcov_dict[cov_lib]['reads_total']
-                    reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped']
-                    reads_unmapped_ref = reads_total_ref - reads_mapped_ref
-                    main_plot.labels.append('Unmapped (ref)')
-                    main_plot.values.append(reads_unmapped_ref/reads_total_ref)
-                    main_plot.colours.append(DGREY)
-                    main_plot.labels.append('Mapped (ref)')
-                    main_plot.values.append(reads_mapped_ref/reads_total_ref)
-                    main_plot.colours.append(DGREY)
-
-                main_plot.labels.append('Unmapped (assembly)')
-                main_plot.values.append(reads_unmapped/reads_total)
-                main_plot.colours.append(DGREY)
-                # mapped (assembly)
-                main_plot.labels.append('Mapped (assembly)')
-                main_plot.values.append(self.stats['all']['reads_mapped_perc'][cov_lib])
-                main_plot.colours.append(DGREY)
-                # mapped plotted groups
-                for group in self.plot_order:
-                    group_plot.labels.append(group)
-                    group_plot.values.append(self.stats[group]['reads_mapped_perc'][cov_lib])
-                    group_plot.colours.append(self.colours[group])
-
-                plot_data[cov_lib] = {'main' : main_plot, 'group' : group_plot}
-                x_pos_main = arange(main_columns)
-                x_pos_group = arange(len(self.plot_order))
-
-                fig = plt.figure(1, figsize=(30, 10), dpi=200)
-                gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, len(self.plot_order)])
-                ax_main = plt.subplot(gs[0])
-                ax_main.set_axis_bgcolor(BGGREY)
-                ax_group = plt.subplot(gs[1])
-                ax_group.set_axis_bgcolor(BGGREY)
-                rect_group = ax_group.bar(x_pos_group, plot_data[cov_lib]['group'].values, width = 0.5, tick_label=plot_data[cov_lib]['group'].labels, align='center', color = plot_data[cov_lib]['group'].colours)
-                for rect_g in rect_group:
-                    height_g = float(rect_g.get_height())
-                    ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.2f}%'.format(height_g*100), ha='center', va='bottom')
-                rect_main = ax_main.bar(x_pos_main, plot_data[cov_lib]['main'].values, width = 0.5, tick_label=plot_data[cov_lib]['main'].labels, align='center', color = plot_data[cov_lib]['main'].colours)
-                for rect_m in rect_main:
-                    height_m = float(rect_m.get_height())
-                    ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.2f}%'.format(height_m*100), ha='center', va='bottom')
-                ax_main.set_ylim(0, 1.1)
-                ax_group.set_ylim(0, 1.1)
-                ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
-                ax_main.set_xticklabels(plot_data[cov_lib]['main'].labels, rotation=45)
-                ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
-                ax_group.set_xticklabels(plot_data[cov_lib]['group'].labels, rotation=45)
-                ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
-                ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
-                out_f = "%s.read_cov.%s.%s" % (self.out_f, cov_lib, self.format)
-                print BtLog.status_d['8'] % out_f
-                plt.tight_layout()
-                plt.savefig(out_f, format=self.format)
-                plt.close()
-
-    def setupPlot(self):
-        plot = self.plot
+    def setupPlot(self, plot):
         if plot == 'blobplot' or plot == 'covplot':
-            # returns: fig, axScatter, axHistx, axHisty, axLegend
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
             fig = plt.figure(1, figsize=(35,35), dpi=400)
@@ -571,8 +511,6 @@ class PlotObj():
             else:
                 axHistx.set_ylabel("Count")
                 axHisty.set_xlabel("Count", rotation='horizontal')
-            axScatter.yaxis.get_major_ticks()[0].label1.set_visible(False)
-            axScatter.yaxis.get_major_ticks()[1].label1.set_visible(False)
             for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram
                 xtick.set_rotation(270)
             axLegend = plt.axes(rect_legend, axisbg=WHITE)
@@ -581,31 +519,85 @@ class PlotObj():
             axLegend.yaxis.set_major_locator(plt.NullLocator())
             axLegend.yaxis.set_major_formatter(nullfmt)
             return fig, axScatter, axHistx, axHisty, axLegend
-        elif plot == 'readcovplot':
-            # returns: fig, ax_main, ax_group
-            fig = plt.figure(1, figsize=(30, 10), dpi=300)
-            #mat.rcParams.update({'font.size': 24})
+        elif plot == 'readcov':
             main_columns = 2
-            if (self.ref_cov_dict):
+            if (self.refcov_dict):
                 main_columns += 2
             group_columns = len(self.plot_order)
+            fig = plt.figure(1, figsize=(30, 10), dpi=200)
             gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
+
             ax_main = plt.subplot(gs[0])
             ax_main.set_axis_bgcolor(BGGREY)
-            ax_main_x_positions = arange(main_columns)
             ax_main.set_ylim(0, 1.1)
+            ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
             ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
+
             ax_group = plt.subplot(gs[1])
             ax_group.set_axis_bgcolor(BGGREY)
-            ax_group_x_positions = arange(len(self.plot_order))
             ax_group.set_ylim(0, 1.1)
+            ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
             ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
             return fig, ax_main, ax_group
+
         else:
             return None, None, None, None, None
 
+    def plotReadCov(self, cov_lib, out_f):
+        fig, ax_main, ax_group = self.setupPlot('readcov')
+        ax_main_data = {'labels' : [], 'values' : [], 'colours' : [] }
+        ax_group_data = {'labels' : [], 'values' : [], 'colours' : [] }
+
+        reads_total = self.cov_libs_total_reads_dict[cov_lib]
+        reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
+        ax_main_data['labels'].append('Unmapped (assembly)')
+        ax_main_data['values'].append(reads_unmapped/reads_total)
+        ax_main_data['colours'].append(DGREY)
+        ax_main_data['labels'].append('Mapped (ref)')
+        ax_main_data['values'].append(reads_mapped_ref/reads_total_ref)
+        ax_main_data['colours'].append(DGREY)
+
+        if cov_lib in refcov_dict:
+            reads_total_ref = refcov_dict[cov_lib]['reads_total']
+            reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped']
+            reads_unmapped_ref = reads_total_ref - reads_mapped_ref
+            ax_main_data['labels'].append('Unmapped (assembly)')
+            ax_main_data['values'].append(reads_unmapped/reads_total)
+            ax_main_data['colours'].append(DGREY)
+            ax_main_data['labels'].append('Mapped (assembly)')
+            ax_main_data['values'].append(self.stats['all']['reads_mapped_perc'][cov_lib])
+            ax_main_data['colours'].append(DGREY)
+        # mapped plotted groups
+        for group in self.plot_order:
+           ax_group_data['labels'].append(group)
+           ax_group_data['values'].append(self.stats[group]['reads_mapped_perc'][cov_lib])
+           ax_group_data['colours'].append(self.colours[group])
+        x_pos_main = arange(main_columns)
+        x_pos_group = arange(len(self.plot_order))
+
+        rect_group = ax_group.bar(x_pos_group, ax_group_data['values'], width = 0.5, tick_label=ax_group_data['labels'], align='center', color = ax_group_data['colours'])
+        for rect_g in rect_group:
+            height_g = float(rect_g.get_height())
+            ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.2f}%'.format(height_g*100), ha='center', va='bottom')
+
+        rect_main = ax_main.bar(x_pos_main, ax_main_data['values'], width = 0.5, tick_label=ax_main_data['labels'], align='center', color = ax_main_data['colours'])
+        for rect_m in rect_main:
+            height_m = float(rect_m.get_height())
+            ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.2f}%'.format(height_m*100), ha='center', va='bottom')
+
+        ax_main.set_xticklabels(ax_main_data['labels'], rotation=45)
+        ax_group.set_xticklabels(ax_group_data['labels'], rotation=45)
+
+        fig.suptitle(out_f, verticalalignment='top')
+        out_f = "%s.read_cov.%s" % (out_f, cov_lib)
+        print BtLog.status_d['8'] % out_f
+        fig.tight_layout()
+        fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
+        plt.close(fig)
+
+
     def plotScatterCov(self, cov_lib, cov_dict, info_flag, x_label, y_label, x_max, y_max):
-        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot()
+        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot('covplot')
         # Setting bins for histograms
         top_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
         right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
@@ -665,7 +657,7 @@ class PlotObj():
         plt.close()
 
     def plotBlobs(self, cov_lib, info_flag, out_f):
-        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot()
+        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot('blobplot')
         # Setting bins for histograms
         top_bins = arange(0, 1, 0.01)
         right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
@@ -736,7 +728,7 @@ class PlotObj():
                     axHisty_m.hist(group_y_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
                     axScatter_m.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
                     axLegend_m.axis('off')
-                    axLegend_m.legend(legend_handles_m, legend_labels_m, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
+                    axLegend_m.legend(legend_handles_m, legend_labels_m, loc=6, numpoints=1, fontsize=LEGEND_FONTSIZE, frameon=True)
                     plot_ref_legend(axScatter_m, max_length, max_marker_size, self.ignore_contig_length)
                     m_out_f = "%s.%s.%s.%s" % (out_f, cov_lib, idx, group.replace("/", "_").replace(" ", "_"))
                     fig_m = plot_legend(fig_m, axLegend_m, m_out_f, self.legend_flag, self.format, self.cumulative_flag)
@@ -744,7 +736,7 @@ class PlotObj():
                     fig_m.savefig("%s.%s" % (m_out_f, self.format), format=self.format)
                     plt.close(fig_m)
                 elif (self.cumulative_flag):
-                    axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
+                    axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=LEGEND_FONTSIZE, frameon=True)
                     plot_ref_legend(axScatter, max_length, max_marker_size, self.ignore_contig_length)
                     m_out_f = "%s.%s.%s.%s" % (out_f, cov_lib, idx, group.replace("/", "_").replace(" ", "_"))
                     fig.add_axes(axLegend)
@@ -756,7 +748,7 @@ class PlotObj():
                 else:
                     pass
         plot_ref_legend(axScatter, max_length, max_marker_size, self.ignore_contig_length)
-        axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
+        axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=LEGEND_FONTSIZE, frameon=True, loc=6 )
         out_f = "%s.%s" % (out_f, cov_lib)
         fig.add_axes(axLegend)
         fig = plot_legend(fig, axLegend, out_f, self.legend_flag, self.format, self.cumulative_flag)

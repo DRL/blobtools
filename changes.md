@@ -19,6 +19,7 @@
         - table: legacy output, taxonomy columns are now numbered (1-based, for cut'ing)
         - concoct: outputs taxonomy and coverage information necessary to run concoct (https://github.com/BinPro/CONCOCT/)
         - cov: outputs coverage files (for using them in scattercov)
+        - experimental: something new we are trying,
 - blobtools map2cov (previously bam2cov):
     - supports BAM, SAM and CAS files (uses parsers in BtIO)
 
@@ -37,11 +38,12 @@
         - reference scale was changed as well:
             - scale shows area of 0.05, 0.1 and 0.25 of longest contig
     - behaviour of colour_f changed, so that now all groups that are not named in colour_f are colour in white
-    -
+    - added x-axis minor ticklabels, all ticklabels facing outwards
 
 - blobtools covplot
     - new flag "--lib". Allows selecting particular covlib(s) to plot.
     - both x/y-axes have the same limits (max-cov + 1000)
+
 
 
 New feature:

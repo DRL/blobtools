@@ -5,7 +5,8 @@ from __future__ import division
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 import lib.BtTax as BtTax
-from os.path import abspath, isfile, basename
+from os.path import abspath, isfile, basename, isdir, join
+from os import getcwd, mkdir
 
 class BlobDb():
     '''
@@ -26,6 +27,7 @@ class BlobDb():
         self.nodesDB_f = ''
         self.taxrules = []
         self.version = ''
+        self.view_dir = ''
 
     def view(self, **kwargs):
         # arguments
@@ -36,6 +38,7 @@ class BlobDb():
         hits_flag = kwargs['hits_flag']
         seqs = kwargs['seqs']
         cov_libs = kwargs['cov_libs']
+
         # Default sequences if no subset
         if not (seqs):
             seqs = self.order_of_blobs
@@ -43,20 +46,22 @@ class BlobDb():
         cov_lib_names = cov_libs
         if not (cov_libs):
             cov_lib_names = [covLib for covLib in self.covLibs]
-
         tax_lib_names = [taxLib for taxLib in sorted(self.hitLibs)]
         lineages = self.lineages
-        # headers
+        # setup
         for viewObj in viewObjs:
             if viewObj.name == 'table':
                 viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag, cov_lib_names)
             if viewObj.name == 'concoct_cov':
                 viewObj.header = self.getConcoctCovHeader(cov_lib_names)
-            if viewObj.name == 'cov':
+            if viewObj.name == 'covlib':
                 viewObj.header = self.getCovHeader(cov_lib_names)
-
+            if viewObj.name == 'experimental':
+                viewObj.covs = {cov_lib : [] for cov_lib in cov_lib_names}
+                viewObj.covs["covsum"] = []
+                for taxrule in self.taxrules:
+                    viewObj.tax[taxrule] = {rank : [] for rank in BtTax.RANKS}
         # bodies
-        body = []
         for i, seq in enumerate(seqs):
             BtLog.progress(i, 1000, len(seqs))
             blob = self.dict_of_blobs[seq]
@@ -65,14 +70,27 @@ class BlobDb():
                     viewObj.body.append(self.getTableLine(blob, taxrule, ranks, hits_flag, cov_lib_names, tax_lib_names, lineages))
                 if viewObj.name == 'concoct_cov':
                     viewObj.body.append(self.getConcoctCovLine(blob, cov_lib_names))
+                if viewObj.name == 'experimental':
+                    viewObj.names.append(blob['name'])
+                    viewObj.gc.append(blob['gc'])
+                    viewObj.length.append(blob['length'])
+                    cov_sum = 0.0
+                    for cov_lib in blob['covs']:
+                        viewObj.covs[cov_lib].append(blob['covs'][cov_lib])
+                        cov_sum += blob['covs'][cov_lib]
+                    viewObj.covs['covsum'].append(cov_sum)
+                    for taxrule in blob['taxonomy']:
+                        for rank in blob['taxonomy'][taxrule]:
+                            viewObj.tax[taxrule][rank].append(blob['taxonomy'][taxrule][rank]['tax'])
                 if viewObj.name == 'concoct_tax':
                     for rank in ranks:
                         if not rank in viewObj.body:
                             viewObj.body[rank] = []
                         viewObj.body[rank].append(self.getConcoctTaxLine(blob, rank, taxrule))
-                if viewObj.name == 'cov':
+                if viewObj.name == 'covlib':
                     viewObj.body.append(self.getCovLine(blob, cov_lib_names))
         BtLog.progress(len(seqs), 1000, len(seqs))
+        print BtLog.status_d['19']
         for viewObj in viewObjs:
             viewObj.output()
 
@@ -414,6 +432,7 @@ class BlobDb():
                     blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages, min_bitscore_diff, tax_collision_random)
                 else:
                     blObj.taxonomy[taxrule] = BtTax.noHit()
+        self.set_of_taxIds = set()
 
     def getBlobs(self):
         for blObj in [self.dict_of_blobs[key] for key in self.order_of_blobs]:
@@ -463,8 +482,9 @@ class HitLibObj():
         self.fmt = fmt
         self.f = abspath(f) if isfile(f) else f # pass file/string/''
 
+
 class ViewObj():
-    def __init__(self, name, out_f, suffix, header, body):
+    def __init__(self, name='', out_f='', suffix='', header='', body=''):
         self.name = name
         self.out_f = out_f
         self.suffix = suffix
@@ -485,6 +505,100 @@ class ViewObj():
                 fh.write(self.header + "".join(self.body))
         else:
             sys.exit("[ERROR] - 001")
+
+class ExperimentalViewObj():
+    def __init__(self, name='experimental', view_dir=''):
+        self.name = name
+        self.view_dir = view_dir
+        self.length = []
+        self.gc = []
+        self.names = []
+        self.tax = {}
+        self.covs = {}
+        self.meta = {}
+        BtIO.create_dir(self.view_dir)
+
+
+    def get_meta(self):
+        meta = {
+              "name": self.view_dir,
+              "datatypes":{
+                "identifiers": {"name" : "identifiers", "type" : "identifier"},
+                "len": {"name" : "length","type" : "integer", "min" : min(self.length), "max" : max(self.length)},
+                "gc": {"name" : "gc","type" : "percentage", "min" : min(self.gc), "max" : max(self.gc)},
+                "covs": {"name" : "covs","type" : "float", "min" : 0.02, "max" : max(self.covs["covsum"])},
+                "taxrule":{"name" : "taxrule","type" : "category"},
+              },
+              "hierarchy":{
+                "covs": [cov for cov in self.covs],
+                "taxrule": [taxrule for taxrule in self.tax],
+                "besthit": [rank for rank in BtTax.RANKS],
+                "bestsum": [rank for rank in BtTax.RANKS],
+                #"superkingdom":["bitscore","cindex","evalue"],
+                #"phylum":["bitscore","cindex","evalue"]
+              },
+              "rows" : len(self.names),
+              "mainplot":{
+                "type":"hexbin",
+                "x":{
+                  "datatype":["gc"],
+                  "bounds":[0,100],
+                  "scale":"linear"
+                },
+                "y":{
+                  "datatype": [cov_lib for cov_lib in self.covs],
+                  "bounds":[0.001,1000000],
+                  "scale":"log10"
+                },
+                "series":{
+                  "datatype":["taxrule","besthit","superkingdom"],
+                  "scale":"sqrt"
+                }
+              }
+            }
+        for cov_lib in self.covs:
+            meta['datatypes'][cov_lib] = {"name" : cov_lib, "type" : "float"}
+        for taxrule in self.tax:
+            meta['datatypes'][taxrule] = {"name": taxrule, "type":"category"}
+        for rank in BtTax.RANKS:
+            meta['datatypes'][rank] = {"name": rank, "type":"category", "levels" : 7}
+        return meta
+
+    def output(self):
+        # meta
+        meta = self.get_meta()
+        meta_f = join(self.view_dir, "meta.json")
+        BtIO.writeJson(meta, meta_f, indent=2)
+        # gc
+        gc_f = join(self.view_dir, "gc.json")
+        print BtLog.status_d['13'] % (gc_f)
+        BtIO.writeJson(self.gc, gc_f, indent=1)
+        # length
+        length_f = join(self.view_dir, "length.json")
+        print BtLog.status_d['13'] % (length_f)
+        BtIO.writeJson(self.length, length_f, indent=1)
+        # names
+        names_f = join(self.view_dir, "names.json")
+        print BtLog.status_d['13'] % (names_f)
+        BtIO.writeJson(self.names, names_f, indent=1)
+        # cov
+        cov_d = join(self.view_dir, "covs")
+        BtIO.create_dir(directory=cov_d)
+        for cov_lib, cov in self.covs.items():
+            cov_f = join(cov_d, "%s.json" % cov_lib)
+            print BtLog.status_d['13'] % (cov_f)
+            BtIO.writeJson(cov, cov_f, indent=1)
+        # tax
+        taxrule_d = join(self.view_dir, "taxrule")
+        BtIO.create_dir(directory=taxrule_d)
+        for taxrule in self.tax:
+            tax_d = join(taxrule_d, taxrule)
+            BtIO.create_dir(directory=tax_d)
+            for rank in self.tax[taxrule]:
+                tax = self.tax[taxrule][rank]
+                rank_f = join(tax_d, "%s.json" % rank)
+                BtIO.writeJson(tax, rank_f, indent=1)
+
 
 if __name__ == '__main__':
     pass

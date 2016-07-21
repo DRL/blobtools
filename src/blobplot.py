@@ -137,7 +137,7 @@ if __name__ == '__main__':
     plotObj.group_labels = {group : set() for group in plotObj.group_order}
     plotObj.relabel_and_colour(colour_dict, user_labels)
     plotObj.compute_stats()
-
+    plotObj.refcov_dict = refcov_dict
     # Plotting
     info_flag = 1
     out_f = ''
@@ -158,7 +158,6 @@ if __name__ == '__main__':
         if not (no_plot_blobs):
             plotObj.plotBlobs(cov_lib, info_flag, out_f)
             info_flag = 0
+        if not (no_plot_reads):
+            plotObj.plotReadCov(cov_lib, out_f)
     plotObj.write_stats(out_f)
-
-    if not (no_plot_reads):
-        plotObj.plotReadCov(refcov_dict)

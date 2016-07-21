@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """usage: blobtools view    -i <BLOBDB> [-x <TAXRULE>] [--rank <TAXRANK>...] [--hits]
-                            [--list <LIST>] [--out <OUT>] [--concoct] [--notable] [--cov]
+                            [--list <LIST>] [--out <OUT>] [--notable]
+                            [--concoct] [--cov] [--experimental]
                             [--h|--help]
 
     Options:
@@ -17,7 +18,8 @@
                                     'phylum', 'superkingdom', 'all') [default: phylum]
         -b, --hits                  Displays taxonomic hits from tax files that contributed to the taxonomy.
         --concoct                   Generate concoct files [default: False]
-        --cov                       Generate cov files [deafault: False]
+        --cov                       Generate cov files [default: False]
+        --experimental              Experimental output [default: False]
         -n, --notable               Do not generate table view [default: False]
 """
 
@@ -47,6 +49,7 @@ if __name__ == '__main__':
     concoct = args['--concoct']
     cov = args['--cov']
     notable = args['--notable']
+    experimental = args['--experimental']
     # Does blobdb_f exist ?
     if not isfile(blobdb_f):
         BtLog.error('0', blobdb_f)
@@ -75,7 +78,6 @@ if __name__ == '__main__':
     print BtLog.status_d['9'] % (blobdb_f)
     blobDb.load(blobdb_f)
     blobDb.version = blobtools.__version__
-    print BtLog.status_d['9'] % (blobdb_f), BtLog.status_d['2']
 
     # Is taxrule sane and was it computed?
     if (blobDb.hitLibs) and taxrule not in blobDb.taxrules:
@@ -84,17 +86,20 @@ if __name__ == '__main__':
     # view(s)
     viewObjs = []
     if not (notable):
-        tableView = Bt.ViewObj(name="table", out_f=out_f, suffix="table.txt", header="", body=[])
+        tableView = Bt.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
+    if (experimental):
+        experimentalView = Bt.ExperimentalViewObj(name = "experimental", view_dir=out_f)
+        viewObjs.append(experimentalView)
     if (concoct):
-        concoctTaxView = Bt.ViewObj(name="concoct_tax", out_f=out_f, suffix="concoct_taxonomy_info.csv", header="", body=dict())
+        concoctTaxView = Bt.ViewObj(name="concoct_tax", out_f=out_f, suffix="concoct_taxonomy_info.csv", body=dict())
         viewObjs.append(concoctTaxView)
-        concoctCovView = Bt.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", header="", body=[])
+        concoctCovView = Bt.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", body=[])
         viewObjs.append(concoctCovView)
     if (cov):
         for cov_lib_name, covLibDict in blobDb.covLibs.items():
             out_f = BtIO.getOutFile(covLibDict['f'], prefix, None)
-            covView = Bt.ViewObj(name="cov", out_f=out_f, suffix="cov", header="", body=[])
+            covView = Bt.ViewObj(name="covlib", out_f=out_f, suffix="cov", body=[])
             blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib_name])
     if (viewObjs):
         blobDb.view(viewObjs=viewObjs, ranks=ranks, taxrule=taxrule, hits_flag=hits_flag, seqs=seqs, cov_libs=[])
