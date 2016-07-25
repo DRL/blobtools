@@ -31,13 +31,14 @@ def main():
     prefix = args['--out']
     diamond_f = args['--diamond']
     rnacentral_f = args['--rnacentral']
-    try:
-        taxid = int(args['--taxid'])
-    except TypeError:
-        BtLog.error('26')
+    taxid = args['--taxid']
 
     out_f, taxid_d = '', {}
     if (taxid):
+        try:
+            taxid = int(taxid)
+        except TypeError:
+            BtLog.error('26')
         out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
         taxid_d = defaultdict(lambda: taxid)
     elif (rnacentral_f):
