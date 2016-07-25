@@ -180,6 +180,7 @@ def checkBam(infile):
     if not (which('samtools')):
         BtLog.error('7')
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
+    reads_secondary_re = re.compile(r"(\d+)\s\+\s\d+\ssecondary")
     reads_total_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
     reads_total, reads_mapped = 0, 0
     output = ''
@@ -187,6 +188,8 @@ def checkBam(infile):
     for line in runCmd(command):
         output += line
     reads_mapped = int(reads_mapped_re.search(output).group(1))
+    reads_secondary = int(reads_secondary_re.search(output).group(1))
+    reads_mapped = reads_mapped - reads_secondary
     reads_total = int(reads_total_re.search(output).group(1))
     # check whether there are reads in BAM
     if not (reads_total) or not (reads_mapped):
