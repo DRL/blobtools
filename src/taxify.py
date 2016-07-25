@@ -40,11 +40,11 @@ def main():
     if (taxid):
         out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
         taxid_d = defaultdict(lambda: taxid)
-    elif (rnacentral):
+    elif (rnacentral_f):
         print BtLog.status_d['1'] % ("TAXID file", taxid_f)
         taxid_d = BtIO.parseDict(taxid_f, 0, 3)
         out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
-    elif (diamond):
+    elif (diamond_f):
         taxid_d = BtIO.parseDict(taxid_f, 0, 1)
         out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
     else:
