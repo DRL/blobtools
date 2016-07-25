@@ -60,7 +60,7 @@ def main():
         BtLog.error('26')
 
     output = []
-    with open(blast_f) as fh:
+    with open(tax_f) as fh:
         for l in fh:
             line = l.rstrip("\n").split()
             output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:])))
