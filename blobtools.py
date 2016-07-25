@@ -12,7 +12,6 @@ commands:
     covplot       compare BlobDB cov(s) to additional cov file
 
     map2cov       generate cov file from bam file
-    sumcov        sum coverage from multiple COV files
     seqfilter     filter FASTA sequences based on header in list
     taxify        assign taxids to blast-results based on list
 
@@ -68,8 +67,6 @@ if __name__ == '__main__':
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
         exit(call(['python', SRCDIR + 'covplot.py'] + argv))
-    elif args['<command>'] == 'sumcov':
-        exit(call(['python', SRCDIR + 'sumcov.py'] + argv))
     elif args['<command>'] == 'seqfilter':
         exit(call(['python', SRCDIR + 'seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':

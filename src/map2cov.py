@@ -49,6 +49,6 @@ if __name__ == '__main__':
     blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=no_base_cov_flag)
     for cov_lib in cov_libs:
         out_f = BtIO.getOutFile(cov_lib.f, prefix, None)
-        covView = Bt.ViewObj(name="cov", out_f=out_f, suffix="cov", header="", body=[])
+        covView = Bt.ViewObj(name="covlib", out_f=out_f, suffix="cov", header="", body=[])
         blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib.name])
 

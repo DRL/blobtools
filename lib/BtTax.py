@@ -10,6 +10,7 @@ To do       : ?
 """
 from __future__ import division
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
+TAXRULES = ['bestsum', 'bestsumorder'] # this should be re-named colour rules at one point
 
 def noHit():
 	return {rank : {'tax' : 'no-hit', 'score' : 0.0, 'c_index' : None} for rank in RANKS}

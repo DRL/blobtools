@@ -15,13 +15,13 @@
 
 from __future__ import division
 from docopt import docopt
-import lib.BtCore as bt
+
+from os.path import basename, isfile, join, dirname, abspath
+from sys import path
+path.append(dirname(dirname(abspath(__file__))))
+
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
-import lib.BtPlot as BtPlot
-from os.path import dirname, isfile, basename, splitext
-
-
 
 if __name__ == '__main__':
     main_dir = dirname(__file__)
@@ -39,10 +39,10 @@ if __name__ == '__main__':
     for header, sequence in BtIO.readFasta(fasta_f):
         if header in items:
             if not (invert):
-                output.append(">%s\n%s" % (header, sequence))
+                output.append(">%s\n%s\n" % (header, sequence))
         else:
             if (invert):
-                output.append(">%s\n%s" % (header, sequence))
+                output.append(">%s\n%s\n" % (header, sequence))
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 

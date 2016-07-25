@@ -16,11 +16,12 @@
 
 from __future__ import division
 from docopt import docopt
-#import lib.BtCore as bt
+
+from os.path import basename, isfile, join, dirname, abspath
+from sys import path
+path.append(dirname(dirname(abspath(__file__))))
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
-#import lib.BtPlot as BtPlot
-from os.path import dirname, isfile, splitext
 
 def write_output(blast_f, taxid_d):
     with open(blast_f) as fh:

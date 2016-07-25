@@ -12,11 +12,29 @@ To do       : ?
 from __future__ import division
 import re
 import subprocess
-from os.path import basename, isfile, abspath, splitext, join
+from os.path import basename, isfile, abspath, splitext, join, isdir
+import shutil
 import os
 import sys
 import lib.BtLog as BtLog
 from collections import deque
+
+
+def create_dir(directory="", overwrite=True):
+    if (directory):
+        if not isdir(directory):
+            os.makedirs(directory)
+        else:
+            if (overwrite):
+                shutil.rmtree(directory)           #removes all the subdirectories!
+                os.makedirs(directory)
+<<<<<<< HEAD
+        return directory
+    else:
+        return None
+=======
+    return directory
+>>>>>>> FETCH_HEAD
 
 def parseList(infile):
     if not isfile(infile):
@@ -27,16 +45,83 @@ def parseList(infile):
             items.append(l.rstrip("\n"))
     return items
 
+def parseReferenceCov(infile):
+    refcov_dict = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                try:
+                    cov_lib, reads_total_ref, reads_mapped_ref = l.split(",")
+                    refcov_dict[cov_lib] = {'reads_total' : int(reads_total_ref),
+                                            'reads_mapped' : int(reads_mapped_ref)}
+                except:
+                    BtLog.error('21', infile)
+    return refcov_dict
+
+def parseCmdlist(temp):
+    _list = []
+    if (temp):
+        if "," in temp:
+            _list = temp.split(",")
+        else:
+            _list.append(temp)
+    return _list
+
+def parseCmdLabels(labels):
+    label_d = {}
+    name, groups = '', ''
+    if (labels):
+        try:
+            for label in labels:
+                name, groups = str(label).split("=")
+                if "," in groups:
+                    for group in groups.split(","):
+                        label_d[group] = name
+                else:
+                    label_d[groups] = name
+        except:
+            BtLog.error('17', labels)
+    return label_d
+
+def parseCatColour(infile):
+    catcolour_dict = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                try:
+                    seq_name, category = l.rstrip("\n").split(",")
+                    catcolour_dict[seq_name] = category
+                except:
+                    BtLog.error('23', infile)
+    return catcolour_dict
+
 def parseDict(infile, key, value):
-    if not isfile(infile):
-         BtLog.error('0', infile)
-    with open(infile) as fh:
-        items = {}
-        k_idx = int(key)
-        v_idx = int(value)
-        for l in fh:
-            temp = l.rstrip("\n").split()
-            items[temp[k_idx]] = temp[v_idx]
+    items = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            items = {}
+            k_idx = int(key)
+            v_idx = int(value)
+            for l in fh:
+                temp = l.rstrip("\n").split()
+                items[temp[k_idx]] = temp[v_idx]
+    return items
+
+def parseColours(infile):
+    items = {}
+    if (infile):
+        if not isfile(infile):
+            BtLog.error('0', infile)
+        with open(infile) as fh:
+            for l in fh:
+                temp = l.rstrip("\n").split(",")
+                items[temp[0]] = temp[1]
     return items
 
 def parseSet(infile):
@@ -470,16 +555,21 @@ def byteify(input):
     else:
         return input
 
+
+
 def writeJsonGzip(obj, outfile):
     import json
     import gzip
     with gzip.open(outfile, 'wb') as fh:
         json.dump(obj, fh)
 
-def writeJson(obj, outfile):
+def writeJson(obj, outfile, indent=0, separators=(',', ': ')):
     import json
     with open(outfile, 'w') as fh:
-        json.dump(obj, fh)
+        if (indent):
+            json.dump(obj, fh, indent=indent, separators=separators)
+        else:
+            json.dump(obj, fh)
         #json.dump(obj, fh, indent=4, separators=(',', ': ')) #
 
 def parseJsonGzip(infile):
@@ -493,6 +583,8 @@ def parseJson(infile):
     '''http://artem.krylysov.com/blog/2015/09/29/benchmark-python-json-libraries/'''
     if not isfile(infile):
          BtLog.error('0', infile)
+    import time
+    start = time.time()
     json_parser = ''
     with open(infile, 'r') as fh:
         print BtLog.status_d['15']
@@ -509,13 +601,13 @@ def parseJson(infile):
             import json # default
             json_parser = 'json'
         print BtLog.status_d['17'] % json_parser
-    #import time
-    #start = time.time()
-    obj = json.loads(json_string.decode("ascii"))
-    #end = time.time()
-    #sys.exit()
-    #print (time.time() - start)
-    return byteify(obj)
+    try:
+        obj = json.loads(json_string.decode("ascii"))
+    except ValueError:
+        BtLog.error('37', infile, "BlobDB")
+    data = byteify(obj)
+    print BtLog.status_d['20'] % (time.time() - start)
+    return data
 
 if __name__ == "__main__":
     pass

@@ -22,10 +22,10 @@ def error(message, *argv):
 def progress(iteration, steps, max_value):
     if int(iteration) == max_value:
         sys.stdout.write('\r')
-        print "[PROGRESS]\t: %d%%" % (100)
+        print "[PROGRESS]\t: \t%d%%" % (100)
     elif int(iteration) % steps == 0:
         sys.stdout.write('\r')
-        print "[PROGRESS]\t: %d%%" % (float(int(iteration)/int(max_value))*100),
+        print "[PROGRESS]\t: \t%d%%" % (float(int(iteration)/int(max_value))*100),
         sys.stdout.flush()
     else:
         pass
@@ -64,7 +64,12 @@ error_d = {
     '30' : '[ERROR:30]\t: The module docopt is not installed. Please install it to run blobtools\n\tpip install docopt',
     '31' : '[ERROR:31]\t: Please specify a read mapping file',
     '32' : '[ERROR:32]\t: Choose either --cumulative or --multiplot',
-    '33' : '[ERROR:33] : CovLib(s) not found. The available covlibs are: \n%s'
+    '33' : '[ERROR:33] : CovLib(s) not found. The available covlibs are: \n%s',
+    '34' : '[ERROR:34] : Invalid plot type : %s',
+    '35' : '[ERROR:35] : Directory %s could not be created',
+    '36' : '[ERROR:36] : View %s could not be created',
+    '37' : '[ERROR:37] : %s does not seem to be a valid %s file'
+
 
 }
 
@@ -92,11 +97,14 @@ status_d = {
     '10': '[STATUS]\t: \tChecking with \'samtools flagstat\'',
     '11': '[STATUS]\t: \tMapping reads = %s, total reads = %s (mapping rate = %s)',
     '12': '[STATUS]\t: \tChecking with \'clc_mapping_info\'',
-    '13': '[STATUS]\t: Writing %s',
+    '13': '[STATUS]\t: \tWriting %s',
     '14': '[STATUS]\t: Preparing view(s) ...',
     '15': '[STATUS]\t: \tLoading BlobDb into memory ...',
     '16': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while) ...',
-    '17': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while, consider installing the \'ujson\' module) ...'
+    '17': '[STATUS]\t: \tSerialising BlobDb (using \'%s\' module) (this may take a while, consider installing the \'ujson\' module) ...',
+    '18': '[STATUS]\t: Extracting data for plots ...',
+    '19': '[STATUS]\t: Writing output ...',
+    '20': '[STATUS]\t: \tFinished in %ss'
 }
 
 info_d = {
