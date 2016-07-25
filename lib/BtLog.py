@@ -83,7 +83,8 @@ warn_d = {
     '4' : '[WARN]\t\t: No coverage data found in %s',
     '5' : '[WARN]\t\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
     '6' : '[WARN]\t\t: Sum of coverage in cov lib %s is 0.0. Please ignore this warning if "--no_base_cov" was specified.',
-    '7' : '[WARN]\t\t: No taxonomy information found.'
+    '7' : '[WARN]\t\t: No taxonomy information found.',
+    '8' : '[WARN]\t\t: Duplicated sequences found :\n %s'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',
@@ -108,7 +109,8 @@ status_d = {
     '19': '[STATUS]\t: Writing output ...',
     '20': '[STATUS]\t: \tFinished in %ss',
     '21': '[STATUS]\t: Parsing %s ...',
-    '22': '[STATUS]\t: Filtering %s ...'
+    '22': '[STATUS]\t: Filtering %s ...',
+    '23': '[STATUS]\t: Extracted %s (%s/%s parsed/total) ...'
 }
 
 info_d = {

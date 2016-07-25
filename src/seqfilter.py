@@ -23,7 +23,7 @@ path.append(dirname(dirname(abspath(__file__))))
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 
-if __name__ == '__main__':
+def main():
     main_dir = dirname(__file__)
     #print data_dir
     args = docopt(__doc__)
@@ -32,24 +32,31 @@ if __name__ == '__main__':
     invert = args['--invert']
     prefix = args['--out']
 
+    output = []
     out_f = BtIO.getOutFile(fasta_f, prefix, "filtered.fna")
 
     print BtLog.status_d['21'] % list_f
     items = BtIO.parseSet(list_f)
-    output = []
+
     print BtLog.status_d['22'] % fasta_f
-    seen_items = set()
+    parsed_items = []
+    sequences = 0
     for header, sequence in BtIO.readFasta(fasta_f):
+        sequences += 1
         if header in items:
             if not (invert):
-                seen_items.add(header)
+                parsed_items.append(header)
                 output.append(">%s\n%s\n" % (header, sequence))
         else:
             if (invert):
-                seen_items.add(header)
+                parsed_items.add(header)
                 output.append(">%s\n%s\n" % (header, sequence))
         BtLog.progress(len(output), 10, len(items), no_limit=True)
+    print BtLog.status_d['23'] % ('{:.2%}'.format(parsed_items/sequences), parsed_items, sequences)
+    if not len(parsed_items) == len(set(parsed_items)):
+        print BtLog.warn_d['8'] % "\n\t".join(list(set([x for x in parsed_items if parsed_items.count(x) > 1])))
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 
-
+if __name__ == '__main__':
+    main()
