@@ -5,6 +5,8 @@
     - BAM/SAM parsing:
         - BAM and SAM parsing now fast(er)
         - Support for X/= in CIGAR string (previously only M's)
+    - BAM/SAM/CAS parsing:
+        - when parsing mapping files, blobtools automatically writes COV files
     - blobDB JSON parser tries first "ujson" module, then "simplejson" module, before defaulting to "json" module.
         "ujson" is fastest, so "pip install ujson" is encouraged
     - taxonomy calculation
@@ -39,6 +41,8 @@
             - scale shows area of 0.05, 0.1 and 0.25 of longest contig
     - behaviour of colour_f changed, so that now all groups that are not named in colour_f are colour in white
     - added x-axis minor ticklabels, all ticklabels facing outwards
+    - [--exclude] removes group from plotting and stats
+    - [--filelabel] : labels coverage axis based on coverage file
 
 - blobtools covplot
     - new flag "--lib". Allows selecting particular covlib(s) to plot.
@@ -69,6 +73,8 @@ To do:
 - check that create makes cov files when bam
 - move all *.py to bloblib
 - change imports
+- make maxcov a filter in getPlotData so that stats for covplots reflect hidden blobs
+- write all messages to logfile (including execution parameters)
 -
 
 bwa mem -t 52 -M -R '@RG\tID:nHa.MiSeq.400\tSM:nHa.1\tPL:illumina\tLB:nHa.MiSeq.400\tPU:unit1' \

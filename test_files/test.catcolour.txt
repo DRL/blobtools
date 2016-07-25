@@ -1,0 +1,10 @@
+contig_1,A
+contig_2,A
+contig_3,A
+contig_4,B
+contig_5,B
+contig_6,B
+contig_7,B
+contig_8,B
+contig_9,C
+contig_10,C

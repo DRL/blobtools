@@ -1,0 +1,4 @@
+Nematoda,#48a365
+Tardigrada,#48a365
+Actinobacteria,#926eb3
+other,#ffffff

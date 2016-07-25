@@ -1,0 +1,16 @@
+## blobtools v0.9.19
+## Total Reads = 15313
+## Mapped Reads = 15313
+## Unmapped Reads = 0
+## Source(s) : /Users/dominik/git/blobtools/test_data/test.mapping_1.bam
+# contig_id	read_cov	base_cov
+contig_1	369	90.4060846561
+contig_2	844	168.409433962
+contig_3	188	43.7607973422
+contig_4	2096	456.313354364
+contig_5	456	163.557003257
+contig_6	52	25.8796296296
+contig_7	1005	52.3123152709
+contig_8	1008	91.742114237
+contig_9	554	74.7567229518
+contig_10	8741	310.633668101

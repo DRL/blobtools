@@ -43,11 +43,10 @@ except ImportError:
     sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
-__version__ = "blobtools v0.9.18"
+__version__ = "blobtools v0.9.19"
 MAINDIR = join(dirname(__file__), '')
 DATADIR = join(MAINDIR, 'data/')
-SRCDIR = join(MAINDIR, 'src/')
-LIBDIR = join(MAINDIR, 'lib/')
+LIBDIR = join(MAINDIR, 'bloblib/')
 
 if __name__ == '__main__':
     args = docopt(__doc__,
@@ -56,21 +55,21 @@ if __name__ == '__main__':
 
     argv = [args['<command>']] + args['<args>']
     if args['<command>'] == 'create':
-        exit(call(['python', SRCDIR + 'create.py'] + argv))
+        exit(call(['python', LIBDIR + 'create.py'] + argv))
     elif args['<command>'] == 'view':
-        exit(call(['python', SRCDIR + 'view.py'] + argv))
+        exit(call(['python', LIBDIR + 'view.py'] + argv))
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
         argv[0] = "blobplot"
-        exit(call(['python', SRCDIR + 'blobplot.py'] + argv))
+        exit(call(['python', LIBDIR + 'blobplot.py'] + argv))
     elif args['<command>'] == 'map2cov':
-        exit(call(['python', SRCDIR + 'map2cov.py'] + argv))
+        exit(call(['python', LIBDIR + 'map2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
-        exit(call(['python', SRCDIR + 'covplot.py'] + argv))
+        exit(call(['python', LIBDIR + 'covplot.py'] + argv))
     elif args['<command>'] == 'seqfilter':
-        exit(call(['python', SRCDIR + 'seqfilter.py'] + argv))
+        exit(call(['python', LIBDIR + 'seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':
-        exit(call(['python', SRCDIR + 'taxify.py'] + argv))
+        exit(call(['python', LIBDIR + 'taxify.py'] + argv))
     else:
         exit(call(['./blobtools', '--help']))
 
