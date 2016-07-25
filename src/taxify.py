@@ -27,7 +27,7 @@ def main():
     #print data_dir
     args = docopt(__doc__)
     tax_f = args['--infile']
-
+    print args
     prefix = args['--out']
     diamond_f = args['--diamond']
     rnacentral_f = args['--rnacentral']
