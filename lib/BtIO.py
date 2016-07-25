@@ -471,10 +471,10 @@ def parseNodesDB(**kwargs):
         if not isfile(nodesDB_f):
             BtLog.error('0', nodesDB_f)
         print BtLog.status_d['4'] % (nodesDB_f)
-        #try:
-        nodesDB = readNodesDB(nodesDB_f)
-        #except:
-            #BtLog.error('27', nodesDB_f)
+        try:
+            nodesDB = readNodesDB(nodesDB_f)
+        except:
+            BtLog.error('27', nodesDB_f)
     elif (nodesDB_default):
         if not isfile(nodesDB_default):
             BtLog.error('28')
@@ -520,6 +520,7 @@ def readNodesDB(nodesDB_f):
             if line.startswith("#"):
                 nodesDB_count = int(line.lstrip("# nodes_count = ").rstrip("\n"))
             nodes_count += 1
+            print line
             node, rank, name, parent = line.rstrip("\n").split("\t")
             nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
             if (nodesDB_count):
