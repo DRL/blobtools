@@ -7,8 +7,8 @@
     Options:
         -h --help                     show this
         -i, --infile <TAXFILE>        Similarity search results of sequences (BLAST/Diamond TSV format)
-        -r, --rnacentral <TAXIDS>     RNAcentral TAXID file
         -d, --diamond <TAXIDS>        Diamond TAXID file
+        -r, --rnacentral <TAXIDS>     RNAcentral TAXID file
         -t, --taxid <INT>             TAXID (must be integer)
         -o, --out <PREFIX>            Output prefix
 """
