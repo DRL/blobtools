@@ -471,10 +471,11 @@ def parseNodesDB(**kwargs):
         if not isfile(nodesDB_f):
             BtLog.error('0', nodesDB_f)
         print BtLog.status_d['4'] % (nodesDB_f)
-        try:
-            nodesDB = readNodesDB(nodesDB_f)
-        except:
-            BtLog.error('27', nodesDB_f)
+        nodesDB = readNodesDB(nodesDB_f)
+        #try:
+        #    nodesDB = readNodesDB(nodesDB_f)
+        #except:
+        #    BtLog.error('27', nodesDB_f)
     elif (nodesDB_default):
         if not isfile(nodesDB_default):
             BtLog.error('28')
