@@ -43,7 +43,7 @@ if __name__ == '__main__':
         else:
             if (invert):
                 output.append(">%s\n%s\n" % (header, sequence))
-        BtLog.progress(len(output), len(output)/1000, len(itemsgi))
+        BtLog.progress(len(output), len(output)/1000, len(items))
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 
