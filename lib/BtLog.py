@@ -21,7 +21,7 @@ def error(message, *argv):
 
 def progress(iteration, steps, max_value, no_limit=False):
     if int(iteration) == max_value:
-        if kwargs['no_limit'] == True:
+        if no_limit == True:
             sys.stdout.write('\r')
             print "[PROGRESS]\t: \t%d%%" % (100),
         else:
