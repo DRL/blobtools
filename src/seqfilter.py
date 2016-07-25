@@ -34,8 +34,10 @@ if __name__ == '__main__':
 
     out_f = BtIO.getOutFile(fasta_f, prefix, "filtered.fna")
 
+    print BtLog.status_d['21'] % list_f
     items = BtIO.parseSet(list_f)
     output = []
+    print BtLog.status_d['22'] % fasta_f
     for header, sequence in BtIO.readFasta(fasta_f):
         if header in items:
             if not (invert):
@@ -43,7 +45,7 @@ if __name__ == '__main__':
         else:
             if (invert):
                 output.append(">%s\n%s\n" % (header, sequence))
-        BtLog.progress(len(output), len(output)/1000, len(items))
+        BtLog.progress(len(output), 10, len(items))
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 

@@ -212,36 +212,6 @@ class BlobDb():
         for k, v in blobDict.items():
             setattr(self, k, v)
         self.set_of_taxIds = blobDict['lineages'].keys()
-        #for k, v in self.__dict__.items():
-        #    print k, type(v), v # this seems to work
-
-        #self.title = blobDict['title']
-        #self.assembly_f = blobDict['assembly_f']
-        #self.nodesDB_f = blobDict['nodesDB_f']
-        #self.lineages = blobDict['lineages']
-        #self.set_of_taxIds = blobDict['lineages'].keys()
-        #self.order_of_blobs = blobDict['order_of_blobs']
-        #self.dict_of_blobs = blobDict['dict_of_blobs']
-        #self.length = int(blobDict['length'])
-        #self.seqs = int(blobDict['seqs'])
-        #self.n_count = int(blobDict['n_count'])
-        #self.covLibs = blobDict['covLibs']
-        #self.hitLibs = blobDict['hitLibs']
-        #self.taxrules = blobDict['taxrules']
-
-        # self.title = title
-        # self.assembly_f = ''
-        # self.dict_of_blobs = {}
-        # self.order_of_blobs = []
-        # self.set_of_taxIds = set()
-        # self.lineages = {}
-        # self.length = 0
-        # self.seqs = 0
-        # self.n_count = 0
-        # self.covLibs = {}
-        # self.hitLibs = {}
-        # self.nodesDB_f = ''
-        # self.taxrules = []
 
     def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict):
         data_dict = {}
