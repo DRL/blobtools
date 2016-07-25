@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """usage: blobtools taxify          -i BLAST [-t TAXIDS] [--taxid INT]
-                                    [-o PREFIX] [--diamond] [--blast] [-h|--help]
+                                    [-o PREFIX] [--diamond] [--rnacentral] [-h|--help]
 
     Options:
         -h --help                     show this
