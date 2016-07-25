@@ -31,7 +31,7 @@ def main():
     taxid_f = args['--taxids']
     try:
         taxid = int(args['--taxid'])
-    except ValueError:
+    except TypeError:
         BtLog.error('38' % args['--taxid'])
 
     prefix = args['--out']
@@ -39,25 +39,22 @@ def main():
     rnacentral = args['--rnacentral']
 
     out_f, taxid_d = '', {}
-    if (rnacentral):
-        if (taxid_f):
-            print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+    if (taxid_f):
+        print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+        if (rnacentral):
             taxid_d = BtIO.parseDict(taxid_f, 0, 3)
-        else:
-            BtLog.error('39')
-        out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
-    elif (diamond):
-        if (taxid_f):
-            print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+            out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
+        elif (diamond):
             taxid_d = BtIO.parseDict(taxid_f, 0, 1)
+            out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
         else:
-            BtLog.error('39')
-        out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
+            BtLog.error('26')
     elif (taxid):
         out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
         taxid_d = defaultdict(lambda: taxid)
     else:
         BtLog.error('26')
+
 
     output = []
     with open(tax_f) as fh:
