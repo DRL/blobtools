@@ -503,71 +503,11 @@ class PlotObj():
         ax_group.set_xticklabels(ax_group_data['labels'], rotation=45, ha='center', fontsize=LEGEND_FONTSIZE)
         #figsuptitle = fig.suptitle(out_f, verticalalignment='top')
         out_f = "%s.read_cov.%s" % (out_f, cov_lib)
-        print BtLog.status_d['8'] % out_f
+        print BtLog.status_d['8'] % "%s.%s" % (out_f, self.format)
         fig.tight_layout()
         #fig.savefig("%s.%s" % (out_f, self.format), format=self.format,  bbox_extra_artists=(figsuptitle,))
         fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
         plt.close(fig)
-
-    def plotScatterCov(self, cov_lib, cov_dict, info_flag, x_label, y_label, x_max, y_max):
-        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot('covplot')
-        # Setting bins for histograms
-        top_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
-        right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
-        # empty handles for big legend
-        legend_handles = []
-        legend_labels = []
-        # marker size scaled by biggest blob (size in points^2)
-        for group in self.plot_order:
-            i += 1
-            group_length_array = array(self.stats[group]['length'])
-            group_cov_y_array = array([cov_dict.get(name, 0.02) for name in self.stats[group]['name']])
-            group_cov_x_array = array(self.stats[group]['covs'][cov_lib])
-            # calculate values for legend
-            if len(group_length_array) > 0:
-                group_span_in_mb = round(self.stats[group]['span_visible']/1000000, 2)
-                group_number_of_seqs = self.stats[group]['count_visible']
-                group_n50 = self.stats[group]['n50']
-                marker_size_array = []
-                s, lw, alpha, colour = 15, 0.5, 0.5, self.colours[group]
-                if (self.ignore_contig_length):
-                    if not group == "no-hit":
-                        s = 65
-                    marker_size_array = [s for length in group_length_array]
-                else:
-                    marker_size_array = [length/s for length in group_length_array]
-                if group == "no-hit":
-                    alpha = 0.5
-                weights_array = group_length_array/1000
-                # generate label for legend
-                fmt_seqs = "{:,}".format(group_number_of_seqs)
-                fmt_span = "{:,}".format(group_span_in_mb)
-                fmt_n50 = "{:,}".format(group_n50)
-                label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
-                if (info_flag):
-                    print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
-                legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
-                legend_labels.append(label)
-                if (self.hist_type == "span"):
-                    axHistx.hist(group_cov_x_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-                    axHisty.hist(group_cov_y_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-                else:
-                    axHistx.hist(group_cov_x_array, color = colour, bins = top_bins, histtype='step', lw = 3)
-                    axHisty.hist(group_cov_y_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-                axScatter.scatter(group_cov_x_array, group_cov_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
-                axLegend.axis('off')
-                if (self.multiplot):
-                    axLegend.legend(legend_handles, legend_labels, loc=6, numpoints=1, fontsize=FONTSIZE, frameon=True)
-                    plot_ref_legend(axScatter, self.ignore_contig_length)
-                    m_out_f = "%s.%s.%s.compare_cov.%s" % (self.out_f, i, group.replace("/", "_").replace(" ", "_"), self.format)
-                    print BtLog.status_d['8'] % m_out_f
-                    plt.savefig(m_out_f, format=self.format)
-        plot_ref_legend(axScatter, self.ignore_contig_length)
-        axLegend.legend(legend_handles, legend_labels, numpoints=1, fontsize=FONTSIZE, frameon=True, loc=6 )
-        out_f = "%s.%s.compare_cov.%s" % (self.out_f, cov_lib, self.format)
-        print BtLog.status_d['8'] % out_f
-        plt.savefig(out_f, format=self.format)
-        plt.close()
 
     def plotScatter(self, cov_lib, info_flag, out_f):
 
