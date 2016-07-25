@@ -55,7 +55,7 @@ def main():
     BtLog.progress(items_count, 10, items_count)
 
     items_parsed_count = len(items_parsed)
-    print BtLog.status_d['23'] % ('{:.2%}'.format(items_parsed_count/sequences), items_count, items_parsed_count, sequences)
+    print BtLog.status_d['23'] % ('{:.2%}'.format(items_parsed_count/sequences), "{:,}".format(items_count), "{:,}".format(items_parsed_count), "{:,}".format(sequences))
 
     items_parsed_count_unique = len(set(items_parsed))
     if not items_parsed_count == items_parsed_count_unique:
