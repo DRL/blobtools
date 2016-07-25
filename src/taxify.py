@@ -29,14 +29,15 @@ def main():
     args = docopt(__doc__)
     tax_f = args['--infile']
     taxid_f = args['--taxids']
-    try:
-        taxid = int(args['--taxid'])
-    except TypeError:
-        BtLog.error('38' % args['--taxid'])
 
     prefix = args['--out']
     diamond = args['--diamond']
     rnacentral = args['--rnacentral']
+
+    try:
+        taxid = int(args['--taxid'])
+    except TypeError:
+        BtLog.error('38', args['--taxid'])
 
     out_f, taxid_d = '', {}
     if (taxid_f):
