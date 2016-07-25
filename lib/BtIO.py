@@ -513,17 +513,17 @@ def readNamesNodes(names_f, nodes_f):
 
 def readNodesDB(nodesDB_f):
     nodesDB = {}
+    nodesDB_count = 0
     nodes_count = 0
-    i = 0
     with open(nodesDB_f) as fh:
         for line in fh:
             if line.startswith("#"):
-                nodes_count = int(line.lstrip("# nodes_count = ").rstrip("\n"))
-            else:
-                i += 1
-                node, rank, name, parent = line.rstrip("\n").split("\t")
-                nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
-                BtLog.progress(i, 1000, nodes_count)
+                nodesDB_count = int(line.lstrip("# nodes_count = ").rstrip("\n"))
+            nodes_count += 1
+            node, rank, name, parent = line.rstrip("\n").split("\t")
+            nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
+            BtLog.progress(i, 1000, nodes_count)
+    nodesDB['nodes_count'] = nodes_count
     return nodesDB
 
 def writeNodesDB(nodesDB, nodesDB_f):
