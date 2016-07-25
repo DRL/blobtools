@@ -26,7 +26,7 @@ def progress(iteration, steps, max_value, no_limit=False):
             print "[PROGRESS]\t: \t%d%%" % (100),
         else:
             sys.stdout.write('\r')
-            print "[PROGRESS]\t: \t%d%%" % (100),
+            print "[PROGRESS]\t: \t%d%%" % (100)
     elif int(iteration) % steps == 0:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: \t%d%%" % (float(int(iteration)/int(max_value))*100),
@@ -84,7 +84,7 @@ warn_d = {
     '5' : '[WARN]\t\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
     '6' : '[WARN]\t\t: Sum of coverage in cov lib %s is 0.0. Please ignore this warning if "--no_base_cov" was specified.',
     '7' : '[WARN]\t\t: No taxonomy information found.',
-    '8' : '[WARN]\t\t: Duplicated sequences found :\n %s'
+    '8' : '[WARN]\t\t: Duplicated sequences found :\n\t\t\t%s'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',
@@ -110,7 +110,8 @@ status_d = {
     '20': '[STATUS]\t: \tFinished in %ss',
     '21': '[STATUS]\t: Parsing %s ...',
     '22': '[STATUS]\t: Filtering %s ...',
-    '23': '[STATUS]\t: Extracted %s (%s/%s parsed/total) ...'
+    '23': '[STATUS]\t: Extracted %s (list=%s, parsed=%s, total=%s) ...',
+    '24': '[STATUS]\t: Writing %s'
 }
 
 info_d = {

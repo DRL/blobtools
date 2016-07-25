@@ -37,7 +37,7 @@ def main():
 
     print BtLog.status_d['21'] % list_f
     items = BtIO.parseSet(list_f)
-
+    items_count = len(items)
     print BtLog.status_d['22'] % fasta_f
     items_parsed = []
     sequences = 0
@@ -51,14 +51,18 @@ def main():
             if (invert):
                 items_parsed.append(header)
                 output.append(">%s\n%s\n" % (header, sequence))
-        BtLog.progress(len(output), 10, len(items), no_limit=True)
-    BtLog.progress(len(output), 10, len(items))
+        BtLog.progress(len(output), 10, items_count, no_limit=True)
+    BtLog.progress(items_count, 10, items_count)
+
     items_parsed_count = len(items_parsed)
+    print BtLog.status_d['23'] % ('{:.2%}'.format(items_parsed_count/sequences), items_count, items_parsed_count, sequences)
+
     items_parsed_count_unique = len(set(items_parsed))
-    print BtLog.status_d['23'] % ('{:.2%}'.format(items_parsed_count/sequences), items_parsed_count, sequences)
     if not items_parsed_count == items_parsed_count_unique:
-        print BtLog.warn_d['8'] % "\n\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1])))
+        print BtLog.warn_d['8'] % "\n\t\t\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1])))
+
     with open(out_f, "w") as fh:
+        print BtLog.status_d['24'] % out_f
         fh.write("".join(output))
 
 if __name__ == '__main__':
