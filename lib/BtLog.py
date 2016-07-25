@@ -72,7 +72,8 @@ error_d = {
     '34' : '[ERROR:34] : Invalid plot type : %s',
     '35' : '[ERROR:35] : Directory %s could not be created',
     '36' : '[ERROR:36] : View %s could not be created',
-    '37' : '[ERROR:37] : %s does not seem to be a valid %s file'
+    '37' : '[ERROR:37] : %s does not seem to be a valid %s file',
+    '38' : '[ERROR:38] : %s is not an integer'
 }
 
 warn_d = {
