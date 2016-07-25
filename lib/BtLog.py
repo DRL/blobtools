@@ -69,8 +69,6 @@ error_d = {
     '35' : '[ERROR:35] : Directory %s could not be created',
     '36' : '[ERROR:36] : View %s could not be created',
     '37' : '[ERROR:37] : %s does not seem to be a valid %s file'
-
-
 }
 
 warn_d = {

@@ -7,11 +7,7 @@ import lib.BtIO as BtIO
 import lib.BtTax as BtTax
 from os.path import abspath, isfile, basename, isdir, join
 from os import getcwd, mkdir
-<<<<<<< HEAD
-import tarfile
 import json
-=======
->>>>>>> FETCH_HEAD
 
 class BlobDb():
     '''
@@ -508,7 +504,6 @@ class ViewObj():
         else:
             sys.exit("[ERROR] - 001")
 
-<<<<<<< HEAD
 class newBlobDb():
     def __init__(self, name='blobdb'):
         # meta
@@ -716,8 +711,6 @@ class newBlobDb():
                 rank_f = join(tax_d, "%s.json" % rank)
                 BtIO.writeJson(tax, rank_f, indent=1)
 
-=======
->>>>>>> FETCH_HEAD
 class ExperimentalViewObj():
     def __init__(self, name='experimental', view_dir=''):
         self.name = name

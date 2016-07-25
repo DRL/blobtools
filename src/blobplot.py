@@ -160,9 +160,5 @@ if __name__ == '__main__':
             plotObj.plotScatter(cov_lib, info_flag, out_f)
             info_flag = 0
         if not (no_plot_reads):
-<<<<<<< HEAD
             plotObj.plotBar(cov_lib, out_f)
-=======
-            plotObj.plotReadCov(cov_lib, out_f)
->>>>>>> FETCH_HEAD
     plotObj.write_stats(out_f)

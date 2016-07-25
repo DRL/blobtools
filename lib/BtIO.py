@@ -28,13 +28,9 @@ def create_dir(directory="", overwrite=True):
             if (overwrite):
                 shutil.rmtree(directory)           #removes all the subdirectories!
                 os.makedirs(directory)
-<<<<<<< HEAD
         return directory
     else:
         return None
-=======
-    return directory
->>>>>>> FETCH_HEAD
 
 def parseList(infile):
     if not isfile(infile):

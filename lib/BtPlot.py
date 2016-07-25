@@ -205,15 +205,6 @@ def check_input(args):
         if (cumulative_flag) and (multiplot):
             BtLog.error('32')
     return args
-<<<<<<< HEAD
-=======
-
-class PlotReadObj():
-    def __init__(self):
-        self.values = []
-        self.labels = []
-        self.colours = []
->>>>>>> FETCH_HEAD
 
 class PlotObj():
     def __init__(self, data_dict, cov_lib_dict, cov_lib_selection, plot_type):
@@ -410,7 +401,6 @@ class PlotObj():
         if 'other' in self.labels:
             self.plot_order.append('other')
 
-<<<<<<< HEAD
 
     def setupPlot(self, plot):
         if plot == 'blobplot' or plot == 'covplot':
@@ -469,21 +459,6 @@ class PlotObj():
             x_pos_main = arange(main_columns)
             x_pos_group = arange(len(self.plot_order))
             return fig, ax_main, ax_group, x_pos_main, x_pos_group
-=======
-    def OldplotScatterCov(self, cov_lib, cov_dict, info_flag, x_label, y_label, scale, x_max, y_max):
-        rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
-        # Setting up plots and axes
-        plt.figure(1, figsize=(35,35), dpi=400)
-        axScatter = plt.axes(rect_scatter, axisbg=BGGREY, yscale = scale, xscale = scale)
-        axScatter = set_format_covplot(axScatter, x_max, y_max, x_label, y_label, scale, cov_lib)
-        axHistx = plt.axes(rect_histx, axisbg=BGGREY)
-        axHistx = set_format_hist_x(axHistx, axScatter, scale)
-        axHisty = plt.axes(rect_histy, axisbg=BGGREY)
-        axHisty = set_format_hist_y(axHisty, axScatter, scale)
-        if self.hist_type == "span":
-            axHistx.set_ylabel("Span (kb)")
-            axHisty.set_xlabel("Span (kb)", rotation='horizontal')
->>>>>>> FETCH_HEAD
         else:
             return None
 
@@ -529,117 +504,10 @@ class PlotObj():
         #figsuptitle = fig.suptitle(out_f, verticalalignment='top')
         out_f = "%s.read_cov.%s" % (out_f, cov_lib)
         print BtLog.status_d['8'] % out_f
-<<<<<<< HEAD
         fig.tight_layout()
         #fig.savefig("%s.%s" % (out_f, self.format), format=self.format,  bbox_extra_artists=(figsuptitle,))
         fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
         plt.close(fig)
-=======
-        plt.savefig(out_f, format=self.format)
-        plt.close()
-
-    def setupPlot(self, plot):
-        if plot == 'blobplot' or plot == 'covplot':
-            rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
-            # Setting up plots and axes
-            fig = plt.figure(1, figsize=(35,35), dpi=400)
-            axScatter = plt.axes(rect_scatter, axisbg=BGGREY)
-            axScatter = set_format_scatterplot(axScatter, max_cov=self.max_cov, plot=plot, xlabel=self.xlabel, ylabel=self.ylabel)
-            axHistx = plt.axes(rect_histx, axisbg=BGGREY)
-            axHistx = set_format_hist_x(axHistx, axScatter)
-            axHisty = plt.axes(rect_histy, axisbg=BGGREY)
-            axHisty = set_format_hist_y(axHisty, axScatter)
-            if self.hist_type == "span":
-                axHistx.set_ylabel("Span (kb)")
-                axHisty.set_xlabel("Span (kb)", rotation='horizontal')
-            else:
-                axHistx.set_ylabel("Count")
-                axHisty.set_xlabel("Count", rotation='horizontal')
-            for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram
-                xtick.set_rotation(270)
-            axLegend = plt.axes(rect_legend, axisbg=WHITE)
-            axLegend.xaxis.set_major_locator(plt.NullLocator())
-            axLegend.xaxis.set_major_formatter(nullfmt)
-            axLegend.yaxis.set_major_locator(plt.NullLocator())
-            axLegend.yaxis.set_major_formatter(nullfmt)
-            return fig, axScatter, axHistx, axHisty, axLegend
-        elif plot == 'readcov':
-            main_columns = 2
-            if (self.refcov_dict):
-                main_columns += 2
-            group_columns = len(self.plot_order)
-            fig = plt.figure(1, figsize=(30, 10), dpi=200)
-            gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
-
-            ax_main = plt.subplot(gs[0])
-            ax_main.set_axis_bgcolor(BGGREY)
-            ax_main.set_ylim(0, 1.1)
-            ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
-            ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
-
-            ax_group = plt.subplot(gs[1])
-            ax_group.set_axis_bgcolor(BGGREY)
-            ax_group.set_ylim(0, 1.1)
-            ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
-            ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
-            return fig, ax_main, ax_group
-
-        else:
-            return None, None, None, None, None
-
-    def plotReadCov(self, cov_lib, out_f):
-        fig, ax_main, ax_group = self.setupPlot('readcov')
-        ax_main_data = {'labels' : [], 'values' : [], 'colours' : [] }
-        ax_group_data = {'labels' : [], 'values' : [], 'colours' : [] }
-
-        reads_total = self.cov_libs_total_reads_dict[cov_lib]
-        reads_unmapped = reads_total - self.stats['all']['reads_mapped'][cov_lib]
-        ax_main_data['labels'].append('Unmapped (assembly)')
-        ax_main_data['values'].append(reads_unmapped/reads_total)
-        ax_main_data['colours'].append(DGREY)
-        ax_main_data['labels'].append('Mapped (ref)')
-        ax_main_data['values'].append(reads_mapped_ref/reads_total_ref)
-        ax_main_data['colours'].append(DGREY)
-
-        if cov_lib in refcov_dict:
-            reads_total_ref = refcov_dict[cov_lib]['reads_total']
-            reads_mapped_ref = refcov_dict[cov_lib]['reads_mapped']
-            reads_unmapped_ref = reads_total_ref - reads_mapped_ref
-            ax_main_data['labels'].append('Unmapped (assembly)')
-            ax_main_data['values'].append(reads_unmapped/reads_total)
-            ax_main_data['colours'].append(DGREY)
-            ax_main_data['labels'].append('Mapped (assembly)')
-            ax_main_data['values'].append(self.stats['all']['reads_mapped_perc'][cov_lib])
-            ax_main_data['colours'].append(DGREY)
-        # mapped plotted groups
-        for group in self.plot_order:
-           ax_group_data['labels'].append(group)
-           ax_group_data['values'].append(self.stats[group]['reads_mapped_perc'][cov_lib])
-           ax_group_data['colours'].append(self.colours[group])
-        x_pos_main = arange(main_columns)
-        x_pos_group = arange(len(self.plot_order))
-
-        rect_group = ax_group.bar(x_pos_group, ax_group_data['values'], width = 0.5, tick_label=ax_group_data['labels'], align='center', color = ax_group_data['colours'])
-        for rect_g in rect_group:
-            height_g = float(rect_g.get_height())
-            ax_group.text(rect_g.get_x() + rect_g.get_width()/2., 0.005 + height_g, '{:.2f}%'.format(height_g*100), ha='center', va='bottom')
-
-        rect_main = ax_main.bar(x_pos_main, ax_main_data['values'], width = 0.5, tick_label=ax_main_data['labels'], align='center', color = ax_main_data['colours'])
-        for rect_m in rect_main:
-            height_m = float(rect_m.get_height())
-            ax_main.text(rect_m.get_x() + rect_m.get_width()/2., 0.005 + height_m, '{:.2f}%'.format(height_m*100), ha='center', va='bottom')
-
-        ax_main.set_xticklabels(ax_main_data['labels'], rotation=45)
-        ax_group.set_xticklabels(ax_group_data['labels'], rotation=45)
-
-        fig.suptitle(out_f, verticalalignment='top')
-        out_f = "%s.read_cov.%s" % (out_f, cov_lib)
-        print BtLog.status_d['8'] % out_f
-        fig.tight_layout()
-        fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
-        plt.close(fig)
-
->>>>>>> FETCH_HEAD
 
     def plotScatterCov(self, cov_lib, cov_dict, info_flag, x_label, y_label, x_max, y_max):
         fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot('covplot')
@@ -701,17 +569,9 @@ class PlotObj():
         plt.savefig(out_f, format=self.format)
         plt.close()
 
-<<<<<<< HEAD
     def plotScatter(self, cov_lib, info_flag, out_f):
 
         fig, axScatter, axHistx, axHisty, axLegend, top_bins, right_bins = self.setupPlot(self.plot)
-=======
-    def plotBlobs(self, cov_lib, info_flag, out_f):
-        fig, axScatter, axHistx, axHisty, axLegend = self.setupPlot('blobplot')
-        # Setting bins for histograms
-        top_bins = arange(0, 1, 0.01)
-        right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
->>>>>>> FETCH_HEAD
         # empty handles for big legend
         legend_handles = []
         legend_labels = []
@@ -745,11 +605,6 @@ class PlotObj():
                     marker_size_array = [s for length in group_length_array]
                 else: # scaling by max_length
                     marker_size_array = [(length/max_length)*max_marker_size for length in group_length_array]
-<<<<<<< HEAD
-=======
-
-
->>>>>>> FETCH_HEAD
                 # generate label for legend
                 group_span_in_mb = round(self.stats[group]['span_visible']/1000000, 2)
                 group_number_of_seqs = self.stats[group]['count_visible']

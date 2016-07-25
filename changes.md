@@ -44,11 +44,23 @@
     - new flag "--lib". Allows selecting particular covlib(s) to plot.
     - both x/y-axes have the same limits (max-cov + 1000)
 
-<<<<<<< HEAD
 - blobtools sumcov
     - removed
-=======
->>>>>>> FETCH_HEAD
+
+- blobtools taxify
+    - allows setting taxID to taxfiles (sequence similarity search results) using ID-mapping-file
+    - rDNA sequences using RNAcentral
+        - ID mapping
+            - wget ftp://ftp.ebi.ac.uk/pub/databases/RNAcentral/releases/5.0/id_mapping/id_mapping.tsv.gz
+            - gunzip id_mapping.tsv.gz
+            - Subset SILVA sequence IDs in RNAcentral (id_mapping.tsv)
+                grep SILVA id_mapping.tsv | sort | uniq > id_mapping.SILVA.tsv
+        - Sequences
+            - wget ftp://ftp.ebi.ac.uk/pub/databases/RNAcentral/releases/5.0/sequences/rnacentral_active.fasta.gz
+            - convert rRNA to rDNA
+                perl -ne 'chomp; if(m/^>/){@temp=split(" "); print $temp[0]."\n";} else {$_ =~ tr/U/T/; print $_."\n"}' rnacentral_active.fasta > rnacentral_active.rDNA.fasta
+            - Subset SILVA sequences in RNAcentral (rnacentral_active.rDNA.fasta)
+            -
 
 
 New feature:

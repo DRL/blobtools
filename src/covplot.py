@@ -3,7 +3,6 @@
 
 """usage: blobtools covplot  -i BLOBDB -c COV [--max FLOAT]
                                 [--xlabel XLABEL] [--ylabel YLABEL]
-<<<<<<< HEAD
                                 [--lib COVLIB] [-o PREFIX] [-m]
                                 [-p INT] [-l INT] [--cindex] [-n] [-s]
                                 [-r RANK] [-x TAXRULE] [--label GROUPS...]
@@ -12,11 +11,6 @@
                                 [--refcov FILE] [--catcolour FILE]
                                 [--format FORMAT] [--noblobs] [--noreads] [--legend]
                                 [--cumulative]
-=======
-                                [--max FLOAT]
-                                [-r RANK] [-x TAXRULE] [-o PREFIX] [-m] [--title]
-                                [--sort ORDER] [--hist HIST] [--format FORMAT]
->>>>>>> FETCH_HEAD
                                 [-h|--help]
 
     Options:
@@ -85,12 +79,8 @@ if __name__ == '__main__':
     args = docopt(__doc__)
     args = BtPlot.check_input(args)
     blobdb_f = args['--infile']
-<<<<<<< HEAD
     cov_f = args['--cov']
-=======
->>>>>>> FETCH_HEAD
     rank = args['--rank']
-    c_index = args['--cindex']
     min_length = int(args['--length'])
     max_group_plot = int(args['--plotgroups'])
     hide_nohits = args['--nohit']
@@ -108,20 +98,9 @@ if __name__ == '__main__':
     hist_type = args['--hist']
     no_title = args['--notitle']
     ignore_contig_length = args['--noscale']
-<<<<<<< HEAD
     format = args['--format']
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
-=======
-    labels = args['--label']
-    colour_f = args['--colours']
-    exclude_groups = args['--exclude']
-    format = args['--format']
-    no_plot_blobs = args['--noblobs']
-    no_plot_reads = args['--noreads']
-    refcov_f = args['--refcov']
-    catcolour_f = args['--catcolour']
->>>>>>> FETCH_HEAD
     legend_flag = args['--legend']
     cumulative_flag = args['--cumulative']
     cov_lib_selection = args['--lib']
@@ -129,25 +108,6 @@ if __name__ == '__main__':
     x_label = args['--xlabel']
     y_label = args['--ylabel']
     axis_max = float(args['--max'])
-<<<<<<< HEAD
-=======
-
-    # Are ranks sane ?
-    if rank not in RANKS:
-        BtLog.error('9', rank)
-
-    # Are sort_order and hist_type sane?
-    if not sort_order in ['span', 'count']:
-        BtLog.error('14', sort_order)
-    if not hist_type in ['span', 'count']:
-        BtLog.error('15', hist_type)
-
-    # is taxrule provided?
-    if taxrule not in TAXRULES:
-        BtLog.error('8', taxrule)
-
-    # compute labels if supplied
->>>>>>> FETCH_HEAD
 
     exclude_groups = BtIO.parseCmdlist(exclude_groups)
     refcov_dict = BtIO.parseReferenceCov(refcov_f)
@@ -157,7 +117,6 @@ if __name__ == '__main__':
 
     # Load BlobDb
     print BtLog.status_d['9'] % blobdb_f
-<<<<<<< HEAD
     blobDb = Bt.BlobDb('blobplot')
     blobDb.version = blobtools.__version__
     blobDb.load(blobdb_f)
@@ -168,29 +127,6 @@ if __name__ == '__main__':
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'covplot')
     plotObj.cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(cov_f, set(blobDb.dict_of_blobs))
     plotObj.exclude_groups = exclude_groups
-=======
-    blobDB = Bt.BlobDb('new')
-    blobDB.load(blobdb_f)
-
-    # clean cov_dict from coverages below
-    #for name in cov_dict:
-    #    print name, blobDB.dict_of_blobs[name]
-
-    title = blobDB.title
-    if plot_title:
-        plot_title = title
-
-
-    # Is taxrule sane and was it computed?
-    if taxrule not in blobDB.taxrules:
-        BtLog.error('11', taxrule, blobDB.taxrules)
-
-    data_dict, max_cov, cov_lib_dict = blobDB.getPlotData(rank, min_length, hide_nohits, taxrule, False, False)
-    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection)
-    plotObj.cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(covLib.f, set(blobDB.dict_of_blobs))
-    plotObj.max_cov = max_cov
-    plotObj.title = title
->>>>>>> FETCH_HEAD
     plotObj.format = format
     plotObj.max_cov = max_cov
     plotObj.no_title = no_title

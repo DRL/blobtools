@@ -107,18 +107,18 @@ def taxRule(taxrule, hits, lineages, min_bitscore_diff, tax_collision_random):
     return taxonomy
 
 def getTaxDict(hits, lineages):
-	taxDict = {}
-	for lib, hits in hits.items():
-		taxDict[lib] = {}
-		for hit in hits:
-			taxId = hit['taxId']
-			score = hit['score']
-			for rank in RANKS:
-				name = lineages[taxId][rank]
-				if not rank in taxDict[lib]:
-					taxDict[lib][rank] = {name : 0.0}
-				taxDict[lib][rank][name] = taxDict[lib][rank].get(name, 0.0) + score
-	return taxDict
+    taxDict = {}
+    for lib, hits in hits.items():
+        taxDict[lib] = {}
+        for hit in hits:
+            taxId = hit['taxId']
+            score = hit['score']
+            for rank in RANKS:
+                name = lineages[taxId][rank]
+                if not rank in taxDict[lib]:
+                    taxDict[lib][rank] = {name : 0.0}
+                taxDict[lib][rank][name] = taxDict[lib][rank].get(name, 0.0) + score
+    return taxDict
 
 if __name__ == "__main__":
     pass
