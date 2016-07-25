@@ -37,7 +37,7 @@ def main():
     try:
         taxid = int(args['--taxid'])
     except TypeError:
-        BtLog.error('38', args['--taxid'])
+        BtLog.error('26')
 
     out_f, taxid_d = '', {}
     if (taxid_f):
