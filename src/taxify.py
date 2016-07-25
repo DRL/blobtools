@@ -39,7 +39,7 @@ def main():
             taxid = int(taxid)
         except TypeError:
             BtLog.error('26')
-        out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
+        out_f = BtIO.getOutFile(tax_f, prefix, "tax_%s.out" % taxid)
         taxid_d = defaultdict(lambda: taxid)
     elif (rnacentral_f):
         print BtLog.status_d['1'] % ("TAXID file", rnacentral_f)
