@@ -520,7 +520,7 @@ def readNodesDB(nodesDB_f):
             if line.startswith("#"):
                 nodesDB_count = int(line.lstrip("# nodes_count = ").rstrip("\n"))
             nodes_count += 1
-            print line
+            print nodesDB_count
             node, rank, name, parent = line.rstrip("\n").split("\t")
             nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
             if (nodesDB_count):
