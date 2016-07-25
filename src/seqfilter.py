@@ -35,7 +35,7 @@ def main():
     output = []
     out_f = BtIO.getOutFile(fasta_f, prefix, "filtered.fna")
 
-    print BtLog.status_d['21'] % list_f
+    print BtLog.status_d['1'] % ("list", list_f)
     items = BtIO.parseSet(list_f)
     items_count = len(items)
     print BtLog.status_d['22'] % fasta_f

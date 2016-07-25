@@ -108,7 +108,6 @@ status_d = {
     '18': '[STATUS]\t: Extracting data for plots ...',
     '19': '[STATUS]\t: Writing output ...',
     '20': '[STATUS]\t: \tFinished in %ss',
-    '21': '[STATUS]\t: Parsing %s ...',
     '22': '[STATUS]\t: Filtering %s ...',
     '23': '[STATUS]\t: Extracted %s (list=%s, parsed=%s, total=%s) ...',
     '24': '[STATUS]\t: Writing %s'
