@@ -85,6 +85,7 @@ if __name__ == '__main__':
 
     # view(s)
     viewObjs = []
+    print BtLog.status_d['14']
     if not (notable):
         tableView = Bt.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
@@ -100,6 +101,7 @@ if __name__ == '__main__':
         for cov_lib_name, covLibDict in blobDb.covLibs.items():
             out_f = BtIO.getOutFile(covLibDict['f'], prefix, None)
             covView = Bt.ViewObj(name="covlib", out_f=out_f, suffix="cov", body=[])
-            blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib_name])
+            blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib_name], progressbar=True)
     if (viewObjs):
-        blobDb.view(viewObjs=viewObjs, ranks=ranks, taxrule=taxrule, hits_flag=hits_flag, seqs=seqs, cov_libs=[])
+        blobDb.view(viewObjs=viewObjs, ranks=ranks, taxrule=taxrule, hits_flag=hits_flag, seqs=seqs, cov_libs=[], progressbar=True)
+    print BtLog.status_d['19']

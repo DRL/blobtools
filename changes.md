@@ -55,24 +55,45 @@
             - gunzip id_mapping.tsv.gz
             - Subset SILVA sequence IDs in RNAcentral (id_mapping.tsv)
                 grep SILVA id_mapping.tsv | sort | uniq > id_mapping.SILVA.tsv
+            - Create list of sequence IDs:
+                cut -f1 id_mapping.SILVA.tsv > id_mapping.SILVA.names.txt
         - Sequences
             - wget ftp://ftp.ebi.ac.uk/pub/databases/RNAcentral/releases/5.0/sequences/rnacentral_active.fasta.gz
             - convert rRNA to rDNA
                 perl -ne 'chomp; if(m/^>/){@temp=split(" "); print $temp[0]."\n";} else {$_ =~ tr/U/T/; print $_."\n"}' rnacentral_active.fasta > rnacentral_active.rDNA.fasta
             - Subset SILVA sequences in RNAcentral (rnacentral_active.rDNA.fasta)
-            -
+                blobtools seqfilter -i rnacentral_active.rDNA.fasta -l id_mapping.SILVA.names.txt
+    - Taxify blast result against SILVA sequences in RNAcentral
+    -
+To do:
+- check that create makes cov files when bam
+- move all *.py to bloblib
+- change imports
+-
 
+bwa mem -t 52 -M -R '@RG\tID:nHa.MiSeq.400\tSM:nHa.1\tPL:illumina\tLB:nHa.MiSeq.400\tPU:unit1' \
+assembly/nHa.MiSeq.400.clc.se.fna \
+/exports/colossus/howardula/howardula_aoronymphium/analysis/1_adapter_trimming/nHa.MiSeq.400.trim.1.fastq.gz \
+/exports/colossus/howardula/howardula_aoronymphium/analysis/1_adapter_trimming/nHa.MiSeq.400.trim.2.fastq.gz \
+| samtools view -bS - > nHa.MiSeq.400.vs.nHa.MiSeq.400.clc.se.bam ; \
+bwa mem -t 52 -M -R '@RG\tID:nDp.HiSeq.200.B\tSM:nDp.1\tPL:illumina\tLB:nDp.HiSeq.200\tPU:unit1' \
+assembly/nHa.MiSeq.400.clc.se.fna \
+/exports/colossus/howardula/howardula_aoronymphium/analysis/1_adapter_trimming/nDp.HiSeq.200.B.trim.1.fastq.gz \
+/exports/colossus/howardula/howardula_aoronymphium/analysis/1_adapter_trimming/nDp.HiSeq.200.B.trim.2.fastq.gz \
+| samtools view -bS - > nDp.HiSeq.200.B.vs.nHa.MiSeq.400.clc.se.bam ; exit
 
-New feature:
+Milestones:
+- deal with problematic sequences in databases (nr)
+    - by type (transposons)
+    - find non-informative sequences and ignore
+    - take contigs that have "weird colour"
+    - extract sequence, blast,
+    - overenthusiasticly predicted proteins
+    - ribosomal promotor associated proteins (ORF in rRNA)
+    - aging genes in plants (ORF in rRNA)
+- new blastdb format (will speed everythin up)
+- automated testing
 
-problematic sequences in databases (nr)
-- by type (transposons)
-- find non-informative sequences and ignore
-- take contigs that have "weird colour"
-- extract sequence, blast,
-- overenthusiasticly predicted proteins
-- ribosomal promotor associated proteins (ORF in rRNA)
-- aging genes in plants (ORF in rRNA)
 
 
 Format

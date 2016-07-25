@@ -32,13 +32,13 @@ class BlobDb():
 
     def view(self, **kwargs):
         # arguments
-        print BtLog.status_d['14']
         viewObjs = kwargs['viewObjs']
         ranks = kwargs['ranks']
         taxrule = kwargs['taxrule']
         hits_flag = kwargs['hits_flag']
         seqs = kwargs['seqs']
         cov_libs = kwargs['cov_libs']
+        progress_bar = kwargs['progressbar']
 
         # Default sequences if no subset
         if not (seqs):
@@ -64,7 +64,8 @@ class BlobDb():
                     viewObj.tax[taxrule] = {rank : [] for rank in BtTax.RANKS}
         # bodies
         for i, seq in enumerate(seqs):
-            BtLog.progress(i, 1000, len(seqs))
+            if (progress_bar):
+                BtLog.progress(i, 1000, len(seqs))
             blob = self.dict_of_blobs[seq]
             for viewObj in viewObjs:
                 if viewObj.name == 'table':
@@ -90,8 +91,8 @@ class BlobDb():
                         viewObj.body[rank].append(self.getConcoctTaxLine(blob, rank, taxrule))
                 if viewObj.name == 'covlib':
                     viewObj.body.append(self.getCovLine(blob, cov_lib_names))
-        BtLog.progress(len(seqs), 1000, len(seqs))
-        print BtLog.status_d['19']
+        if (progress_bar):
+            BtLog.progress(len(seqs), 1000, len(seqs))
         for viewObj in viewObjs:
             viewObj.output()
 
@@ -346,6 +347,10 @@ class BlobDb():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
+                # Create COV file for future use
+                out_f = BtIO.getOutFile(covLib.f, None, None)
+                covView = ViewObj(name="covlib", out_f=out_f, suffix="cov", header="", body=[])
+                self.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[covLib.name], progressbar=False)
 
             elif covLib.fmt == 'cas':
                 cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseCas(covLib.f, self.order_of_blobs)
