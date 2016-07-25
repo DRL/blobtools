@@ -519,12 +519,12 @@ def readNodesDB(nodesDB_f):
         for line in fh:
             if line.startswith("#"):
                 nodesDB_count = int(line.lstrip("# nodes_count = ").rstrip("\n"))
-            nodes_count += 1
-            print nodesDB_count
-            node, rank, name, parent = line.rstrip("\n").split("\t")
-            nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
-            if (nodesDB_count):
-                BtLog.progress(i, 1000, nodesDB_count)
+            else:
+                nodes_count += 1
+                node, rank, name, parent = line.rstrip("\n").split("\t")
+                nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
+                if (nodesDB_count):
+                    BtLog.progress(i, 1000, nodesDB_count)
     nodesDB['nodes_count'] = nodes_count
     return nodesDB
 
