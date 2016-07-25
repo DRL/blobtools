@@ -67,7 +67,7 @@ def main():
 
     with open(out_f, "w") as fh:
         print BtLog.status_d['24'] % out_f
-        fh.write("".join(output))
+        fh.write("\n".join(output))
 
 if __name__ == '__main__':
     main()
