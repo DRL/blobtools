@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: taxify                -i BLAST -t TAXIDS [-o PREFIX]
-                                [--diamond] [--blast] [-h|--help]
+"""usage: blobtools taxify          -i BLAST [-t TAXIDS] [--taxid INT]
+                                    [-o PREFIX] [--diamond] [--blast] [-h|--help]
 
     Options:
         -h --help                     show this
@@ -39,14 +39,20 @@ def main():
     rnacentral = args['--rnacentral']
 
     out_f, taxid_d = '', {}
-    if (rnacentral) and isfile(taxid_f):
-        print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+    if (rnacentral):
+        if (taxid_f):
+            print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+            taxid_d = BtIO.parseDict(taxid_f, 0, 3)
+        else:
+            BtLog.error('39')
         out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
-        taxid_d = BtIO.parseDict(taxid_f, 0, 3)
-    elif (diamond) and isfile(taxid_f):
-        print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+    elif (diamond):
+        if (taxid_f):
+            print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+            taxid_d = BtIO.parseDict(taxid_f, 0, 1)
+        else:
+            BtLog.error('39')
         out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
-        taxid_d = BtIO.parseDict(taxid_f, 0, 1)
     elif (taxid):
         out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
         taxid_d = defaultdict(lambda: taxid)

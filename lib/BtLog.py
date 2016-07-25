@@ -61,7 +61,7 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: Please specify the nature of the similarity search result (--blast or --diamond).',
+    '26' : '[ERROR:26]\t: Please specify type similarity search result (--blast or --diamond) or a single TAXID',
     '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
     '29' : '[ERROR:29]\t: No mapping reads found in %s',
@@ -73,7 +73,8 @@ error_d = {
     '35' : '[ERROR:35] : Directory %s could not be created',
     '36' : '[ERROR:36] : View %s could not be created',
     '37' : '[ERROR:37] : %s does not seem to be a valid %s file',
-    '38' : '[ERROR:38] : %s is not an integer'
+    '38' : '[ERROR:38] : %s is not an integer',
+    '39' : '[ERROR:39] : Please specify a taxid file (mapping subjects to taxids)',
 }
 
 warn_d = {
