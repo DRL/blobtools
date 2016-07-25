@@ -522,7 +522,7 @@ def readNodesDB(nodesDB_f):
             nodes_count += 1
             node, rank, name, parent = line.rstrip("\n").split("\t")
             nodesDB[node] = {'rank' : rank, 'name' : name, 'parent' : parent}
-            if (nodesDB_count)
+            if (nodesDB_count):
                 BtLog.progress(i, 1000, nodesDB_count)
     nodesDB['nodes_count'] = nodes_count
     return nodesDB
