@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools taxify          -i BLAST [-t TAXIDS] [--taxid INT]
-                                    [-o PREFIX] [--diamond] [--rnacentral] [-h|--help]
+"""usage: blobtools taxify          -i BLAST [-d FILE] [-r FILE] [-t INT]
+                                    [-o PREFIX] [-h|--help]
 
     Options:
         -h --help                     show this
         -i, --infile <TAXFILE>        Similarity search results of sequences (BLAST/Diamond TSV format)
-        -t, --taxids <TAXIDS>         TAXID file
-        --taxid <INT>                 TAXID
+        -r, --rnacentral <TAXIDS>     RNAcentral TAXID file
+        -d, --diamond <TAXIDS>        Diamond TAXID file
+        -t, --taxid <INT>             TAXID (must be integer)
         -o, --out <PREFIX>            Output prefix
-        --rnacentral                  TAXFILE is BLAST and TAXIDS is from rnacentral (SILVA analysis)
-        --diamond                     TAXFILE is Diamond output (*.daa)
 """
 
 from __future__ import division
@@ -28,34 +27,28 @@ def main():
     #print data_dir
     args = docopt(__doc__)
     tax_f = args['--infile']
-    taxid_f = args['--taxids']
 
     prefix = args['--out']
-    diamond = args['--diamond']
-    rnacentral = args['--rnacentral']
-
+    diamond_f = args['--diamond']
+    rnacentral_f = args['--rnacentral']
     try:
         taxid = int(args['--taxid'])
     except TypeError:
         BtLog.error('26')
 
     out_f, taxid_d = '', {}
-    if (taxid_f):
-        print BtLog.status_d['1'] % ("TAXID file", taxid_f)
-        if (rnacentral):
-            taxid_d = BtIO.parseDict(taxid_f, 0, 3)
-            out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
-        elif (diamond):
-            taxid_d = BtIO.parseDict(taxid_f, 0, 1)
-            out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
-        else:
-            BtLog.error('26')
-    elif (taxid):
+    if (taxid):
         out_f = BtIO.getOutFile(tax_f, prefix, "taxified.out")
         taxid_d = defaultdict(lambda: taxid)
+    elif (rnacentral):
+        print BtLog.status_d['1'] % ("TAXID file", taxid_f)
+        taxid_d = BtIO.parseDict(taxid_f, 0, 3)
+        out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
+    elif (diamond):
+        taxid_d = BtIO.parseDict(taxid_f, 0, 1)
+        out_f = BtIO.getOutFile(tax_f, prefix, "diamond.out")
     else:
         BtLog.error('26')
-
 
     output = []
     with open(tax_f) as fh:

@@ -61,7 +61,7 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: Cov file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: Please specify type similarity search result (--rnacentral or --diamond) or a single TAXID (--taxid INT)',
+    '26' : '[ERROR:26]\t: Please specify type similarity search result (--rnacentral FILE or --diamond FILE) or a single TAXID (--taxid INT)',
     '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
     '29' : '[ERROR:29]\t: No mapping reads found in %s',
