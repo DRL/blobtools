@@ -39,22 +39,25 @@ def main():
     items = BtIO.parseSet(list_f)
 
     print BtLog.status_d['22'] % fasta_f
-    parsed_items = []
+    items_parsed = []
     sequences = 0
     for header, sequence in BtIO.readFasta(fasta_f):
         sequences += 1
         if header in items:
             if not (invert):
-                parsed_items.append(header)
+                items_parsed.append(header)
                 output.append(">%s\n%s\n" % (header, sequence))
         else:
             if (invert):
-                parsed_items.add(header)
+                items_parsed.append(header)
                 output.append(">%s\n%s\n" % (header, sequence))
         BtLog.progress(len(output), 10, len(items), no_limit=True)
-    print BtLog.status_d['23'] % ('{:.2%}'.format(parsed_items/sequences), parsed_items, sequences)
-    if not len(parsed_items) == len(set(parsed_items)):
-        print BtLog.warn_d['8'] % "\n\t".join(list(set([x for x in parsed_items if parsed_items.count(x) > 1])))
+    BtLog.progress(len(output), 10, len(items))
+    items_parsed_count = len(items_parsed)
+    items_parsed_count_unique = len(set(items_parsed))
+    print BtLog.status_d['23'] % ('{:.2%}'.format(items_parsed_count/sequences), items_parsed_count, sequences)
+    if not items_parsed_count == items_parsed_count_unique:
+        print BtLog.warn_d['8'] % "\n\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1])))
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 
