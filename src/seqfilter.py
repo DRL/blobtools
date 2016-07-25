@@ -38,14 +38,17 @@ if __name__ == '__main__':
     items = BtIO.parseSet(list_f)
     output = []
     print BtLog.status_d['22'] % fasta_f
+    seen_items = set()
     for header, sequence in BtIO.readFasta(fasta_f):
         if header in items:
             if not (invert):
+                seen_items.add(header)
                 output.append(">%s\n%s\n" % (header, sequence))
         else:
             if (invert):
+                seen_items.add(header)
                 output.append(">%s\n%s\n" % (header, sequence))
-        BtLog.progress(len(output), 10, len(items))
+        BtLog.progress(len(output), 10, len(items), no_limit=True)
     with open(out_f, "w") as fh:
         fh.write("".join(output))
 

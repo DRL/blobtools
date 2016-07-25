@@ -19,10 +19,14 @@ def error(message, *argv):
         print error_d[message] % (argv)
     exit(1) # change to exit with the actual ERROR number (different than 0)
 
-def progress(iteration, steps, max_value):
+def progress(iteration, steps, max_value, **kwargs):
     if int(iteration) == max_value:
-        sys.stdout.write('\r')
-        print "[PROGRESS]\t: \t%d%%" % (100)
+        if kwargs['no_limit'] == True:
+            sys.stdout.write('\r')
+            print "[PROGRESS]\t: \t%d%%" % (100),
+        else:
+            sys.stdout.write('\r')
+            print "[PROGRESS]\t: \t%d%%" % (100),
     elif int(iteration) % steps == 0:
         sys.stdout.write('\r')
         print "[PROGRESS]\t: \t%d%%" % (float(int(iteration)/int(max_value))*100),
