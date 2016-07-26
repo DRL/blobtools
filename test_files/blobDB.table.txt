@@ -1,0 +1,18 @@
+## blobtools v0.9.19
+## assembly	: /Users/dominik/git/blobtools/test_files/test.assembly.fna
+## coverage	: bam0 - /Users/dominik/git/blobtools/test_files/test.mapping_1.bam
+## taxonomy	: tax0 - /Users/dominik/git/blobtools/test_files/test.blast.out
+## nodesDB	: None
+## taxrule	: bestsum
+##
+# name	length	GC	N	bam0	phylum.t.6	phylum.s.7	phylum.c.8
+contig_1	756	0.2606	0	90.4060846561	Actinobacteria	200.0	0
+contig_2	1060	0.2623	0	168.409433962	Actinobacteria	2300.0	0
+contig_3	602	0.2342	0	43.7607973422	Actinobacteria	10000.0	0
+contig_4	951	0.3155	0	456.313354364	Actinobacteria	1000.0	0
+contig_5	614	0.329	0	163.557003257	Nematoda	2000.0	0
+contig_6	216	0.1944	0	25.8796296296	Tardigrada	4000.0	2
+contig_7	4060	0.2584	0	52.3123152709	Nematoda	2000.0	0
+contig_8	2346	0.2801	0	91.742114237	unresolved	2000.0	1
+contig_9	1599	0.2439	0	74.7567229518	Nematoda	200.0	0
+contig_10	6273	0.3067	0	310.633668101	Nematoda	200.0	0

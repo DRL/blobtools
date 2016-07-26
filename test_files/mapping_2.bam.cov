@@ -2,7 +2,7 @@
 ## Total Reads = 37278
 ## Mapped Reads = 37278
 ## Unmapped Reads = 0
-## Source(s) : /Users/dominik/git/blobtools/test_data/test.mapping_2.bam
+## Source(s) : /Users/dominik/git/blobtools/test_files/mapping_2.bam
 # contig_id	read_cov	base_cov
 contig_1	489	141.55026455
 contig_2	622	137.903773585

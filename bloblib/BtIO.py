@@ -351,7 +351,7 @@ def parseCov(infile, set_of_blobs):
                     seqs_parsed += 1
                     name, base_cov = match.group(1), float(match.group(2))
                     if name not in set_of_blobs:
-                        print BtLog.warn_d['2'] % (name, infile)
+                        print BtLog.warn_d['2'] % (name)
                     else:
                         base_cov_dict[name] = base_cov
             BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
@@ -471,11 +471,10 @@ def parseNodesDB(**kwargs):
         if not isfile(nodesDB_f):
             BtLog.error('0', nodesDB_f)
         print BtLog.status_d['4'] % (nodesDB_f)
-        nodesDB = readNodesDB(nodesDB_f)
-        #try:
-        #    nodesDB = readNodesDB(nodesDB_f)
-        #except:
-        #    BtLog.error('27', nodesDB_f)
+        try:
+            nodesDB = readNodesDB(nodesDB_f)
+        except:
+            BtLog.error('27', nodesDB_f)
     elif (nodesDB_default):
         if not isfile(nodesDB_default):
             BtLog.error('28')
