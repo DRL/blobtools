@@ -65,17 +65,11 @@ if __name__ == '__main__':
         exit(call(['python', LIBDIR + 'map2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
-<<<<<<< HEAD
-        exit(call(['python', main_dir + 'covplot.py'] + argv))
-    elif args['<command>'] == 'sumcov':
-        exit(call(['python', main_dir + 'sumcov.py'] + argv))
-=======
         exit(call(['python', LIBDIR + 'covplot.py'] + argv))
     elif args['<command>'] == 'seqfilter':
         exit(call(['python', LIBDIR + 'seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':
         exit(call(['python', LIBDIR + 'taxify.py'] + argv))
->>>>>>> 73757a2cd391f66e107e32a90dd2c672d1008624
     else:
         exit(call(['./blobtools', '--help']))
 
