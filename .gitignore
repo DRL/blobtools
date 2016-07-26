@@ -1,6 +1,4 @@
-testing/
-testing_fly/
-*.json
+nodesDB.txt
+tests/
 *.pyc
-*.txt
 *.png
