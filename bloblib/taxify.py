@@ -46,7 +46,7 @@ def main():
         taxid_d = BtIO.parseDict(rnacentral_f, 0, 3)
         out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
     elif (diamond_f):
-        taxid_d = BtIO.parseDict(rnacentral_f, 0, 1)
+        taxid_d = BtIO.parseDict(diamond_f, 0, 1)
         out_f = BtIO.getOutFile(diamond_f, prefix, "diamond.out")
     else:
         BtLog.error('26')
