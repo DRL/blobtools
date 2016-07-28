@@ -10,7 +10,7 @@
                                         (BLAST/Diamond TSV format)
         -d, --diamond <TAXIDS>        Diamond TAXID file
         -r, --rnacentral <TAXIDS>     RNAcentral TAXID file
-        -t, --taxid <INT>             TAXID (must be integer)
+        -t, --taxid <INT>             TaxID (must be integer)
         --force                       Overwrite existing TaxIDs
         -o, --out <PREFIX>            Output prefix
 """
@@ -67,9 +67,10 @@ def main():
                 else:
                     print BtLog.warn_d['10'] % (idx+1, line[0], line[1])
 
-    with open(out_f, "w") as fh:
-        print BtLog.status_d['24'] % out_f
-        fh.write("\n".join(output))
+    if output:
+        with open(out_f, "w") as fh:
+            print BtLog.status_d['24'] % out_f
+            fh.write("\n".join(output))
 
 if __name__ == '__main__':
     main()
