@@ -63,7 +63,7 @@ def main():
                 output.append("%s\t%s\t%s\t%s" % (line[0], taxid_d[line[1]], line[11], "\t".join(line[1:])))
             else:
                 if line[1] == 'N/A' or force:
-                    output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:])))
+                    output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:5])))
                 else:
                     print BtLog.warn_d['10'] % (idx+1, line[0], line[1])
 
