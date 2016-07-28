@@ -248,7 +248,7 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
     read_cov_dict = {blob : 0 for blob in set_of_blobs}
     cigar_match_re = re.compile(r"(\d+)M|X|=") # only gets digits before M,X,='s
     # execute samtools to get only mapped reads (no optial duplicates, no 2nd-ary alignment)
-    command = "samtools view -F 1028 -F 4 -F 256 " + infile
+    command = "samtools view -F 1024 -F 4 -F 256 " + infile
     seen_reads = 0
     #import time
     #start = time.time()
