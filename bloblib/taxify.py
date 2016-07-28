@@ -46,17 +46,19 @@ def main():
         taxid_d = BtIO.parseDict(rnacentral_f, 0, 3)
         out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
     elif (diamond_f):
+        print BtLog.status_d['1'] % ("TAXID file", diamond_f)
         taxid_d = BtIO.parseDict(diamond_f, 0, 1)
         out_f = BtIO.getOutFile(diamond_f, prefix, "diamond.out")
     else:
         BtLog.error('26')
 
     output = []
+    print BtLog.status_d['1'] % ("taxonomy file", tax_f)
     with open(tax_f) as fh:
         for l in fh:
             line = l.rstrip("\n").split()
             if (diamond_f):
-                output.append("%s\t%s\t%s" % (line[0], taxid_d[line[1]], line[11], "\t".join(line[2:])))
+                output.append("%s\t%s\t%s\t%s" % (line[0], taxid_d[line[1]], line[11], "\t".join(line[2:])))
             else:
                 output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:])))
     with open(out_f, "w") as fh:
