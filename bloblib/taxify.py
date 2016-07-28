@@ -55,8 +55,10 @@ def main():
     with open(tax_f) as fh:
         for l in fh:
             line = l.rstrip("\n").split()
-            output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:])))
-
+            if (diamond_f):
+                output.append("%s\t%s\t%s" % (line[0], taxid_d[line[1]], line[11], "\t".join(line[2:])))
+            else:
+                output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:])))
     with open(out_f, "w") as fh:
         print BtLog.status_d['24'] % out_f
         fh.write("\n".join(output))
