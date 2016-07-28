@@ -6,7 +6,8 @@
 
     Options:
         -h --help                     show this
-        -i, --infile <TAXFILE>        Similarity search results of sequences (BLAST/Diamond TSV format)
+        -i, --infile <TAXFILE>        Similarity search results of sequences
+                                        (BLAST/Diamond TSV format)
         -d, --diamond <TAXIDS>        Diamond TAXID file
         -r, --rnacentral <TAXIDS>     RNAcentral TAXID file
         -t, --taxid <INT>             TAXID (must be integer)
@@ -46,7 +47,7 @@ def main():
         out_f = BtIO.getOutFile(tax_f, prefix, "rnacentral.out")
     elif (diamond_f):
         taxid_d = BtIO.parseDict(rnacentral_f, 0, 1)
-        out_f = BtIO.getOutFile(rnacentral_f, prefix, "diamond.out")
+        out_f = BtIO.getOutFile(diamond_f, prefix, "diamond.out")
     else:
         BtLog.error('26')
 

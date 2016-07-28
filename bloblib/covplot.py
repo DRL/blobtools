@@ -40,7 +40,8 @@
                                      span  : span-weighted histograms
                                      count : count histograms
         -r, --rank <RANK>           Taxonomic rank used for colouring of blobs [default: phylum]
-                                     (Supported: species, genus, family, order, phylum, superkingdom)
+                                     (Supported: species, genus, family, order,
+                                        phylum, superkingdom)
         -x, --taxrule <TAXRULE>     Taxrule which has been used for computing taxonomy
                                      (Supported: bestsum, bestsumorder) [default: bestsum]
         --format FORMAT             Figure format for plot (png, pdf, eps, jpeg,
@@ -57,7 +58,7 @@
                                      per coverage file. (e.g.: bam0,900,100). If provided, info
                                      will be used in read coverage plot(s).
         --catcolour <FILE>            Colour plot based on categories from FILE
-                                     (format : "seq\tcategory").
+                                     (format : "seq,category").
 """
 
 from __future__ import division

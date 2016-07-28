@@ -9,20 +9,18 @@ Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 from __future__ import division
 import re
 import subprocess
-from os.path import basename, isfile, abspath, splitext, join, isdir
-import shutil
 import os
-import sys
+from os.path import basename, isfile, splitext, join, isdir
+import shutil
 import bloblib.BtLog as BtLog
-from collections import deque
 
 
 def create_dir(directory="", overwrite=True):
-    if (directory):
+    if directory:
         if not isdir(directory):
             os.makedirs(directory)
         else:
-            if (overwrite):
+            if overwrite:
                 shutil.rmtree(directory)           #removes all the subdirectories!
                 os.makedirs(directory)
         return directory
@@ -31,7 +29,7 @@ def create_dir(directory="", overwrite=True):
 
 def parseList(infile):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     with open(infile) as fh:
         items = []
         for l in fh:
@@ -40,7 +38,7 @@ def parseList(infile):
 
 def parseReferenceCov(infile):
     refcov_dict = {}
-    if (infile):
+    if infile:
         if not isfile(infile):
             BtLog.error('0', infile)
         with open(infile) as fh:
@@ -55,7 +53,7 @@ def parseReferenceCov(infile):
 
 def parseCmdlist(temp):
     _list = []
-    if (temp):
+    if temp:
         if "," in temp:
             _list = temp.split(",")
         else:
@@ -65,7 +63,7 @@ def parseCmdlist(temp):
 def parseCmdLabels(labels):
     label_d = {}
     name, groups = '', ''
-    if (labels):
+    if labels:
         try:
             for label in labels:
                 name, groups = str(label).split("=")
@@ -80,7 +78,7 @@ def parseCmdLabels(labels):
 
 def parseCatColour(infile):
     catcolour_dict = {}
-    if (infile):
+    if infile:
         if not isfile(infile):
             BtLog.error('0', infile)
         with open(infile) as fh:
@@ -94,7 +92,7 @@ def parseCatColour(infile):
 
 def parseDict(infile, key, value):
     items = {}
-    if (infile):
+    if infile:
         if not isfile(infile):
             BtLog.error('0', infile)
         with open(infile) as fh:
@@ -108,7 +106,7 @@ def parseDict(infile, key, value):
 
 def parseColours(infile):
     items = {}
-    if (infile):
+    if infile:
         if not isfile(infile):
             BtLog.error('0', infile)
         with open(infile) as fh:
@@ -119,7 +117,7 @@ def parseColours(infile):
 
 def parseSet(infile):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     with open(infile) as fh:
         items = set()
         for l in fh:
@@ -134,12 +132,12 @@ def parseFastaNameOrder(infile):
 
 def readFasta(infile):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     with open(infile) as fh:
         header, seqs = '', []
         for l in fh:
             if l[0] == '>':
-                if (header):
+                if header:
                     yield header, ''.join(seqs)
                 header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
             else:
@@ -173,8 +171,8 @@ def which(program):
 def checkBam(infile):
     print BtLog.status_d['10']
     if not isfile(infile):
-         BtLog.error('0', infile)
-    if not (which('samtools')):
+        BtLog.error('0', infile)
+    if not which('samtools'):
         BtLog.error('7')
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
     reads_secondary_re = re.compile(r"(\d+)\s\+\s\d+\ssecondary")
@@ -189,14 +187,15 @@ def checkBam(infile):
     reads_mapped = reads_mapped - reads_secondary
     reads_total = int(reads_total_re.search(output).group(1))
     # check whether there are reads in BAM
-    if not (reads_total) or not (reads_mapped):
-          BtLog.error('29' % infile)
-    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    if not reads_total or not reads_mapped:
+        BtLog.error('29' % infile)
+    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), \
+        '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return reads_total, reads_mapped
 
 def parseSam(infile, set_of_blobs, no_base_cov_flag):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     base_cov_dict = {blob : [] for blob in set_of_blobs}
     read_cov_dict = {blob : 0 for blob in set_of_blobs}
     cigar_match_re = re.compile(r"(\d+)M|X|=") # only gets digits before M,X,='s
@@ -241,7 +240,7 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
 
     '''
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     reads_total, reads_mapped = checkBam(infile)
     progress_unit = int(reads_mapped/1000)
     base_cov_dict = {blob : [] for blob in set_of_blobs}
@@ -308,7 +307,7 @@ def parseCovFromHeader(fasta_type, header):
 
 def parseCov(infile, set_of_blobs):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     old_cov_line_re = re.compile(r"^(\S+)\t(\d+\.*\d*)")
     base_cov_dict = {}
 
@@ -361,7 +360,7 @@ def parseCov(infile, set_of_blobs):
 def checkCas(infile):
     print BtLog.status_d['12']
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     if not (which('clc_mapping_info')):
         BtLog.error('20')
     seqs_total_re = re.compile(r"\s+Contigs\s+(\d+)")
@@ -380,7 +379,7 @@ def checkCas(infile):
 
 def parseCas(infile, order_of_blobs):
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     seqs_total, reads_total, reads_mapped = checkCas(infile)
     progress_unit = int(len(order_of_blobs)/100)
     cas_line_re = re.compile(r"\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+.\d{2})\s+(\d+)\s+(\d+.\d{2})")
@@ -413,7 +412,7 @@ def readTax(infile, set_of_blobs):
         - add as key-value pairs to hitDict
     '''
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
@@ -507,7 +506,7 @@ def readNamesNodes(names_f, nodes_f):
         for line in fh:
             names_col = line.split("\t")
             if names_col[6] == "scientific name":
-               nodesDB[names_col[0]]['name'] = names_col[2]
+                nodesDB[names_col[0]]['name'] = names_col[2]
     nodesDB['nodes_count'] = nodes_count
     return nodesDB
 
@@ -545,7 +544,7 @@ def byteify(input):
     http://stackoverflow.com/a/13105359
     '''
     if isinstance(input, dict):
-        return {byteify(key):byteify(value) for key,value in input.iteritems()}
+        return {byteify(key):byteify(value) for key, value in input.iteritems()}
     elif isinstance(input, list):
         return [byteify(element) for element in input]
     elif isinstance(input, unicode):
@@ -580,7 +579,7 @@ def parseJsonGzip(infile):
 def parseJson(infile):
     '''http://artem.krylysov.com/blog/2015/09/29/benchmark-python-json-libraries/'''
     if not isfile(infile):
-         BtLog.error('0', infile)
+        BtLog.error('0', infile)
     import time
     start = time.time()
     json_parser = ''

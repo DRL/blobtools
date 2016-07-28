@@ -24,8 +24,6 @@ import bloblib.BtLog as BtLog
 import bloblib.BtIO as BtIO
 
 def main():
-    main_dir = dirname(__file__)
-    #print data_dir
     args = docopt(__doc__)
     fasta_f = args['--infile']
     list_f = args['--list']
