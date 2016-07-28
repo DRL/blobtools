@@ -86,7 +86,8 @@ warn_d = {
     '6' : '[WARN]\t\t: Sum of coverage in cov lib %s is 0.0. Please ignore this warning if "--no_base_cov" was specified.',
     '7' : '[WARN]\t\t: No taxonomy information found.',
     '8' : '[WARN]\t\t: Duplicated sequences found :\n\t\t\t%s',
-    '9' : '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...'
+    '9' : '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
+    '10' : '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)'
 
 }
 status_d = {
