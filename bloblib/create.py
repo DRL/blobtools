@@ -4,7 +4,7 @@
 """usage: blobtools create     -i FASTA [-y FASTATYPE] [-o PREFIX] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>]
-                              [-t TAX...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
+                              [-t HITS...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
                               [-h|--help]
 
     Options:
@@ -12,9 +12,8 @@
         -i, --infile FASTA              FASTA file of assembly. Headers are split at whitespaces.
         -y, --type FASTATYPE            Assembly program used to create FASTA. If specified,
                                         coverage will be parsed from FASTA header.
-                                        (Parsing supported for 'spades', 'soap',
-                                            'velvet', 'abyss', 'platanus')
-        -t, --taxfile TAX...            Taxonomy file in format (qseqid\\ttaxid\\tbitscore)
+                                        (Parsing supported for 'spades', 'velvet', 'platanus')
+        -t, --hitsfile HITS...          Hits file in format (qseqid\\ttaxid\\tbitscore)
                                         (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
         -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs
                                         is computed [default: bestsum]
@@ -61,7 +60,7 @@ def main():
     bam_fs = args['--bam']
     cov_fs = args['--cov']
     cas_fs = args['--cas']
-    hit_fs = args['--taxfile']
+    hit_fs = args['--hitsfile']
     prefix = args['--out']
     nodesDB_f = args['--db']
     names_f = args['--names']

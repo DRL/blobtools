@@ -62,10 +62,11 @@ def main():
             if diamond_f:
                 output.append("%s\t%s\t%s\t%s" % (line[0], taxid_d[line[1]], line[11], "\t".join(line[1:])))
             else:
-                if line[1] == 'N/A' or force:
+                if line[1] == 'N/A' or force: # so that it does not overwrite existing taxIDs
                     output.append("%s\t%s\t%s" % (line[0], taxid_d[line[3]], "\t".join(line[2:5])))
                 else:
                     print BtLog.warn_d['10'] % (idx+1, line[0], line[1])
+                    output.append("%s\t%s\t%s" % (line[0], line[1], "\t".join(line[2:5])))
 
     if output:
         with open(out_f, "w") as fh:

@@ -437,7 +437,7 @@ class BlObj():
                      if self.agct_count > 0 else 0.0)
 
     def addCov(self, lib_name, cov):
-        self.covs[lib_name] = cov
+        self.covs[lib_name] = float("{0:.3f}".format(cov)) # changed to three decimal digits
 
     def addReadCov(self, lib_name, read_cov):
         self.read_cov[lib_name] = read_cov
