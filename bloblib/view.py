@@ -11,12 +11,14 @@
         -i, --input <BLOBDB>        BlobDB file (created with "blobtools create")
         -o, --out <OUT>             Output prefix
         -l, --list <LIST>           List of sequence names (file).
-        -x, --taxrule <TAXRULE>     Taxrule used for computing taxonomy (supported: "bestsum", "bestsumorder")
+        -x, --taxrule <TAXRULE>     Taxrule used for computing taxonomy
+                                    (supported: "bestsum", "bestsumorder")
                                     [default: bestsum]
         -r, --rank <TAXRANK>...     Taxonomic rank(s) at which output will be written.
                                     (supported: 'species', 'genus', 'family', 'order',
                                     'phylum', 'superkingdom', 'all') [default: phylum]
-        -b, --hits                  Displays taxonomic hits from tax files that contributed to the taxonomy.
+        -b, --hits                  Displays taxonomic hits from tax files
+                                    that contributed to the taxonomy.
         --concoct                   Generate concoct files [default: False]
         --cov                       Generate cov files [default: False]
         --experimental              Experimental output [default: False]
@@ -25,8 +27,7 @@
 
 from __future__ import division
 from docopt import docopt
-
-from os.path import basename, isfile, join, dirname, abspath
+from os.path import isfile, dirname, abspath
 from sys import path
 path.append(dirname(dirname(abspath(__file__))))
 

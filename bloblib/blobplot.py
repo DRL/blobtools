@@ -34,7 +34,8 @@
                                      span  : span-weighted histograms
                                      count : count histograms
         -r, --rank <RANK>           Taxonomic rank used for colouring of blobs [default: phylum]
-                                     (Supported: species, genus, family, order, phylum, superkingdom)
+                                     (Supported: species, genus, family, order,
+                                        phylum, superkingdom)
         -x, --taxrule <TAXRULE>     Taxrule which has been used for computing taxonomy
                                      (Supported: bestsum, bestsumorder) [default: bestsum]
         --format FORMAT             Figure format for plot (png, pdf, eps, jpeg,

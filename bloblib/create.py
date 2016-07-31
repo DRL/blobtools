@@ -4,7 +4,7 @@
 """usage: blobtools create     -i FASTA [-y FASTATYPE] [-o PREFIX] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>]
-                              [-t TAX...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
+                              [-t HITS...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
                               [-h|--help]
 
     Options:
@@ -12,12 +12,15 @@
         -i, --infile FASTA              FASTA file of assembly. Headers are split at whitespaces.
         -y, --type FASTATYPE            Assembly program used to create FASTA. If specified,
                                         coverage will be parsed from FASTA header.
-                                        (Parsing supported for 'spades', 'soap', 'velvet', 'abyss', 'platanus')
-        -t, --taxfile TAX...            Taxonomy file in format (qseqid\\ttaxid\\tbitscore)
+                                        (Parsing supported for 'spades', 'velvet', 'platanus')
+        -t, --hitsfile HITS...          Hits file in format (qseqid\\ttaxid\\tbitscore)
                                         (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
-        -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs is computed [default: bestsum]
-                                        "bestsum"       : sum bitscore across all hits for each taxonomic rank
-                                        "bestsumorder"  : sum bitscore across all hits for each taxonomic rank.
+        -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs
+                                        is computed [default: bestsum]
+                                        "bestsum"       : sum bitscore across all
+                                                          hits for each taxonomic rank
+                                        "bestsumorder"  : sum bitscore across all
+                                                          hits for each taxonomic rank.
                                                   - If first <TAX> file supplies hits, bestsum is calculated.
                                                   - If no hit is found, the next <TAX> file is used.
         -m, --min_diff <FLOAT>          Minimal score difference between highest scoring
@@ -30,7 +33,7 @@
         -b, --bam <BAM>...              BAM file(s) (requires samtools in $PATH)
         -s, --sam <SAM>...              SAM file(s)
         -a, --cas <CAS>...              CAS file(s) (requires clc_mapping_info in $PATH)
-        -c, --cov <COV>...              TAB separated. (seqID\\tcoverage)
+        -c, --cov <COV>...              COV file(s)
         -o, --out <PREFIX>              BlobDB output prefix
         --title TITLE                   Title of BlobDB [default: output prefix)
 """
@@ -57,7 +60,7 @@ def main():
     bam_fs = args['--bam']
     cov_fs = args['--cov']
     cas_fs = args['--cas']
-    hit_fs = args['--taxfile']
+    hit_fs = args['--hitsfile']
     prefix = args['--out']
     nodesDB_f = args['--db']
     names_f = args['--names']
