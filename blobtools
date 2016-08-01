@@ -43,7 +43,7 @@ except ImportError:
     sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
-__version__ = "blobtools v0.9.19"
+__version__ = "blobtools v0.9.19.2"
 MAINDIR = join(dirname(__file__), '')
 DATADIR = join(MAINDIR, 'data/')
 LIBDIR = join(MAINDIR, 'bloblib/')
