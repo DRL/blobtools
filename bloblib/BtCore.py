@@ -242,9 +242,10 @@ class BlobDb():
                 else:
                     group = str(blob['taxonomy'][taxrule][rank]['c_index'])
             else: # annotation with taxonomic group
-                if taxrule not in self.taxrules:
+                if not (taxrule) or taxrule not in self.taxrules:
                     BtLog.warn_d['9'] % (taxrule, self.taxrules)
-                group = str(blob['taxonomy'][taxrule][rank]['tax'])
+                if taxrule in blob['taxonomy']:
+                    group = str(blob['taxonomy'][taxrule][rank]['tax'])
             if not group in data_dict:
                 data_dict[group] = {
                                     'name' : [],
