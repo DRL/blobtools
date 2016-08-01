@@ -170,7 +170,8 @@ def main():
         if not (no_plot_blobs):
             plotObj.plotScatter(cov_lib, info_flag, out_f)
             info_flag = 0
-        if not (no_plot_reads):
+        if not (no_plot_reads) and (plotObj.cov_libs_total_reads_dict[cov_lib]):
+            # prevent plotting if --noreads or total_reads == 0
             plotObj.plotBar(cov_lib, out_f)
     plotObj.write_stats(out_f)
 
