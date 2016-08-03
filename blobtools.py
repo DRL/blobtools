@@ -43,7 +43,7 @@ except ImportError:
     sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
-__version__ = "blobtools v0.9.19"
+__version__ = "blobtools v0.9.19.3"
 MAINDIR = join(dirname(__file__), '')
 DATADIR = join(MAINDIR, 'data/')
 LIBDIR = join(MAINDIR, 'bloblib/')
@@ -71,5 +71,5 @@ if __name__ == '__main__':
     elif args['<command>'] == 'taxify':
         exit(call(['python', LIBDIR + 'taxify.py'] + argv))
     else:
-        exit(call(['./blobtools', '--help']))
+        exit(call(['python', MAINDIR + 'blobtools.py', '--help']))
 
