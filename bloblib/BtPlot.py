@@ -547,7 +547,7 @@ class PlotObj():
                     group_y_array = array(self.stats[group]['covs'][cov_lib])
                 elif self.plot == 'covplot':
                     group_x_array = array(self.stats[group]['covs'][cov_lib])
-                    group_y_array = array([self.cov_y_dict.get(name, 0.02) for name in self.stats[group]['name']])
+                    group_y_array = array([self.cov_y_dict[name] if self.cov_y_dict[name] > 0.02 else 0.02 for name in self.stats[group]['name']])
                 else:
                     BtLog.error('34', self.plot)
                 marker_size_array = []
