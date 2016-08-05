@@ -2,3 +2,4 @@ nodesDB.txt
 tests/
 *.pyc
 *.png
+test_files/blobDB.table.txt
