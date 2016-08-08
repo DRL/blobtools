@@ -113,7 +113,7 @@ def main():
                 try:
                     tax_id = taxid_d[subject_id]
                 except KeyError:
-                    BtLog.error('42', subject_id, map_f)
+                    print BtLog.warn_d['11'] % (subject_id, map_f)
                     tax_id = "N/A"
                 output.append("%s\t%s\t%s\t%s" % (query_id, tax_id, bitscore, rest))
 

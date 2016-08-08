@@ -74,8 +74,7 @@ error_d = {
     '38' : '[ERROR:38] : %s is not an integer',
     '39' : '[ERROR:39] : Please specify a taxid file (mapping subjects to taxids)',
     '40' : '[ERROR:40] : CovLib \'%s\' not specified in refcov file',
-    '41' : '[ERROR:41] : Please specify either a ID-to-taxID mapping file or a taxID.',
-    '42' : '[ERROR:42] : SubjectID %s not found in ID-to-taxID mapping file %s.'
+    '41' : '[ERROR:41] : Please specify either a ID-to-taxID mapping file or a taxID.'
 }
 
 warn_d = {
@@ -89,7 +88,8 @@ warn_d = {
     '7' : '[WARN]\t\t: No taxonomy information found.',
     '8' : '[WARN]\t\t: Duplicated sequences found :\n\t\t\t%s',
     '9' : '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
-    '10' : '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)'
+    '10' : '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)',
+    '11' : '[WARN]\t\t: SubjectID %s not found in ID-to-taxID mapping file %s.'
 
 }
 status_d = {
