@@ -59,7 +59,7 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: COV file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: Please specify either --blast FILE or --diamond FILE or --taxid INT.',
+    '26' : '[ERROR:26]\t: Please specify either --blast FILE or --diamond FILE.',
     '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
     '29' : '[ERROR:29]\t: No mapping reads found in %s',
