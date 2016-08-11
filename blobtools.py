@@ -14,6 +14,7 @@ commands:
     map2cov       generate cov file from bam file
     seqfilter     filter FASTA sequences based on header in list
     taxify        assign taxids to blast-results based on list
+    bamfilter     filter reads in a BAM file
 
     -h, --help      show this
     -v, --version   show version number
@@ -43,7 +44,7 @@ except ImportError:
     sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
-__version__ = "blobtools v0.9.19.3"
+__version__ = "blobtools v0.9.19"
 MAINDIR = join(dirname(__file__), '')
 DATADIR = join(MAINDIR, 'data/')
 LIBDIR = join(MAINDIR, 'bloblib/')
@@ -70,6 +71,8 @@ if __name__ == '__main__':
         exit(call(['python', LIBDIR + 'seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':
         exit(call(['python', LIBDIR + 'taxify.py'] + argv))
+    elif args['<command>'] == 'bamfilter':
+        exit(call(['python', LIBDIR + 'bamfilter.py'] + argv))
     else:
-        exit(call(['python', MAINDIR + 'blobtools.py', '--help']))
+        exit(call(['./blobtools', '--help']))
 

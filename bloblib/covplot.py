@@ -128,10 +128,7 @@ def main():
     plotObj.exclude_groups = exclude_groups
     plotObj.version = blobDb.version
     plotObj.format = format
-    if max_cov <= axis_max:
-        plotObj.max_cov = max_cov
-    else:
-        plotObj.max_cov = axis_max
+    plotObj.max_cov = axis_max
     plotObj.no_title = no_title
     plotObj.multiplot = multiplot
     plotObj.hist_type = hist_type
@@ -162,7 +159,7 @@ def main():
             plotObj.ylabel = ylabel
         if (xlabel):
             plotObj.xlabel = xlabel
-        out_f = "%s.%s.%s.p%s.%s.%s.%s" % (blobDb.title, taxrule, rank, max_group_plot, hist_type, min_length, cov_f.replace(".","_"))
+        out_f = "%s.%s.%s.p%s.%s.%s" % (blobDb.title, taxrule, rank, max_group_plot, hist_type, min_length)
         if catcolour_dict:
             out_f = "%s.%s" % (out_f, "catcolour")
         if ignore_contig_length:

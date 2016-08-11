@@ -59,7 +59,7 @@ error_d = {
     '23' : '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24' : '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25' : '[ERROR:25]\t: COV file %s does not seem to have the right format.',
-    '26' : '[ERROR:26]\t: Please specify either --blast FILE or --diamond FILE.',
+    '26' : '[ERROR:26]\t: Please specify either --blast FILE or --diamond FILE or --taxid INT.',
     '27' : '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28' : '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
     '29' : '[ERROR:29]\t: No mapping reads found in %s',
@@ -74,14 +74,17 @@ error_d = {
     '38' : '[ERROR:38] : %s is not an integer',
     '39' : '[ERROR:39] : Please specify a taxid file (mapping subjects to taxids)',
     '40' : '[ERROR:40] : CovLib \'%s\' not specified in refcov file',
-    '41' : '[ERROR:41] : Please specify either a ID-to-taxID mapping file or a taxID.'
+    '41' : '[ERROR:41] : Please specify either a ID-to-taxID mapping file or a taxID.',
+    '42' : '[ERROR:42] : SubjectID %s not found in ID-to-taxID mapping file %s.',
+    '43' : '[ERROR:43] : %s could not be found.'
+
 }
 
 warn_d = {
     '0' : '[WARN]\t\t: No tax files specified.',
     '1' : '[WARN]\t\t: %s not in colour file %s ...',
     '2' : '[WARN]\t\t: %s is not part of the assembly',
-    '3' : '[WARN]\t\t: samtools flagstat reported %s mapped reads, %s mapped reads were parsed',
+    '3' : '\n[WARN]\t\t: Based on samtools flagstat: expected %s reads, %s reads were parsed',
     '4' : '[WARN]\t\t: No coverage data found in %s',
     '5' : '[WARN]\t\t: Hit for sequence %s in tax file %s has multiple taxIds, only first one is used.',
     '6' : '[WARN]\t\t: Sum of coverage in cov lib %s is 0.0. Please ignore this warning if "--no_base_cov" was specified.',
@@ -89,7 +92,7 @@ warn_d = {
     '8' : '[WARN]\t\t: Duplicated sequences found :\n\t\t\t%s',
     '9' : '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
     '10' : '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)',
-    '11' : '[WARN]\t\t: SubjectID %s not found in ID-to-taxID mapping file %s.'
+    '11' : '\n[WARN]\t\t: The BAM file appears to be truncated.',
 
 }
 status_d = {
@@ -116,11 +119,14 @@ status_d = {
     '20': '[STATUS]\t: \tFinished in %ss',
     '22': '[STATUS]\t: Filtering %s ...',
     '23': '[STATUS]\t: Extracted %s (list=%s, parsed=%s, total=%s) ...',
-    '24': '[STATUS]\t: Writing %s'
+    '24': '[STATUS]\t: Writing %s',
+    '25': '[STATUS]\t: Gzip\'ing %s'
 }
 
 info_d = {
-    '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt'
+    '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt',
+    '1' : '\t[INFO]\t: Total pairs = %s',
+    '2' : '\t[INFO]\t: %s pairs  = %s (%s)'
     }
 
 if __name__ == "__main__":
