@@ -222,7 +222,7 @@ class BlobDb():
         data_dict = {}
         read_cov_dict = {}
         max_cov = 0.0
-
+        min_cov = 1000.0
         cov_lib_dict = self.covLibs
         cov_lib_names_l = self.covLibs.keys() # does not include cov_sum
         if len(cov_lib_names_l) > 1:
@@ -243,7 +243,7 @@ class BlobDb():
                     group = str(blob['taxonomy'][taxrule][rank]['c_index'])
             else: # annotation with taxonomic group
                 if not (taxrule) or taxrule not in self.taxrules:
-                    print BtLog.warn_d['9'] % (taxrule, self.taxrules)
+                    BtLog.warn_d['9'] % (taxrule, self.taxrules)
                 if taxrule in blob['taxonomy']:
                     group = str(blob['taxonomy'][taxrule][rank]['tax'])
             if not group in data_dict:
@@ -277,6 +277,8 @@ class BlobDb():
                     cov = float(blob['covs'][cov_lib])
                     if cov < 0.02:
                         cov = 0.02
+                    if cov < min_cov:
+                        min_cov = cov
                     # increase max_cov
                     if cov > max_cov:
                         max_cov = cov
@@ -297,7 +299,7 @@ class BlobDb():
                     if (reads_mapped_sum):
                         data_dict[group]['reads_mapped']['covsum'] += reads_mapped_sum
 
-        return data_dict, max_cov, cov_lib_dict
+        return data_dict, min_cov, max_cov, cov_lib_dict
 
     def addCovLib(self, covLib):
         self.covLibs[covLib.name] = covLib

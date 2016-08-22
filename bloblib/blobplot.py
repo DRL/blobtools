@@ -117,12 +117,13 @@ def main():
 
     # Generate plot data
     print BtLog.status_d['18']
-    data_dict, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
+    data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot')
     plotObj.exclude_groups = exclude_groups
     plotObj.version = blobDb.version
     plotObj.format = format
     plotObj.max_cov = max_cov
+    plotObj.min_cov = min_cov
     plotObj.no_title = no_title
     plotObj.multiplot = multiplot
     plotObj.hist_type = hist_type
