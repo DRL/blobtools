@@ -86,14 +86,14 @@ def set_format_scatterplot(axScatter, **kwargs):
         min_x, max_x = 0, 1
         major_xticks = MultipleLocator(0.2)
         minor_xticks = AutoMinorLocator(20)
-        min_y, max_y = 0.005, kwargs['max_cov']+1000
+        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
         axScatter.set_yscale('log')
         axScatter.set_xscale('linear')
         axScatter.xaxis.set_major_locator(major_xticks)
         axScatter.xaxis.set_minor_locator(minor_xticks)
     elif kwargs['plot'] == 'covplot':
-        min_x, max_x = 0.005, kwargs['max_cov']+1000
-        min_y, max_y = 0.005, kwargs['max_cov']+1000
+        min_x, max_x = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
+        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
         axScatter.set_yscale('log')
         axScatter.set_xscale('log')
     else:
@@ -416,7 +416,7 @@ class PlotObj():
             # Setting up plots and axes
             fig = plt.figure(1, figsize=(35,35), dpi=400)
             axScatter = plt.axes(rect_scatter, axisbg=BGGREY)
-            axScatter = set_format_scatterplot(axScatter, max_cov=self.max_cov, plot=plot)
+            axScatter = set_format_scatterplot(axScatter, min_cov=self.min_cov, max_cov=self.max_cov, plot=plot)
             axScatter.set_xlabel(self.xlabel)
             axScatter.set_ylabel(self.ylabel)
             axHistx = plt.axes(rect_histx, axisbg=BGGREY)
@@ -439,10 +439,22 @@ class PlotObj():
             top_bins, right_bins = None, None
             if plot == 'blobplot':
                 top_bins = arange(0, 1, 0.01)
-                right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                if self.min_cov >= 1:
+                    right_bins = logspace(0, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                elif self.min_cov >= 0.1:
+                    right_bins = logspace(-1, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                else:
+                    right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
             elif plot == 'covplot':
-                top_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
-                right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                if self.min_cov >= 1:
+                    top_bins = logspace(0, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                    right_bins = logspace(0, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                elif self.min_cov >= 0.1:
+                    top_bins = logspace(-1, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                    right_bins = logspace(-1, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                else:
+                    top_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
+                    right_bins = logspace(-2, (int(math.log(self.max_cov)) + 1), 200, base=10.0)
             else:
                 pass
             return fig, axScatter, axHistx, axHisty, axLegend, top_bins, right_bins

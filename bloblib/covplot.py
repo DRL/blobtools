@@ -122,7 +122,7 @@ def main():
 
     # Generate plot data
     print BtLog.status_d['18']
-    data_dict, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
+    data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'covplot')
     plotObj.cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(cov_f, set(blobDb.dict_of_blobs))
     plotObj.exclude_groups = exclude_groups
