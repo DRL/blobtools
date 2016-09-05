@@ -124,9 +124,7 @@ status_d = {
 }
 
 info_d = {
-    '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt',
-    '1' : '\t[INFO]\t: Total pairs = %s',
-    '2' : '\t[INFO]\t: %s pairs  = %s (%s)'
+    '0' : '\t[INFO]\t: %s : sequences = %s, span = %s MB, N50 = %s nt'
     }
 
 if __name__ == "__main__":
