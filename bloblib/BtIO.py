@@ -300,7 +300,7 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
     if not isfile(infile):
         BtLog.error('0', infile)
     if do_sort:
-        command = 'samtools sort -@ sort_threads -n -O bam -T temp -o %s.readsorted.bam %s' % infile
+        command = 'samtools sort -@ sort_threads -n -O bam -T temp -o %s.readsorted.bam %s' % (infile, infile)
         runCmd(command=command, wait=True)
         infile = "%s.readsorted.bam" % infile
 
