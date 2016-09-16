@@ -56,23 +56,23 @@ if __name__ == '__main__':
 
     argv = [args['<command>']] + args['<args>']
     if args['<command>'] == 'create':
-        exit(call(['python', LIBDIR + 'create.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'create.py'] + argv))
     elif args['<command>'] == 'view':
-        exit(call(['python', LIBDIR + 'view.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'view.py'] + argv))
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
         argv[0] = "blobplot"
-        exit(call(['python', LIBDIR + 'blobplot.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'blobplot.py'] + argv))
     elif args['<command>'] == 'map2cov':
-        exit(call(['python', LIBDIR + 'map2cov.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'map2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
-        exit(call(['python', LIBDIR + 'covplot.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'covplot.py'] + argv))
     elif args['<command>'] == 'seqfilter':
-        exit(call(['python', LIBDIR + 'seqfilter.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':
-        exit(call(['python', LIBDIR + 'taxify.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'taxify.py'] + argv))
     elif args['<command>'] == 'bamfilter':
-        exit(call(['python', LIBDIR + 'bamfilter.py'] + argv))
+        exit(call([sys.executable, LIBDIR + 'bamfilter.py'] + argv))
     else:
         exit(call(['./blobtools', '--help']))
 
