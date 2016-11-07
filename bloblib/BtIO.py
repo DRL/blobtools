@@ -197,7 +197,7 @@ def checkBam(infile):
     reads_mapped = int(reads_mapped_re.search(output).group(1))
     reads_secondary = int(reads_secondary_re.search(output).group(1))
     reads_supplementary = int(reads_supplementary_re.search(output).group(1))
-    reads_mapped = reads_mapped - reads_secondary - reads_secondary
+    reads_mapped = reads_mapped - reads_secondary - reads_supplementary
     reads_total = int(reads_total_re.search(output).group(1)) - reads_secondary - reads_supplementary
     # check whether there are reads in BAM
     if not reads_total or not reads_mapped:
