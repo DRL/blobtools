@@ -371,7 +371,7 @@ class PlotObj():
         self.stats = stats
 
     def relabel_and_colour(self, colour_dict, user_labels):
-
+        #print user_labels
         if (colour_dict):
             groups = self.group_order[0:self.max_group_plot]
             groups_not_in_colour_dict = set(groups) - set(colour_dict.keys())
@@ -379,16 +379,23 @@ class PlotObj():
                 colour_dict[group] = WHITE
         else:
             groups = self.group_order[0:self.max_group_plot]
-            colour_groups = [group if not (group in user_labels) else user_labels[group] for group in groups]
+            #print groups
+            colour_groups = list(set([group if not (group in user_labels) else user_labels[group] for group in groups]))
+            #print colour_groups
             colour_dict = generateColourDict(colour_groups)
+            #print colour_dict
         for idx, group in enumerate(self.group_order):
             if group in self.exclude_groups:
                 pass
             elif group in user_labels:
+                #print group, "in user_labels"
                 label = user_labels[group]
+                #print label
                 self.group_labels[group].add(label)
+                #print self.group_labels[group]
                 self.group_labels[group].add(group)
-                self.colours[label] = colour_dict[group]
+                #print self.group_labels[group]
+                self.colours[label] = colour_dict[user_labels[group]]
                 if label not in self.plot_order:
                     self.plot_order.append(label)
             elif group in colour_dict:
