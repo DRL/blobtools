@@ -414,6 +414,7 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
             BtLog.progress(seen_reads, progress_unit, reads_mapped)
     if not int(reads_mapped) == int(seen_reads):
         print BtLog.warn_d['3'] % (reads_mapped, seen_reads)
+        reads_mapped = seen_reads
     base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
     #end = time.time()
     #print (end-start)
