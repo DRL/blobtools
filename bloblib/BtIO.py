@@ -332,7 +332,7 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
             seen_reads += 2
             read2 = next(iterator).split()
             read_pair_type = "".join(sorted([sequence_to_type_dict[read1[2]], sequence_to_type_dict[read2[2]]]))
-            print_bam(read_pair_out_fs, read_pair_type, read1, read2)
+            #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
             read_pair_seqs[read_pair_type] += get_read_pair_seqs(read1, read2)
             read_pair_count[read_pair_type] += 1
             BtLog.progress(seen_reads, progress_unit, reads_total)
@@ -340,7 +340,7 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
                 used_fhs = write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs)
                 read_pair_seqs = {read_pair_type : tuple() for read_pair_type in read_pair_count}
         except StopIteration:
-                print BtLog.warn_d['11']
+            print BtLog.warn_d['11']
     used_fhs = write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs)
     close_fhs(used_fhs)
     # info log
