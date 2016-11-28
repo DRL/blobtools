@@ -481,7 +481,7 @@ def parseCov(infile, set_of_blobs):
                         seqs_parsed += 1
                         name, read_cov, base_cov = match.group(1), int(match.group(2)), float(match.group(3))
                         if name not in set_of_blobs:
-                            print BtLog.warn_d['2'] % (name, infile)
+                            print BtLog.warn_d['2'] % (name)
                         else:
                             read_cov_dict[name] = read_cov
                             base_cov_dict[name] = base_cov
