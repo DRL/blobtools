@@ -98,7 +98,7 @@ def main():
             if blast_f:
                 bitscore = line[2]
                 tax_id = line[1]
-                subject_id = line[3]
+                subject_id = line[4]
                 rest = "\t".join(line[2:])
             elif diamond_f:
                 bitscore = line[11]
@@ -121,6 +121,7 @@ def main():
         with open(out_f, "w") as fh:
             print BtLog.status_d['24'] % out_f
             fh.write("\n".join(output))
+
 if __name__ == '__main__':
     main()
 
