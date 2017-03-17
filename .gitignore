@@ -1,4 +1,4 @@
-nodesDB.txt
+data/nodesDB.txt
 tests/
 *.pyc
 *.png

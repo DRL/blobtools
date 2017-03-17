@@ -142,9 +142,9 @@ def plot_ref_legend(axScatter, max_length, max_marker_size, ignore_contig_length
         ref2_length, ref2_string, ref2_markersize = get_ref_label(max_length, max_marker_size, 0.1)
         ref3_length, ref3_string, ref3_markersize = get_ref_label(max_length, max_marker_size, 0.25)
         # markersize in scatter is in "points^2", markersize in Line2D is in "points" ... that's why we need math.sqrt()
-        ref_1 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref1_markersize),  markerfacecolor=GREY))
-        ref_2 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref2_markersize), markerfacecolor=GREY))
-        ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref3_markersize), markerfacecolor=GREY))
+        ref_1 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref1_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
+        ref_2 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref2_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
+        ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref3_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
         axScatter.legend([ref_1,ref_2,ref_3], [ref1_string, ref2_string, ref3_string], numpoints=1, ncol = 3, loc = 8, fontsize=LEGEND_FONTSIZE, borderpad=1.2, labelspacing=1.8, handlelength=1, handletextpad=1)
 
 def plot_legend(fig, axLegend, out_f, legend_flag, format, cumulative_flag):
@@ -422,13 +422,13 @@ class PlotObj():
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
             fig = plt.figure(1, figsize=(35,35), dpi=400)
-            axScatter = plt.axes(rect_scatter, axisbg=BGGREY)
+            axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
             axScatter = set_format_scatterplot(axScatter, min_cov=self.min_cov, max_cov=self.max_cov, plot=plot)
             axScatter.set_xlabel(self.xlabel)
             axScatter.set_ylabel(self.ylabel)
-            axHistx = plt.axes(rect_histx, axisbg=BGGREY)
+            axHistx = plt.axes(rect_histx, facecolor=BGGREY)
             axHistx = set_format_hist_x(axHistx, axScatter)
-            axHisty = plt.axes(rect_histy, axisbg=BGGREY)
+            axHisty = plt.axes(rect_histy, facecolor=BGGREY)
             axHisty = set_format_hist_y(axHisty, axScatter)
             if self.hist_type == "span":
                 axHistx.set_ylabel("Span (kb)")
@@ -438,7 +438,7 @@ class PlotObj():
                 axHisty.set_xlabel("Count", rotation='horizontal')
             for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram
                 xtick.set_rotation(270)
-            axLegend = plt.axes(rect_legend, axisbg=WHITE)
+            axLegend = plt.axes(rect_legend, facecolor=WHITE)
             axLegend.xaxis.set_major_locator(plt.NullLocator())
             axLegend.xaxis.set_major_formatter(nullfmt)
             axLegend.yaxis.set_major_locator(plt.NullLocator())
@@ -474,13 +474,13 @@ class PlotObj():
             gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
 
             ax_main = plt.subplot(gs[0])
-            ax_main.set_axis_bgcolor(BGGREY)
+            ax_main.set_facecolor(BGGREY)
             ax_main.set_ylim(0, 1.1)
             ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
             ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
 
             ax_group = plt.subplot(gs[1])
-            ax_group.set_axis_bgcolor(BGGREY)
+            ax_group.set_facecolor(BGGREY)
             ax_group.set_ylim(0, 1.1)
             ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
             ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
@@ -588,7 +588,7 @@ class PlotObj():
                 label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
                 if (info_flag):
                     print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
-                legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
+                legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=BLACK, markerfacecolor=colour))
                 legend_labels.append(label)
 
                 weights_array = None
@@ -603,7 +603,7 @@ class PlotObj():
                     fig_m, axScatter_m, axHistx_m, axHisty_m, axLegend_m, top_bins, right_bins = self.setupPlot(self.plot)
                     legend_handles_m = []
                     legend_labels_m = []
-                    legend_handles_m.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markerfacecolor=colour))
+                    legend_handles_m.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=BLACK, markerfacecolor=colour))
                     legend_labels_m.append(label)
                     axHistx_m.hist(group_x_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
                     axHisty_m.hist(group_y_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)

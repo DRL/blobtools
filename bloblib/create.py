@@ -105,7 +105,7 @@ def main():
         print BtLog.warn_d['0']
 
     # Parse coverage
-    blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=None)
+    blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=None, prefix=prefix)
 
     # Generating BlobDB and writing to file
     print BtLog.status_d['7'] % out_f

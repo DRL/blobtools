@@ -46,7 +46,7 @@ def main():
     blobDb = BtCore.BlobDb('cov')
     blobDb.version = blobtools.__version__
     blobDb.parseFasta(fasta_f, None)
-    blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=no_base_cov_flag)
+    blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=no_base_cov_flag, prefix=prefix)
 
 if __name__ == '__main__':
     main()

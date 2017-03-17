@@ -357,7 +357,7 @@ class BlobDb():
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
                 # Create COV file for future use
-                out_f = BtIO.getOutFile(covLib.f, None, None)
+                out_f = BtIO.getOutFile(covLib.f, kwargs.get('prefix', None), None)
                 covView = ViewObj(name="covlib", out_f=out_f, suffix="cov", header="", body=[])
                 self.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[covLib.name], progressbar=False)
 
@@ -369,7 +369,7 @@ class BlobDb():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
-                out_f = BtIO.getOutFile(covLib.f, None, None)
+                out_f = BtIO.getOutFile(covLib.f, kwargs.get('prefix', None), None)
                 covView = ViewObj(name="covlib", out_f=out_f, suffix="cov", header="", body=[])
                 self.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[covLib.name], progressbar=False)
 
