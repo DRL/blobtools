@@ -422,13 +422,20 @@ class PlotObj():
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
             fig = plt.figure(1, figsize=(35,35), dpi=400)
-            axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
+            try:
+                axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
+            except AttributeError:
+                axScatter = plt.axes(rect_scatter, axisbg=BGGREY)
             axScatter = set_format_scatterplot(axScatter, min_cov=self.min_cov, max_cov=self.max_cov, plot=plot)
             axScatter.set_xlabel(self.xlabel)
             axScatter.set_ylabel(self.ylabel)
-            axHistx = plt.axes(rect_histx, facecolor=BGGREY)
+            try:
+                axHistx = plt.axes(rect_histx, facecolor=BGGREY)
+                axHisty = plt.axes(rect_histy, facecolor=BGGREY)
+            except AttributeError:
+                axHistx = plt.axes(rect_histx, axisbg=BGGREY)
+                axHisty = plt.axes(rect_histy, axisbg=BGGREY)
             axHistx = set_format_hist_x(axHistx, axScatter)
-            axHisty = plt.axes(rect_histy, facecolor=BGGREY)
             axHisty = set_format_hist_y(axHisty, axScatter)
             if self.hist_type == "span":
                 axHistx.set_ylabel("Span (kb)")
@@ -438,7 +445,11 @@ class PlotObj():
                 axHisty.set_xlabel("Count", rotation='horizontal')
             for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram
                 xtick.set_rotation(270)
-            axLegend = plt.axes(rect_legend, facecolor=WHITE)
+
+            try:
+                axLegend = plt.axes(rect_legend, facecolor=WHITE)
+            except AttributeError:
+                axLegend = plt.axes(rect_legend, axisbg=WHITE)
             axLegend.xaxis.set_major_locator(plt.NullLocator())
             axLegend.xaxis.set_major_formatter(nullfmt)
             axLegend.yaxis.set_major_locator(plt.NullLocator())
