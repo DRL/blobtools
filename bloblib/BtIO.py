@@ -142,11 +142,11 @@ def readFasta(infile):
         for l in fh:
             if l[0] == '>':
                 if header:
-                    yield header, ''.join(seqs)
+                    yield header, ''.join(seqs).upper()
                 header, seqs = l[1:-1].split()[0], [] # Header is split at first whitespace
             else:
                 seqs.append(l[:-1])
-        yield header, ''.join(seqs)
+        yield header, ''.join(seqs).upper()
 
 def runCmd(**kwargs):
     command = kwargs['command']
