@@ -186,8 +186,8 @@ def checkBam(infile):
     if not which('samtools'):
         BtLog.error('7')
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
-    reads_secondary_re = re.compile(r"(\d+)\s\+\s\d+\ssecondary")
-    reads_supplementary_re = re.compile(r"(\d+)\s\+\s\d+\ssupplementary")
+    #reads_secondary_re = re.compile(r"(\d+)\s\+\s\d+\ssecondary")
+    #reads_supplementary_re = re.compile(r"(\d+)\s\+\s\d+\ssupplementary")
     reads_total_re = re.compile(r"(\d+)\s\+\s\d+\sin total")
     reads_total, reads_mapped = 0, 0
     output = ''
@@ -195,10 +195,11 @@ def checkBam(infile):
     for line in runCmd(command=command):
         output += line
     reads_mapped = int(reads_mapped_re.search(output).group(1))
-    reads_secondary = int(reads_secondary_re.search(output).group(1))
-    reads_supplementary = int(reads_supplementary_re.search(output).group(1))
-    reads_mapped = reads_mapped - reads_secondary - reads_supplementary
-    reads_total = int(reads_total_re.search(output).group(1)) - reads_secondary - reads_supplementary
+    #reads_secondary = int(reads_secondary_re.search(output).group(1))
+    #reads_supplementary = int(reads_supplementary_re.search(output).group(1))
+    #reads_mapped = reads_mapped - reads_secondary - reads_supplementary
+    reads_total = int(reads_total_re.search(output).group(1)) # - reads_secondary - reads_supplementary
+
     # check whether there are reads in BAM
     if not reads_total or not reads_mapped:
         BtLog.error('29' % infile)
