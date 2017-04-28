@@ -421,7 +421,7 @@ class PlotObj():
         if plot == 'blobplot' or plot == 'covplot':
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
-            fig = plt.figure(1, figsize=(35,35), dpi=400)
+            fig = plt.figure(1, figsize=(15,15), dpi=400)
             try:
                 axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
             except AttributeError:
@@ -481,7 +481,7 @@ class PlotObj():
             if (self.refcov_dict):
                 main_columns += 2
             group_columns = len(self.plot_order)
-            fig = plt.figure(1, figsize=(30, 10), dpi=200)
+            fig = plt.figure(1, figsize=(15, 5), dpi=200)
             gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
 
             ax_main = plt.subplot(gs[0])
