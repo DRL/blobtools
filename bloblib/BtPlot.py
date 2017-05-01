@@ -485,13 +485,19 @@ class PlotObj():
             gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
 
             ax_main = plt.subplot(gs[0])
-            ax_main.set_facecolor(BGGREY)
+            try:
+                ax_main.set_facecolor(BGGREY)
+            except AttributeError:
+                ax_main.set_color(BGGREY)
             ax_main.set_ylim(0, 1.1)
             ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
             ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
 
             ax_group = plt.subplot(gs[1])
-            ax_group.set_facecolor(BGGREY)
+            try:
+                ax_group.set_facecolor(BGGREY)
+            except AttributeError:
+                ax_group.set_color(BGGREY)
             ax_group.set_ylim(0, 1.1)
             ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
             ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
