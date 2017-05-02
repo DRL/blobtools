@@ -445,7 +445,6 @@ class PlotObj():
                 axHisty.set_xlabel("Count", rotation='horizontal')
             for xtick in axHisty.get_xticklabels(): # rotate text for ticks in cov histogram
                 xtick.set_rotation(270)
-
             try:
                 axLegend = plt.axes(rect_legend, facecolor=WHITE)
             except AttributeError:

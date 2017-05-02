@@ -93,7 +93,7 @@ warn_d = {
     '9': '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
     '10': '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)',
     '11': '\n[WARN]\t\t: The BAM file appears to be truncated.',
-
+    '12': '[WARN] : SubjectID %s not found in ID-to-taxID mapping file %s.'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',
