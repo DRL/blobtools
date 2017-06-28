@@ -5,7 +5,7 @@
                                 [-p INT] [-l INT] [--cindex] [-n] [-s]
                                 [-r RANK] [-x TAXRULE] [--label GROUPS...]
                                 [--lib COVLIB] [-o PREFIX] [-m]
-                                [--sort ORDER] [--hist HIST] [--notitle] [--filelabel]
+                                [--sort ORDER] [--sort_first LABELS] [--hist HIST] [--notitle] [--filelabel]
                                 [--colours FILE] [--exclude FILE]
                                 [--refcov FILE] [--catcolour FILE]
                                 [--format FORMAT] [--noblobs] [--noreads] [--legend]
@@ -30,6 +30,8 @@
         --sort <ORDER>              Sort order for plotting [default: span]
                                      span  : plot with decreasing span
                                      count : plot with decreasing count
+        --sort_first <L1,L2,...>    Labels that should always be plotted first, regardless of sort order
+                                     ("no-hit,other,undef" is often a useful setting)
         --hist <HIST>               Data for histograms [default: span]
                                      span  : span-weighted histograms
                                      count : count histograms
@@ -91,6 +93,7 @@ def main():
     multiplot = args['--multiplot']
     out_prefix = args['--out']
     sort_order = args['--sort']
+    sort_first = args['--sort_first']
     hist_type = args['--hist']
     no_title = args['--notitle']
     ignore_contig_length = args['--noscale']
@@ -118,7 +121,7 @@ def main():
     # Generate plot data
     print BtLog.status_d['18']
     data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
-    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot')
+    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot', sort_first)
     plotObj.exclude_groups = exclude_groups
     plotObj.version = blobDb.version
     plotObj.format = format
@@ -132,7 +135,7 @@ def main():
     plotObj.legend_flag = legend_flag
     plotObj.cumulative_flag = cumulative_flag
     # order by which to plot (should know about user label)
-    plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order)
+    plotObj.group_order = BtPlot.getSortedGroups(data_dict, sort_order, sort_first)
     # labels for each level of stats
     plotObj.labels.update(plotObj.group_order)
     # plotObj.group_labels is dict that contains labels for each group : all/other/user_label
