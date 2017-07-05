@@ -16,7 +16,7 @@
         -t, --hitsfile HITS...          Hits file in format (qseqid\\ttaxid\\tbitscore)
                                         (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
         -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs
-                                        is computed [default: bestsum]
+                                        is computed [default: bestsum,bestsumorder]
                                         "bestsum"       : sum bitscore across all
                                                           hits for each taxonomic rank
                                         "bestsumorder"  : sum bitscore across all

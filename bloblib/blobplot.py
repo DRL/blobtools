@@ -9,7 +9,7 @@
                                 [--colours FILE] [--exclude FILE]
                                 [--refcov FILE] [--catcolour FILE]
                                 [--format FORMAT] [--noblobs] [--noreads] [--legend]
-                                [--cumulative]
+                                [--cumulative] [--multiplot]
                                 [-h|--help]
 
     Options:
