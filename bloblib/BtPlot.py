@@ -46,7 +46,7 @@ def n50(list_of_lengths):
             break
     return N50
 
-def getSortedGroups(data_dict, sort_order):
+def getSortedGroups(data_dict, sort_order, sort_first=()):
     """ Returns list of sorted groups based on span or count. """
     sorted_groups = []
     if sort_order == 'span':
@@ -55,6 +55,16 @@ def getSortedGroups(data_dict, sort_order):
         sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else None, reverse=True)
     else:
         pass
+
+    # Now shuffle the stuff in sort_first to the front
+    for sf in reversed(sort_first):
+        try:
+            sorted_groups.remove(sf)
+            sorted_groups.insert(0, sf)
+        except ValueError:
+            #It wasn't in the list then. No probs.
+            pass
+
     return sorted_groups
 
 def generateColourDict(groups):
@@ -166,6 +176,7 @@ def check_input(args):
     out_prefix = args['--out']
     max_group_plot = int(args['--plotgroups'])
     sort_order = args['--sort']
+    sort_first = args['--sort_first']
     taxrule = args['--taxrule']
     hist_type = args['--hist']
     no_title = args['--notitle']
@@ -181,6 +192,12 @@ def check_input(args):
     legend_flag = args['--legend']
     cumulative_flag = args['--cumulative']
     cov_lib_selection = args['--lib']
+
+    #Convert sort_first to a list
+    if sort_first:
+        args['--sort_first'] = sort_first.split(',')
+    else:
+        args['--sort_first'] = ()
 
     if 'blobplot' in args or 'covplot' in args:
         # Are ranks sane ?
@@ -201,7 +218,7 @@ def check_input(args):
     return args
 
 class PlotObj():
-    def __init__(self, data_dict, cov_lib_dict, cov_lib_selection, plot_type):
+    def __init__(self, data_dict, cov_lib_dict, cov_lib_selection, plot_type, sort_first=()):
         self.labels = {'all'}
         self.plot = plot_type # type of plot
         self.group_labels = {}
@@ -216,6 +233,7 @@ class PlotObj():
         self.colours = {}
         self.group_order = []
         self.plot_order = []
+        self.sort_first = sort_first
         self.min_cov = 0.01
         self.max_cov = 0.0
         self.out_f = ''
@@ -414,14 +432,29 @@ class PlotObj():
                 self.labels.add('other')
             self.group_labels[group].add('all')
         if 'other' in self.labels:
-            self.plot_order.append('other')
+            if 'other' in self.sort_first:
+                #Slightly tricky. We need to insert 'other' after the location of
+                #the last thing before 'other' in self.sort_first that appears in
+                #self.plot_order, or else put it at the start.
+                ipos = 0
+                for l in reversed(self.sort_first[:self.sort_first.index('other')]):
+                    try:
+                        ipos = self.plot_order.index(l) + 1
+                        break
+                    except ValueError:
+                        #keep looking
+                        pass
+                self.plot_order.insert(ipos, 'other')
+            else:
+                # 'other' gets plotted last by default
+                self.plot_order.append('other')
 
 
     def setupPlot(self, plot):
         if plot == 'blobplot' or plot == 'covplot':
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
-            fig = plt.figure(1, figsize=(35,35), dpi=300)
+            fig = plt.figure(1, figsize=(35,35), dpi=30)
             try:
                 axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
             except AttributeError:
@@ -480,7 +513,7 @@ class PlotObj():
             if (self.refcov_dict):
                 main_columns += 2
             group_columns = len(self.plot_order)
-            fig = plt.figure(1, figsize=(30, 10), dpi=200)
+            fig = plt.figure(1, figsize=(30, 10), dpi=20)
             gs = mat.gridspec.GridSpec(1, 2, width_ratios=[main_columns, group_columns])
 
             ax_main = plt.subplot(gs[0])
