@@ -89,15 +89,25 @@ def main():
     viewObjs = []
     print BtLog.status_d['14']
     if not (notable):
-        tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
+        tableView = None
+        if len(blobDb.hitLibs) > 1:
+            tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="%s.table.txt" % (taxrule), body=[])
+        else:
+            tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix=".table.txt", body=[])
         viewObjs.append(tableView)
     if (experimental):
         experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f)
         viewObjs.append(experimentalView)
     if (concoct):
-        concoctTaxView = BtCore.ViewObj(name="concoct_tax", out_f=out_f, suffix="concoct_taxonomy_info.csv", body=dict())
+        concoctTaxView = None
+        concoctCovView = None
+        if len(blobDb.hitLibs) > 1:
+            concoctTaxView = BtCore.ViewObj(name="concoct_tax", out_f=out_f, suffix="%s.concoct_taxonomy_info.csv" % (taxrule), body=dict())
+            concoctCovView = BtCore.ViewObj(name="concoct_cov", out_f=out_f, suffix="%s.concoct_coverage_info.tsv" % (taxrule), body=[])
+        else:
+            concoctTaxView = BtCore.ViewObj(name="concoct_tax", out_f=out_f, suffix="concoct_taxonomy_info.csv", body=dict())
+            concoctCovView = BtCore.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", body=[])
         viewObjs.append(concoctTaxView)
-        concoctCovView = BtCore.ViewObj(name="concoct_cov", out_f=out_f, suffix="concoct_coverage_info.tsv", body=[])
         viewObjs.append(concoctCovView)
     if (cov):
         for cov_lib_name, covLibDict in blobDb.covLibs.items():
