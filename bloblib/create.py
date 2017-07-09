@@ -16,7 +16,7 @@
         -t, --hitsfile HITS...          Hits file in format (qseqid\\ttaxid\\tbitscore)
                                         (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
         -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs
-                                        is computed [default: bestsum,bestsumorder]
+                                        is computed (by default both are calculated)
                                         "bestsum"       : sum bitscore across all
                                                           hits for each taxonomic rank
                                         "bestsumorder"  : sum bitscore across all
@@ -100,8 +100,8 @@ def main():
     # Parse similarity hits
     if (hit_libs):
         blobDb.parseHits(hit_libs)
-        if "," in taxrules:
-            taxrules = taxrules.split(",")
+        if not taxrules:
+            taxrules = ['bestsum', 'bestsumorder']
         blobDb.computeTaxonomy(taxrules, nodesDB, min_bitscore_diff, tax_collision_random)
     else:
         print BtLog.warn_d['0']
