@@ -101,7 +101,10 @@ def main():
     if (hit_libs):
         blobDb.parseHits(hit_libs)
         if not taxrules:
-            taxrules = ['bestsum', 'bestsumorder']
+            if len(hit_libs) > 1:
+                taxrules = ['bestsum', 'bestsumorder']
+            else:
+                taxrules = ['bestsum']
         blobDb.computeTaxonomy(taxrules, nodesDB, min_bitscore_diff, tax_collision_random)
     else:
         print BtLog.warn_d['0']
