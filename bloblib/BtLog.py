@@ -59,7 +59,7 @@ error_d = {
     '23': '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24': '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25': '[ERROR:25]\t: COV file %s does not seem to have the right format.',
-    '26': '[ERROR:26]\t: Please specify either --blast FILE or --diamond FILE or --taxid INT.',
+    '26': '[ERROR:26]\t: TaxID must be integer.',
     '27': '[ERROR:27]\t: nodesDB ("--db") %s could not be read.',
     '28': '[ERROR:28]\t: Please specify "--names" and "--nodes", or "--db"',
     '29': '[ERROR:29]\t: No mapping reads found in %s',
@@ -74,9 +74,10 @@ error_d = {
     '38': '[ERROR:38] : %s is not an integer',
     '39': '[ERROR:39] : Please specify a taxid file (mapping subjects to taxids)',
     '40': '[ERROR:40] : CovLib \'%s\' not specified in refcov file',
-    '41': '[ERROR:41] : Please specify either a ID-to-taxID mapping file or a taxID.',
-    '42': '[ERROR:42] : SubjectID %s not found in ID-to-taxID mapping file %s.',
-    '43': '[ERROR:43] : %s could not be found.'
+    '41': '[ERROR:41] : Please specify either a mapping file or a taxID.',
+    '42': '[ERROR:42] : SubjectID %s not found in mapping file %s.',
+    '43': '[ERROR:43] : %s could not be found.',
+    '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.'
 
 }
 
@@ -93,7 +94,7 @@ warn_d = {
     '9': '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
     '10': '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)',
     '11': '\n[WARN]\t\t: The BAM file appears to be truncated.',
-    '12': '[WARN] : SubjectID %s not found in ID-to-taxID mapping file %s.'
+    '12': '[WARN] : sseqid %s not found in ID-to-taxID mapping file %s.'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',

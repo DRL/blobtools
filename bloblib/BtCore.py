@@ -275,8 +275,8 @@ class BlobDb():
                 reads_mapped_sum = 0
                 for cov_lib in sorted(cov_lib_names_l):
                     cov = float(blob['covs'][cov_lib])
-                    if cov < 0.02:
-                        cov = 0.02
+                    if cov < 0.1:
+                        cov = 0.1
                     if cov < min_cov:
                         min_cov = cov
                     # increase max_cov
@@ -291,8 +291,8 @@ class BlobDb():
                         data_dict[group]['reads_mapped'][cov_lib] += reads_mapped
                         reads_mapped_sum += reads_mapped
                 if len(cov_lib_names_l) > 1:
-                    if cov_sum < 0.02 :
-                        cov_sum = 0.02
+                    if cov_sum <= 0.1 * len(cov_lib_names_l): # puts no-cov contigs at 0.1
+                        cov_sum = 0.1
                     data_dict[group]['covs']['covsum'].append(cov_sum)
                     if cov_sum > max_cov:
                         max_cov = cov_sum

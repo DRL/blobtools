@@ -234,7 +234,7 @@ class PlotObj():
         self.group_order = []
         self.plot_order = []
         self.sort_first = sort_first
-        self.min_cov = 0.01
+        self.min_cov = 0.1
         self.max_cov = 0.0
         self.out_f = ''
         self.no_title = ''
