@@ -100,6 +100,8 @@ def main():
     # Parse similarity hits
     if (hit_libs):
         blobDb.parseHits(hit_libs)
+        if "," in taxrules:
+            taxrules = taxrules.split(",")
         blobDb.computeTaxonomy(taxrules, nodesDB, min_bitscore_diff, tax_collision_random)
     else:
         print BtLog.warn_d['0']
