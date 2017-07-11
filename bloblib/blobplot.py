@@ -97,7 +97,7 @@ def main():
     hist_type = args['--hist']
     no_title = args['--notitle']
     ignore_contig_length = args['--noscale']
-    format = args['--format']
+    format_plot = args['--format']
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
     legend_flag = args['--legend']
@@ -124,7 +124,7 @@ def main():
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot', sort_first)
     plotObj.exclude_groups = exclude_groups
     plotObj.version = blobDb.version
-    plotObj.format = format
+    plotObj.format = format_plot
     plotObj.max_cov = max_cov
     plotObj.min_cov = min_cov
     plotObj.no_title = no_title

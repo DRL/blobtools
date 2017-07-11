@@ -96,14 +96,14 @@ def set_format_scatterplot(axScatter, **kwargs):
         min_x, max_x = 0, 1
         major_xticks = MultipleLocator(0.2)
         minor_xticks = AutoMinorLocator(20)
-        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
+        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+100
         axScatter.set_yscale('log')
         axScatter.set_xscale('linear')
         axScatter.xaxis.set_major_locator(major_xticks)
         axScatter.xaxis.set_minor_locator(minor_xticks)
     elif kwargs['plot'] == 'covplot':
-        min_x, max_x = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
-        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+1000
+        min_x, max_x = kwargs['min_cov']*0.1, kwargs['max_cov']+100
+        min_y, max_y = kwargs['min_cov']*0.1, kwargs['max_cov']+100
         axScatter.set_yscale('log')
         axScatter.set_xscale('log')
     else:
@@ -242,7 +242,7 @@ class PlotObj():
         self.format = ''
         self.legend_flag = ''
         self.cumulative_flag = ''
-
+        self.dpi = 200
         self.cov_y_dict = {}
         self.xlabel = None
         self.ylabel = None
@@ -454,7 +454,7 @@ class PlotObj():
         if plot == 'blobplot' or plot == 'covplot':
             rect_scatter, rect_histx, rect_histy, rect_legend = set_canvas()
             # Setting up plots and axes
-            fig = plt.figure(1, figsize=(35,35), dpi=30)
+            fig = plt.figure(1, figsize=(35,35), dpi=self.dpi)
             try:
                 axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
             except AttributeError:

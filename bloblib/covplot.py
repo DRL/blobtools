@@ -6,7 +6,8 @@
                                 [--lib COVLIB] [-o PREFIX] [-m]
                                 [-p INT] [-l INT] [--cindex] [-n] [-s]
                                 [-r RANK] [-x TAXRULE] [--label GROUPS...]
-                                [--sort ORDER] [--hist HIST] [--notitle]
+                                [--sort ORDER] [--sort_first LABELS]
+                                [--hist HIST] [--notitle]
                                 [--colours FILE] [--exclude FILE]
                                 [--refcov FILE] [--catcolour FILE]
                                 [--format FORMAT] [--noblobs] [--noreads] [--legend]
@@ -36,6 +37,8 @@
         --sort <ORDER>              Sort order for plotting [default: span]
                                      span  : plot with decreasing span
                                      count : plot with decreasing count
+        --sort_first <L1,L2,...>    Labels that should always be plotted first, regardless of sort order
+                                     ("no-hit,other,undef" is often a useful setting)
         --hist <HIST>               Data for histograms [default: span]
                                      span  : span-weighted histograms
                                      count : count histograms
@@ -90,14 +93,15 @@ def main():
     colour_f = args['--colours']
     refcov_f = args['--refcov']
     catcolour_f = args['--catcolour']
-
+    sort_order = args['--sort']
+    sort_first = args['--sort_first']
     multiplot = args['--multiplot']
     out_prefix = args['--out']
     sort_order = args['--sort']
     hist_type = args['--hist']
     no_title = args['--notitle']
     ignore_contig_length = args['--noscale']
-    format = args['--format']
+    format_plot = args['--format']
     no_plot_blobs = args['--noblobs']
     no_plot_reads = args['--noreads']
     legend_flag = args['--legend']
@@ -123,11 +127,16 @@ def main():
     # Generate plot data
     print BtLog.status_d['18']
     data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
-    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'covplot')
-    plotObj.cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(cov_f, set(blobDb.dict_of_blobs))
+    plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'covplot', sort_first)
+    cov_y_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict = BtIO.parseCov(cov_f, set(blobDb.dict_of_blobs))
+    # set lowest coverage to 0.01
+    for contig in cov_y_dict:
+        if cov_y_dict[contig] < 0.1:
+            cov_y_dict[contig] = 0.1
+    plotObj.cov_y_dict = cov_y_dict
     plotObj.exclude_groups = exclude_groups
     plotObj.version = blobDb.version
-    plotObj.format = format
+    plotObj.format = format_plot
     plotObj.max_cov = axis_max
     plotObj.no_title = no_title
     plotObj.multiplot = multiplot
