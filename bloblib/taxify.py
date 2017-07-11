@@ -3,7 +3,7 @@
 
 """usage: blobtools taxify          -f FILE [-a INT] [-b INT] [-c INT]
                                     [-m FILE] [-s INT] [-t INT]
-                                    [--taxid INT]
+                                    [-i FILE] [-x INT] [-v FLOAT]
                                     [-o PREFIX] [-h|--help]
 
     Options:
