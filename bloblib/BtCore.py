@@ -34,6 +34,9 @@ class BlobDb():
         self.taxrules = []
         self.version = ''
         self.view_dir = ''
+        self.min_score = 0.0
+        self.min_diff = 0.0
+        self.tax_collision_random = False
 
     def view(self, **kwargs):
         # arguments
@@ -141,13 +144,21 @@ class BlobDb():
         header = ''
         header += '## %s\n' % (self.version)
         header += "## assembly\t: %s\n" % self.assembly_f
-        header += "%s\n" % "\n".join("## coverage\t: " + covLib['name'] + " - " + covLib["f"] for covLib in self.covLibs.values())
+        header += "%s\n" % "\n".join("## coverage\t: " + covLib['name'] + " - " + covLib["f"] for covLib in sorted(self.covLibs.values()))
         if (self.hitLibs):
-            header += "%s\n" % "\n".join("## taxonomy\t: " + hitLib['name'] + " - " + hitLib["f"] for hitLib in self.hitLibs.values())
+            header += "%s\n" % "\n".join("## taxonomy\t: " + hitLib['name'] + " - " + hitLib["f"] for hitLib in sorted(self.hitLibs.values()))
         else:
             header += "## taxonomy\t: no taxonomy information found\n"
         header += "## nodesDB\t: %s\n" % self.nodesDB_f
         header += "## taxrule\t: %s\n" % taxrule
+        try:
+            header += "## min_score\t: %s\n" % self.min_score
+            header += "## min_diff\t: %s\n" % self.min_diff
+            header += "## tax_collision_random\t: %s\n" % self.tax_collision_random
+        except AttributeError():
+            header += "## min_score\t: %s\n" % 0.0
+            header += "## min_diff\t: %s\n" % 0.0
+            header += "## tax_collision_random\t: %s\n" % False
         header += "##\n"
         header += "# %s" % sep.join(map(str, ["name", "length", "GC", "N"]))
         col = 4
@@ -208,7 +219,10 @@ class BlobDb():
                 'covLibs' : {name : covLibObj.__dict__ for name, covLibObj in self.covLibs.items()},
                 'hitLibs' : {name : hitLibObj.__dict__ for name, hitLibObj in self.hitLibs.items()},
                 'taxrules' : self.taxrules,
-                'version' : self.version
+                'version' : self.version,
+                'min_score' : self.min_score,
+                'min_diff' : self.min_diff,
+                'tax_collision_random' : self.tax_collision_random
                 }
         return dump
 
@@ -403,18 +417,21 @@ class BlobDb():
                 self.set_of_taxIds.add(hitDict['taxId'])
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
 
-    def computeTaxonomy(self, taxrules, nodesDB, min_bitscore_diff, tax_collision_random):
+    def computeTaxonomy(self, taxrules, nodesDB, min_score, min_bitscore_diff, tax_collision_random):
         print BtLog.status_d['6'] % ",".join(taxrules)
         tree_lists = BtTax.getTreeList(self.set_of_taxIds, nodesDB)
         self.lineages = BtTax.getLineages(tree_lists, nodesDB)
         self.taxrules = taxrules
+        self.min_score = min_score
+        self.min_diff = min_bitscore_diff
+        self.tax_collision_random = tax_collision_random
         i = 0
         for blObj in self.dict_of_blobs.values():
             i += 1
             BtLog.progress(i, 100, self.seqs)
             for taxrule in taxrules:
                 if (blObj.hits):
-                    blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages, min_bitscore_diff, tax_collision_random)
+                    blObj.taxonomy[taxrule] = BtTax.taxRule(taxrule, blObj.hits, self.lineages, min_score, min_bitscore_diff, tax_collision_random)
                 else:
                     blObj.taxonomy[taxrule] = BtTax.noHit()
         self.set_of_taxIds = set()

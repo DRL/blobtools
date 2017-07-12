@@ -77,7 +77,8 @@ error_d = {
     '41': '[ERROR:41] : Please specify either a mapping file or a taxID.',
     '42': '[ERROR:42] : SubjectID %s not found in mapping file %s.',
     '43': '[ERROR:43] : %s could not be found.',
-    '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.'
+    '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.',
+    '45': '[ERROR:45] : Both --min_score and --min_diff must be numbers.'
 
 }
 

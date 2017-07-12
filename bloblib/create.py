@@ -4,7 +4,7 @@
 """usage: blobtools create     -i FASTA [-y FASTATYPE] [-o PREFIX] [--title TITLE]
                               [-b BAM...] [-s SAM...] [-a CAS...] [-c COV...]
                               [--nodes <NODES>] [--names <NAMES>] [--db <NODESDB>]
-                              [-t HITS...] [-x TAXRULE...] [-m INT] [--tax_collision_random]
+                              [-t HITS...] [-x TAXRULE...] [-m FLOAT] [-d FLOAT] [--tax_collision_random]
                               [-h|--help]
 
     Options:
@@ -15,6 +15,7 @@
                                         (Parsing supported for 'spades', 'velvet', 'platanus')
         -t, --hitsfile HITS...          Hits file in format (qseqid\\ttaxid\\tbitscore)
                                         (e.g. BLAST output "--outfmt '6 qseqid staxids bitscore'")
+                                        Can be specified multiple times
         -x, --taxrule <TAXRULE>...      Taxrule determines how taxonomy of blobs
                                         is computed (by default both are calculated)
                                         "bestsum"       : sum bitscore across all
@@ -23,17 +24,19 @@
                                                           hits for each taxonomic rank.
                                                   - If first <TAX> file supplies hits, bestsum is calculated.
                                                   - If no hit is found, the next <TAX> file is used.
-        -m, --min_diff <FLOAT>          Minimal score difference between highest scoring
+        -m, --min_score <FLOAT>         Minimal score necessary to be considered for taxonomy calculaton, otherwise set to 'no-hit'
+                                        [default: 0.0]
+        -d, --min_diff <FLOAT>          Minimal score difference between highest scoring
                                         taxonomies (otherwise "unresolved") [default: 0.0]
         --tax_collision_random          Random allocation of taxonomy if highest scoring
-                                        taxonomies have equal scores (otherwise "unresolved")
+                                        taxonomies have equal scores (otherwise "unresolved") [default: False]
         --nodes <NODES>                 NCBI nodes.dmp file. Not required if '--db'
         --names <NAMES>                 NCBI names.dmp file. Not required if '--db'
         --db <NODESDB>                  NodesDB file (default: $BLOBTOOLS/data/nodesDB.txt).
-        -b, --bam <BAM>...              BAM file(s) (requires samtools in $PATH)
-        -s, --sam <SAM>...              SAM file(s)
-        -a, --cas <CAS>...              CAS file(s) (requires clc_mapping_info in $PATH)
-        -c, --cov <COV>...              COV file(s)
+        -b, --bam <BAM>...              BAM file(s) (requires samtools in $PATH), can be specified multiple times
+        -s, --sam <SAM>...              SAM file(s), can be specified multiple times
+        -a, --cas <CAS>...              CAS file(s) (requires clc_mapping_info in $PATH), can be specified multiple times
+        -c, --cov <COV>...              COV file(s), can be specified multiple times
         -o, --out <PREFIX>              BlobDB output prefix
         --title TITLE                   Title of BlobDB [default: output prefix)
 """
@@ -66,7 +69,11 @@ def main():
     names_f = args['--names']
     nodes_f = args['--nodes']
     taxrules = args['--taxrule']
-    min_bitscore_diff = float(args['--min_diff'])
+    try:
+        min_bitscore_diff = float(args['--min_diff'])
+        min_score = float(args['--min_score'])
+    except ValueError():
+        BtLog.error('45')
     tax_collision_random = args['--tax_collision_random']
     title = args['--title']
 
@@ -105,7 +112,7 @@ def main():
                 taxrules = ['bestsum', 'bestsumorder']
             else:
                 taxrules = ['bestsum']
-        blobDb.computeTaxonomy(taxrules, nodesDB, min_bitscore_diff, tax_collision_random)
+        blobDb.computeTaxonomy(taxrules, nodesDB, min_score, min_bitscore_diff, tax_collision_random)
     else:
         print BtLog.warn_d['0']
 

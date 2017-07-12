@@ -11,7 +11,7 @@ RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
 TAXRULES = ['bestsum', 'bestsumorder'] # this should be re-named colour rules at one point
 
 def noHit():
-    return {rank : {'tax' : 'no-hit', 'score' : 0.0, 'c_index' : None} for rank in RANKS}
+    return {rank : {'tax' : 'no-hit', 'score' : 0.0, 'c_index' : 0} for rank in RANKS}
 
 def getTreeList(taxIds, nodesDB):
     known_tree_lists = {}
@@ -48,7 +48,7 @@ def getLineages(tree_lists, nodesDB):
                     lineage[tree_list_id][rank] = def_rank + "-" + lineage[tree_list_id][rank]
     return lineage
 
-def taxRuleBestSum(taxDict, taxonomy, min_bitscore_diff, tax_collision_random):
+def taxRuleBestSum(taxDict, taxonomy, min_bitscore, min_bitscore_diff, tax_collision_random):
     tempTax = { rank : {} for rank in RANKS }
     for lib in sorted(taxDict):
         for rank in RANKS:
@@ -56,50 +56,55 @@ def taxRuleBestSum(taxDict, taxonomy, min_bitscore_diff, tax_collision_random):
                 tempTax[rank][tax] = tempTax[rank].get(tax, 0.0) + score
     for rank in tempTax:
         for tax, score in sorted(tempTax[rank].items(), key=lambda x: x[1], reverse=True):
-            if not (taxonomy[rank]['tax']):
-                taxonomy[rank]['tax'] = tax
+            if taxonomy[rank]['tax'] == 'no-hit':
                 taxonomy[rank]['score'] = score
+                if score >= min_bitscore:
+                    taxonomy[rank]['tax'] = tax
+                    taxonomy_assigned_in_hit_lib = lib
             else:
-                if score == taxonomy[rank]['score']: # equal score in subsequent hit
+                if score == taxonomy[rank]['score']:  # equal score in subsequent hit
                     if not tax_collision_random:
                         taxonomy[rank]['tax'] = 'unresolved'
                 elif (taxonomy[rank]['score'] - score) <= min_bitscore_diff:
-                     taxonomy[rank]['tax'] = 'unresolved'
+                        taxonomy[rank]['tax'] = 'unresolved'
                 else:
                     pass
-                taxonomy[rank]['c_index'] += 1
-    return taxonomy
-
-def taxRuleBestSumOrder(taxDict, taxonomy, min_bitscore_diff, tax_collision_random):
-    tempTax = { rank : {} for rank in RANKS }
-    hit_lib = 0
-    for lib in sorted(taxDict):
-        for rank in RANKS:
-            for tax, score in sorted(taxDict[lib][rank].items(), key=lambda x: x[1], reverse=True):
-                if not (hit_lib): # parsing first hit file
-                    if not (taxonomy[rank]['tax']):
-                        taxonomy[rank]['tax'] = tax
-                        taxonomy[rank]['score'] = score
-                    else:
-                        if score == taxonomy[rank]['score']: # equal score in subsequent hit
-                            if not tax_collision_random:
-                                taxonomy[rank]['tax'] = 'unresolved'
-                        elif (taxonomy[rank]['score'] - score) <= min_bitscore_diff:
-                                taxonomy[rank]['tax'] = 'unresolved'
-                        else:
-                            pass
-                else:
+                if not taxonomy[rank]['tax'] == tax:
                     taxonomy[rank]['c_index'] += 1
-        hit_lib = 1
     return taxonomy
 
-def taxRule(taxrule, hits, lineages, min_bitscore_diff, tax_collision_random):
-    taxonomy = { rank : {'tax' : '', 'score' : 0.0, 'c_index' : 0 } for rank in RANKS }
-    taxDict = getTaxDict(hits, lineages) # here libs are separated
+def taxRuleBestSumOrder(taxDict, taxonomy, min_bitscore, min_bitscore_diff, tax_collision_random):
+    for rank in RANKS:
+        taxonomy_assigned_in_hit_lib = ''
+        for lib in sorted(taxDict):
+            for tax, score in sorted(taxDict[lib][rank].items(), key=lambda x: x[1], reverse=True):
+                if not taxonomy_assigned_in_hit_lib:  # has not been taxonomically annotated yet
+                    if taxonomy[rank]['tax'] == 'no-hit':
+                        taxonomy[rank]['score'] = score
+                        if score >= min_bitscore:
+                            taxonomy[rank]['tax'] = tax
+                            taxonomy_assigned_in_hit_lib = lib
+                elif taxonomy_assigned_in_hit_lib == lib:
+                    if score == taxonomy[rank]['score']:  # equal score in subsequent hit
+                        if not tax_collision_random:
+                            taxonomy[rank]['tax'] = 'unresolved'
+                    elif (taxonomy[rank]['score'] - score) <= min_bitscore_diff:
+                        taxonomy[rank]['tax'] = 'unresolved'
+                    else:
+                        pass
+                    if not taxonomy[rank]['tax'] == tax:
+                        taxonomy[rank]['c_index'] += 1
+                else:
+                    pass
+    return taxonomy
+
+def taxRule(taxrule, hits, lineages, min_score, min_bitscore_diff, tax_collision_random):
+    taxonomy = {rank: {'tax': 'no-hit', 'score': 0.0, 'c_index': 0 } for rank in RANKS }
+    taxDict = getTaxDict(hits, lineages)  # here libs are separated
     if taxrule == 'bestsum':
-        taxonomy = taxRuleBestSum(taxDict, taxonomy, min_bitscore_diff, tax_collision_random)
+        taxonomy = taxRuleBestSum(taxDict, taxonomy, min_score, min_bitscore_diff, tax_collision_random)
     elif taxrule == 'bestsumorder':
-        taxonomy = taxRuleBestSumOrder(taxDict, taxonomy, min_bitscore_diff, tax_collision_random)
+        taxonomy = taxRuleBestSumOrder(taxDict, taxonomy, min_score, min_bitscore_diff, tax_collision_random)
     else:
         pass
     return taxonomy
