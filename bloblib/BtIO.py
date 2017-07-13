@@ -260,21 +260,35 @@ def write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type):
 
 def get_read_pair_seqs(read1, read2):
     flag1, flag2 = read1[1], read2[1]
-    fq = ["@" + read1[0], read1[9], '+', read1[10], "@" + read2[0], read2[9], '+', read2[10]]
+    fq = []
+    fq.append("@" + read1[0])
+    fq.append(read1[9])
+    fq.append("+")
+    fq.append(read1[10])
+    fq.append("@" + read2[0])
+    fq.append(read2[9])
+    fq.append("+")
+    fq.append(read2[10])
+    #fq = ["@" + read1[0], read1[9], '+', read1[10], "@" + read2[0], read2[9], '+', read2[10]]
     if int(flag1) & 16:
-        fq[1] = "".join([COMPLEMENT.get(nt.upper(), '') for nt in fq[1][::-1]])
+        #fq[1] = "".join([COMPLEMENT.get(nt.upper(), '') for nt in fq[1][::-1]])
+        fq[1] = "".join([COMPLEMENT.get(nt, '') for nt in fq[1][::-1]])
         fq[3] = fq[3][::-1]
     if int(flag2) & 16:
-        fq[5] = "".join([COMPLEMENT.get(nt.upper(), '') for nt in fq[5][::-1]])
+        #fq[5] = "".join([COMPLEMENT.get(nt.upper(), '') for nt in fq[5][::-1]])
+        fq[5] = "".join([COMPLEMENT.get(nt, '') for nt in fq[5][::-1]])
         fq[7] = fq[7][::-1]
     return tuple(fq)
 
 
-def init_read_pairs(outfile, include, exclude):
+def init_read_pairs(outfile, include_unmapped, include, exclude):
+    read_pair_types = []
     if include or exclude:
         read_pair_types = ['InUn', 'InIn', 'ExIn']  # strings have to be sorted alphabetically ('ExIn', not 'InEx')
     else:
-        read_pair_types = ['InUn', 'InIn', 'UnUn']  # strings have to be sorted alphabetically
+        read_pair_types = ['InUn', 'InIn']  # strings have to be sorted alphabetically
+    if include_unmapped:
+        read_pair_types.append('UnUn')
     pair_count_by_type = {read_pair_type : 0 for read_pair_type in read_pair_types}
     # initialise read_pair tuples
     read_pair_seqs = {read_pair_type : tuple() for read_pair_type in read_pair_types}
@@ -293,7 +307,7 @@ def print_bam(read_pair_out_fs, read_pair_type, read1, read2):
         fh.write("\t".join(read1) + "\n")
         fh.write("\t".join(read2) + "\n")
 
-def parseBamForFilter(infile, progress_flag, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
+def parseBamForFilter(infile, progress_flag, include_unmapped, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
     '''
     checkBam returns reads_total and reads_mapped
     parse BAM to extract readpairs
@@ -305,13 +319,12 @@ def parseBamForFilter(infile, progress_flag, outfile, include, exclude, gzip, do
         runCmd(command=command, wait=True)
         infile = "%s.readsorted.bam" % infile
 
-    reads_total, reads_mapped = 0, 0
-    progress_unit = int(reads_mapped/100)
-    if progress_flag:
-        reads_total, reads_mapped = checkBam(infile)
+    progress_unit = int(100000)
+    #if progress_flag:
+    #    reads_total, reads_mapped = checkBam(infile)
     command = "samtools view -f 1 -F 256 -F 2048 %s" % infile
 
-    pair_count_by_type, pair_seqs_by_type, out_fs_by_type = init_read_pairs(outfile, include, exclude)
+    pair_count_by_type, pair_seqs_by_type, out_fs_by_type = init_read_pairs(outfile, include_unmapped, include, exclude)
     if include:
         sequence_to_type_dict = defaultdict(lambda: 'Ex')
         for incl in include:
@@ -330,19 +343,22 @@ def parseBamForFilter(infile, progress_flag, outfile, include, exclude, gzip, do
     read_pair_type = None
     iterator = runCmd(command=command)
     seen_reads = 0
-    filtered_pairs = 0
-    for l in iterator:
-        read1 = l.split()
+    sam_lines = []
+    print BtLog.status_d['26'] % infile
+    for sam_line in iterator:
+        sam_lines.append(sam_line)
+    print BtLog.status_d['22'] % infile
+    reads_total = len(sam_lines)
+    for i in xrange(0, len(sam_lines), 2):
+        read1 = sam_lines[i].split()
         try:
             seen_reads += 2
-            read2 = next(iterator).split()
+            read2 = sam_lines[i+1].split()
             read_pair_type = "".join(sorted([sequence_to_type_dict[read1[2]], sequence_to_type_dict[read2[2]]]))
             if read_pair_type in pair_seqs_by_type:
                 pair_seqs_by_type[read_pair_type] += get_read_pair_seqs(read1, read2)
                 pair_count_by_type[read_pair_type] += 1
-                filtered_pairs += 1
-            if progress_flag:
-                BtLog.progress(seen_reads, progress_unit, reads_total)
+            BtLog.progress(seen_reads, progress_unit, reads_total)
         except StopIteration:
             print BtLog.warn_d['11']
         #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging

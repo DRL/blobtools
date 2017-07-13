@@ -124,7 +124,8 @@ status_d = {
     '22': '[STATUS]\t: Filtering %s ...',
     '23': '[STATUS]\t: Filtered %s (pairs=%s) ...',
     '24': '[STATUS]\t: Writing %s',
-    '25': '[STATUS]\t: Gzip\'ing %s'
+    '25': '[STATUS]\t: Gzip\'ing %s',
+    '26': '[STATUS]\t: Reading %s'
 }
 
 info_d = {
