@@ -122,7 +122,7 @@ status_d = {
     '19': '[STATUS]\t: Writing output ...',
     '20': '[STATUS]\t: \tFinished in %ss',
     '22': '[STATUS]\t: Filtering %s ...',
-    '23': '[STATUS]\t: Extracted %s (list=%s, parsed=%s, total=%s) ...',
+    '23': '[STATUS]\t: Filtered %s (count=%s) ...',
     '24': '[STATUS]\t: Writing %s',
     '25': '[STATUS]\t: Gzip\'ing %s'
 }

@@ -247,16 +247,16 @@ def parseSam(infile, set_of_blobs, no_base_cov_flag):
     base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
-def write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs):
-    for read_type in read_pair_seqs:
-        if read_pair_seqs[read_type]:
-            out_f = read_pair_out_fs[read_type]
-            if not out_f in used_fhs:
-                used_fhs[out_f] = open(out_f, 'w').close
-                used_fhs[out_f] = open(out_f, 'a')
-            used_fhs[out_f].write("\n".join(read_pair_seqs[read_type]))
-            used_fhs[out_f].write("\n")
-    return used_fhs
+
+def write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type):
+    for pair_type, pair_count in pair_count_by_type.items():
+        print BtLog.status_d['23'] % (pair_type, pair_count)
+        if pair_count:
+            out_f = out_fs_by_type[pair_type]
+            with open(out_f, 'w') as out_fh:
+                print BtLog.status_d['24'] % out_f
+                out_fh.write("\n".join(pair_seqs_by_type[pair_type]) + "\n")
+
 
 def get_read_pair_seqs(read1, read2):
     flag1, flag2 = read1[1], read2[1]
@@ -272,17 +272,17 @@ def get_read_pair_seqs(read1, read2):
 
 def init_read_pairs(outfile, include, exclude):
     if include or exclude:
-        read_pair_types = ['InUn', 'InIn', 'InEx']
+        read_pair_types = ['InUn', 'InIn', 'ExIn']  # strings have to be sorted alphabetically ('ExIn', not 'InEx')
     else:
-        read_pair_types = ['InUn', 'InIn', 'UnUn']
-    read_pair_count = { read_pair_type : 0 for read_pair_type in read_pair_types}
-    # initialise read_pair lists
+        read_pair_types = ['InUn', 'InIn', 'UnUn']  # strings have to be sorted alphabetically
+    pair_count_by_type = {read_pair_type : 0 for read_pair_type in read_pair_types}
+    # initialise read_pair tuples
     read_pair_seqs = {read_pair_type : tuple() for read_pair_type in read_pair_types}
     # initialise read_pair files
     read_pair_out_fs = {}
     for read_pair_type in read_pair_types:
         read_pair_out_fs[read_pair_type] = getOutFile(outfile, None, read_pair_type + ".fq")
-    return read_pair_count, read_pair_seqs, read_pair_out_fs
+    return pair_count_by_type, read_pair_seqs, read_pair_out_fs
 
 def close_fhs(used_fhs):
     for fh in used_fhs.values():
@@ -293,7 +293,7 @@ def print_bam(read_pair_out_fs, read_pair_type, read1, read2):
         fh.write("\t".join(read1) + "\n")
         fh.write("\t".join(read2) + "\n")
 
-def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
+def parseBamForFilter(infile, progress_flag, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
     '''
     checkBam returns reads_total and reads_mapped
     parse BAM to extract readpairs
@@ -305,15 +305,13 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
         runCmd(command=command, wait=True)
         infile = "%s.readsorted.bam" % infile
 
-    reads_total, reads_mapped = checkBam(infile)
-    progress_unit = int(reads_mapped/1000)
+    reads_total, reads_mapped = 0, 0
+    progress_unit = int(reads_mapped/100)
+    if progress_flag:
+        reads_total, reads_mapped = checkBam(infile)
     command = "samtools view -f 1 -F 1024 -F 256 -F 2048 %s" % infile
-    seen_reads = 0
-    read_pair_count, read_pair_seqs, read_pair_out_fs = init_read_pairs(outfile, include, exclude)
-    read_pair_out_fhs = []
-    used_fhs = {}
-    iterator = runCmd(command=command)
-    read_pair_type = None
+
+    pair_count_by_type, pair_seqs_by_type, out_fs_by_type = init_read_pairs(outfile, include, exclude)
     if include:
         sequence_to_type_dict = defaultdict(lambda: 'Ex')
         for incl in include:
@@ -327,44 +325,40 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
     else:
         sequence_to_type_dict = defaultdict(lambda: 'In')
         sequence_to_type_dict['*'] = 'Un'
+
+    iterator = ''
+    read_pair_type = None
+    iterator = runCmd(command=command)
+    seen_reads = 0
+    filtered_pairs = 0
     for l in iterator:
         read1 = l.split()
         try:
             seen_reads += 2
             read2 = next(iterator).split()
             read_pair_type = "".join(sorted([sequence_to_type_dict[read1[2]], sequence_to_type_dict[read2[2]]]))
-            #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
-            if read_pair_type in read_pair_seqs:
-                read_pair_seqs[read_pair_type] += get_read_pair_seqs(read1, read2)
-                read_pair_count[read_pair_type] += 1
-            BtLog.progress(seen_reads, progress_unit, reads_total)
-            if progress_unit and seen_reads % progress_unit == 0:
-                used_fhs = write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs)
-                read_pair_seqs = {read_pair_type : tuple() for read_pair_type in read_pair_count}
+            if read_pair_type in pair_seqs_by_type:
+                pair_seqs_by_type[read_pair_type] += get_read_pair_seqs(read1, read2)
+                pair_count_by_type[read_pair_type] += 1
+                filtered_pairs += 1
+            if progress_flag:
+                BtLog.progress(seen_reads, progress_unit, reads_total)
         except StopIteration:
             print BtLog.warn_d['11']
-    used_fhs = write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs)
-    close_fhs(used_fhs)
+        #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
+    if progress_flag:
+        if not int(reads_total) == int(seen_reads):
+            BtLog.progress(reads_total, progress_unit, reads_total)
+    write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type)
     # info log
     info_string = []
-    info_string.append(('Total pairs', "{:,}".format(int(seen_reads/2)), '{0:.1%}'.format(1.00)))
-    for read_pair_type, count in read_pair_count.items():
-        info_string.append((read_pair_type + ' pairs', "{:,}".format(count), '{0:.1%}'.format(count/int(seen_reads/2))))
+    info_string.append(('Total pairs', "{:,}".format(int(seen_reads / 2)), '{0:.1%}'.format(1.00)))
+    for read_pair_type, count in pair_count_by_type.items():
+        info_string.append((read_pair_type + ' pairs', "{:,}".format(count), '{0:.1%}'.format(count / int(seen_reads / 2))))
     info_out_f = getOutFile(outfile, None, "info.txt")
-    if not int(reads_total) == int(seen_reads):
-        BtLog.progress(reads_total, progress_unit, reads_total)
     with open(info_out_f, 'w') as info_fh:
         print BtLog.status_d['24'] % info_out_f
         info_fh.write(get_table(info_string))
-    # gzip
-    if gzip:
-        if not which('gzip'):
-            BtLog.error('43')
-        for out_f in used_fhs:
-            print BtLog.status_d['25'] % out_f
-            runCmd(command="gzip -f " + out_f, wait=True)
-
-    #    print BtLog.warn_d['3'] % (reads_total, seen_reads)
     if do_sort and not keep_sorted:
         os.remove(infile)
     return 1
