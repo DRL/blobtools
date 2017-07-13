@@ -272,7 +272,7 @@ def get_read_pair_seqs(read1, read2):
 
 def init_read_pairs(outfile, include, exclude):
     if include or exclude:
-        read_pair_types = ['ExUn', 'ExIn', 'InUn', 'ExEx', 'InIn', 'UnUn']
+        read_pair_types = ['InUn', 'InIn', 'InEx']
     else:
         read_pair_types = ['InUn', 'InIn', 'UnUn']
     read_pair_count = { read_pair_type : 0 for read_pair_type in read_pair_types}
@@ -334,10 +334,11 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
             read2 = next(iterator).split()
             read_pair_type = "".join(sorted([sequence_to_type_dict[read1[2]], sequence_to_type_dict[read2[2]]]))
             #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
-            read_pair_seqs[read_pair_type] += get_read_pair_seqs(read1, read2)
-            read_pair_count[read_pair_type] += 1
+            if read_pair_type in read_pair_seqs:
+                read_pair_seqs[read_pair_type] += get_read_pair_seqs(read1, read2)
+                read_pair_count[read_pair_type] += 1
             BtLog.progress(seen_reads, progress_unit, reads_total)
-            if seen_reads % progress_unit == 0:
+            if progress_unit and seen_reads % progress_unit == 0:
                 used_fhs = write_read_pair_seqs(used_fhs, read_pair_out_fs, read_pair_seqs)
                 read_pair_seqs = {read_pair_type : tuple() for read_pair_type in read_pair_count}
         except StopIteration:
@@ -350,6 +351,8 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
     for read_pair_type, count in read_pair_count.items():
         info_string.append((read_pair_type + ' pairs', "{:,}".format(count), '{0:.1%}'.format(count/int(seen_reads/2))))
     info_out_f = getOutFile(outfile, None, "info.txt")
+    if not int(reads_total) == int(seen_reads):
+        BtLog.progress(reads_total, progress_unit, reads_total)
     with open(info_out_f, 'w') as info_fh:
         print BtLog.status_d['24'] % info_out_f
         info_fh.write(get_table(info_string))
@@ -361,8 +364,7 @@ def parseBamForFilter(infile, outfile, include, exclude, gzip, do_sort, keep_sor
             print BtLog.status_d['25'] % out_f
             runCmd(command="gzip -f " + out_f, wait=True)
 
-    if not int(reads_total) == int(seen_reads):
-        print BtLog.warn_d['3'] % (reads_total, seen_reads)
+    #    print BtLog.warn_d['3'] % (reads_total, seen_reads)
     if do_sort and not keep_sorted:
         os.remove(infile)
     return 1

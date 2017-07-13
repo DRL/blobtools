@@ -2,23 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """usage: blobtools bamfilter  -b FILE [-i FILE] [-e FILE] [-o PREFIX]
-                                [--sort] [--keep] [--threads INT] [--gzip]
+                                [--sort] [--keep] [--threads INT]
                                 [-h|--help]
 
     Options:
         -h --help                   show this
         -b, --bam FILE              BAM file (sorted by name)
         -i, --include FILE          List of contigs whose reads are included
-                                        (if no FILE is provided ALL mapped reads
-                                            are included)
-        -e, --exclude FILE          List of contigs whose reads are excluded
-                                        (if no FILE is provided ALL mapped reads
-                                            are included)
+                                    - writes interleaved FASTQs of pairs where at least
+                                        one read maps sequences in list
+                                        (InUn.fq, InIn.fq, ExIn.fq)
+        -e, --exclude FILE          List of contigs whose reads are excluded (outputs reads that do not map to sequences in list)
+                                    - writes interleaved FASTQs of pairs where at least
+                                        one read does not maps to sequences in list
+                                        (InUn.fq, InIn.fq, ExIn.fq)
         --sort                      Sort BAM file by name
         --keep                      Keep sorted BAM file (deleted otherwise)
         --threads INT               number of sorting/compression threads
                                     for sorting [default: 2]
-        --gzip                      Gzip output
         -o, --out PREFIX            Output prefix
 """
 
@@ -41,7 +42,7 @@ def main():
     include_f = args['--include']
     exclude_f = args['--exclude']
     out_prefix = args['--out']
-    gzip = args['--gzip']
+    gzip = None
     do_sort = args['--sort']
     keep_sorted = args['--keep']
     sort_threads = int(args['--threads'])

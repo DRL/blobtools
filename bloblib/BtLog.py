@@ -18,7 +18,9 @@ def error(message, *argv):
     exit(1)  # change to exit with the actual ERROR number (different than 0)
 
 def progress(iteration, steps, max_value, no_limit=False):
-    if int(iteration) == max_value:
+    if steps == 0:
+        pass
+    elif int(iteration) == max_value:
         if no_limit == True:
             sys.stdout.write('\r')
             print "[PROGRESS]\t: \t%d%%" % (100),
