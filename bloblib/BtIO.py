@@ -309,7 +309,7 @@ def parseBamForFilter(infile, progress_flag, outfile, include, exclude, gzip, do
     progress_unit = int(reads_mapped/100)
     if progress_flag:
         reads_total, reads_mapped = checkBam(infile)
-    command = "samtools view -f 1 -F 1024 -F 256 -F 2048 %s" % infile
+    command = "samtools view -f 1 -F 256 -F 2048 %s" % infile
 
     pair_count_by_type, pair_seqs_by_type, out_fs_by_type = init_read_pairs(outfile, include, exclude)
     if include:
