@@ -50,7 +50,6 @@ def main():
     do_sort = args['--sort']
     keep_sorted = args['--keep']
     sort_threads = int(args['--threads'])
-
     out_f = BtIO.getOutFile(bam_f, out_prefix, None)
     if include_f and exclude_f:
         print BtLog.error('43')
