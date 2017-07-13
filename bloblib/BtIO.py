@@ -308,7 +308,6 @@ def print_bam(read_pair_out_fs, read_pair_type, read1, read2):
 
 def parseBamForFilter(infile, progress_flag, include_unmapped, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
     '''
-    checkBam returns reads_total and reads_mapped
     parse BAM to extract readpairs
     '''
     if not isfile(infile):
@@ -362,9 +361,7 @@ def parseBamForFilter(infile, progress_flag, include_unmapped, outfile, include,
         except IndexError:
             print BtLog.warn_d['11']
         #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
-    if progress_flag:
-        if not int(reads_total) == int(seen_reads):
-            BtLog.progress(reads_total, progress_unit, reads_total)
+    BtLog.progress(reads_total, progress_unit, reads_total)
     write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type)
     # info log
     info_string = []
