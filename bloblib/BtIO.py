@@ -361,7 +361,8 @@ def parseBamForFilter(infile, include_unmapped, outfile, include, exclude, gzip,
         except IndexError:
             print BtLog.warn_d['11']
         #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
-    BtLog.progress(reads_total, progress_unit, reads_total)
+    if not seen_reads == reads_total:
+        BtLog.progress(reads_total, progress_unit, reads_total)
     write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type)
     # info log
     info_string = []
@@ -567,18 +568,34 @@ def readTax(infile, set_of_blobs):
     hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
-            match = hit_line_re.search(line)
-            if match:
+            #match = hit_line_re.search(line)
+            #if match:
+            col = line.split()
+            try:
                 hitDict = {
-                    'name' : match.group(1),
-                    'taxId' : match.group(2), # string because if int, conversion is a nightmare ...
-                    'score' : float(match.group(3))
+                    'name' : col[0],
+                    'taxId' : col[1], # string because if int, conversion is a nightmare ...
+                    'score' : float(col[2])
                     }
-                if hitDict['name'] not in set_of_blobs:
-                    BtLog.error('19', hitDict['name'], infile)
-                if hitDict['taxId'] == 'N/A':
-                    BtLog.error('22', infile)
-                yield hitDict
+            except ValueError:
+                BtLog.error('46', infile, col[2])
+            if hitDict['name'] not in set_of_blobs:
+                print BtLog.warn_d['13'] % (hitDict['name'], infile)
+                #BtLog.error('19', hitDict['name'], infile)
+            if hitDict['taxId'] == 'N/A':
+                BtLog.error('22', infile)
+            yield hitDict
+                #hitDict = {
+                #    'name' : match.group(1),
+                #    'taxId' : match.group(2), # string because if int, conversion is a nightmare ...
+                #    'score' : float(match.group(3))
+                #    }
+                #if hitDict['name'] not in set_of_blobs:
+                #    print BtLog.warn_d['13'] % (hitDict['name'], infile)
+                #    #BtLog.error('19', hitDict['name'], infile)
+                #if hitDict['taxId'] == 'N/A':
+                #    BtLog.error('22', infile)
+                #yield hitDict
 
 def getOutFile(base_file, prefix, suffix):
     EXTENSIONS = ['.fasta', '.fa', '.fna', '.txt', '.cov', '.out', '.json']

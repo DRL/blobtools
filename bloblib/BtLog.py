@@ -80,7 +80,8 @@ error_d = {
     '42': '[ERROR:42] : SubjectID %s not found in mapping file %s.',
     '43': '[ERROR:43] : %s could not be found.',
     '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.',
-    '45': '[ERROR:45] : Both --min_score and --min_diff must be numbers.'
+    '45': '[ERROR:45] : Both --min_score and --min_diff must be numbers.',
+    '46': '[ERROR:46] : Score in %s must be a float, not \'%s\'.'
 
 }
 
@@ -97,7 +98,8 @@ warn_d = {
     '9': '[WARN]\t\t: Taxrule "%s" was not computed for this BlobDb. Available taxrule(s) : %s. Will proceed without taxonomic annotation ...',
     '10': '[WARN]\t\t: Line %s: sequence "%s" already has TaxID "%s". Skipped. (use --force to overwrite)',
     '11': '\n[WARN]\t\t: The BAM file appears to be truncated.',
-    '12': '[WARN] : sseqid %s not found in ID-to-taxID mapping file %s.'
+    '12': '[WARN] : sseqid %s not found in ID-to-taxID mapping file %s.',
+    '13': '[WARN]\t: Sequence %s in file %s is not part of the assembly.'
 }
 status_d = {
     '0': '[STATUS]\t: Nothing to be done. %s',
