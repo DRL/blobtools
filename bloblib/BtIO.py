@@ -306,7 +306,7 @@ def print_bam(read_pair_out_fs, read_pair_type, read1, read2):
         fh.write("\t".join(read1) + "\n")
         fh.write("\t".join(read2) + "\n")
 
-def parseBamForFilter(infile, progress_flag, include_unmapped, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
+def parseBamForFilter(infile, include_unmapped, outfile, include, exclude, gzip, do_sort, keep_sorted, sort_threads):
     '''
     parse BAM to extract readpairs
     '''
@@ -353,11 +353,11 @@ def parseBamForFilter(infile, progress_flag, include_unmapped, outfile, include,
             seen_reads += 2
             read2 = sam_lines[i+1].split()
             read_pair_type = "".join(sorted([sequence_to_type_dict[read1[2]], sequence_to_type_dict[read2[2]]]))
+            BtLog.progress(seen_reads, progress_unit, reads_total)
             if read_pair_type in pair_seqs_by_type:
                 #pair_seqs_by_type[read_pair_type] += get_read_pair_seqs(read1, read2)
                 pair_seqs_by_type[read_pair_type].append(get_read_pair_seqs(read1, read2))
                 pair_count_by_type[read_pair_type] += 1
-                BtLog.progress(seen_reads, progress_unit, reads_total)
         except IndexError:
             print BtLog.warn_d['11']
         #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging

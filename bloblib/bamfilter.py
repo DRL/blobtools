@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools bamfilter  -b FILE [-p] [-i FILE] [-e FILE] [-u] [-o PREFIX]
+"""usage: blobtools bamfilter  -b FILE [-i FILE] [-e FILE] [-u] [-o PREFIX]
                                 [--sort] [--keep] [--threads INT]
                                 [-h|--help]
 
     Options:
         -h --help                   show this
         -b, --bam FILE              BAM file (sorted by name)
-        -p, --progress              Display progress [default: False]
         -i, --include FILE          List of contigs whose reads are included
                                     - writes interleaved FASTQs of pairs where at least
                                         one read maps sequences in list
@@ -42,7 +41,6 @@ def main():
     args = docopt(__doc__)
     bam_f = args['--bam']
     include_f = args['--include']
-    progress_flag = args['--progress']
     exclude_f = args['--exclude']
     out_prefix = args['--out']
     include_unmapped = args['--include_unmapped']
@@ -55,12 +53,12 @@ def main():
         print BtLog.error('43')
     elif include_f:
         sequence_list = BtIO.parseList(include_f)
-        BtIO.parseBamForFilter(bam_f, progress_flag, include_unmapped, out_f, sequence_list, None, gzip, do_sort, keep_sorted, sort_threads)
+        BtIO.parseBamForFilter(bam_f, include_unmapped, out_f, sequence_list, None, gzip, do_sort, keep_sorted, sort_threads)
     elif exclude_f:
         sequence_list = BtIO.parseList(exclude_f)
-        BtIO.parseBamForFilter(bam_f, progress_flag, include_unmapped, out_f, None, sequence_list, gzip, do_sort, keep_sorted, sort_threads)
+        BtIO.parseBamForFilter(bam_f, include_unmapped, out_f, None, sequence_list, gzip, do_sort, keep_sorted, sort_threads)
     else:
-        BtIO.parseBamForFilter(bam_f, progress_flag, out_f, None, None, gzip, do_sort, keep_sorted, sort_threads)
+        BtIO.parseBamForFilter(bam_f, include_unmapped, out_f, None, None, gzip, do_sort, keep_sorted, sort_threads)
 
 if __name__ == '__main__':
     main()
