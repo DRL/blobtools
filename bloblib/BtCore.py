@@ -413,7 +413,7 @@ class BlobDb():
             for hitDict in BtIO.readTax(hitLib.f, set(self.dict_of_blobs)):
                 if ";" in hitDict['taxId']:
                     hitDict['taxId'] = hitDict['taxId'].split(";")[0]
-                    print BtLog.warn_d['5'] % (hitDict['name'], hitLib)
+                    #print BtLog.warn_d['5'] % (hitDict['name'], hitLib)
                 self.set_of_taxIds.add(hitDict['taxId'])
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
 

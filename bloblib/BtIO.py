@@ -559,13 +559,11 @@ def parseCas(infile, order_of_blobs):
 def readTax(infile, set_of_blobs):
     '''
     If more fields need to be parsed:
-        - change hit_line_re
-        - catch matches in variables
         - add as key-value pairs to hitDict
     '''
     if not isfile(infile):
         BtLog.error('0', infile)
-    hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
+    #hit_line_re = re.compile(r"^(\S+)\s+(\d+)[\;?\d+]*\s+(\d+\.*\d*)") # TEST TEST , if not split it afterwards
     with open(infile) as fh:
         for line in fh:
             #match = hit_line_re.search(line)
@@ -582,8 +580,6 @@ def readTax(infile, set_of_blobs):
             if hitDict['name'] not in set_of_blobs:
                 print BtLog.warn_d['13'] % (hitDict['name'], infile)
                 #BtLog.error('19', hitDict['name'], infile)
-            if hitDict['taxId'] == 'N/A':
-                BtLog.error('22', infile)
             yield hitDict
                 #hitDict = {
                 #    'name' : match.group(1),

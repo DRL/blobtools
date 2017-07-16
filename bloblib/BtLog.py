@@ -57,7 +57,6 @@ error_d = {
     '19': '[ERROR:19]\t: Sequence %s in file %s is not part of the assembly.',
     '20': '[ERROR:20]\t: Please add "clc_mapping_info" to your PATH variable.',
     '21': '[ERROR:21]\t: Refcov file %s does not seem to have the right format.',
-    '22': '[ERROR:22]\t: Tax file %s seems to have no taxids.',
     '23': '[ERROR:23]\t: Catcolour file %s does not seem to have the right format.',
     '24': '[ERROR:24]\t: Catcolour file incompatible with c-index colouring.',
     '25': '[ERROR:25]\t: COV file %s does not seem to have the right format.',
