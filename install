@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo "[+] Checking dependencies..."
+wget=$(which wget)
+if [ -x "$wget" ] ; then
+    echo "    [+] [wget] $wget"; else
+    echo "    [X] [wget] ... please install wget";
+fi
+tar=$(which tar)
+if [ -x "$tar" ] ; then
+    echo "    [+] [gunzip] $tar"; else
+    echo "    [X] [tar] ... please install tar";
+fi
+pip=$(which pip)
+if [ -x "$pip" ] ; then
+    echo "    [+] [pip] $pip"; else
+    echo "    [X] [pip] ... please install pip";
+fi
+python=$(which python)
+if [ -x "$python" ] ; then
+    echo "    [+] [python] $python"; else
+    echo "    [X] [python] ... please install python2.7";
+fi
+
+# Install python dependencies
+echo "[+] Installing python dependencies..."
+$python setup.py install --quiet
+
+# Create executable
+echo -n "[+] Creating BlobTools executable..."
+echo '#!/usr/bin/env bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+$DIR/lib/blobtools.py "$@"' > $DIR/blobtools && chmod +x $DIR/blobtools
+echo "done."
+
+# get samtools
+function download_samtools {
+    echo -n "[+] Downloading samtools-1.5..."
+    wget -qN https://github.com/samtools/samtools/releases/download/1.5/samtools-1.5.tar.bz2
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not download samtools-1.5. Please install samtools-1.5 in $DIR/samtools/ (see http://www.htslib.org/download/) "
+        exit
+    fi
+}
+
+function install_samtools {
+    echo -n "[+] Unpacking samtools-1.5..."
+    $tar xjf samtools-1.5.tar.bz2
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not unpack samtools-1.5. Please install samtools-1.5 in $DIR/samtools/ (see http://www.htslib.org/download/) "
+        exit
+    fi
+    samtools_src=$DIR/samtools-1.5/
+    samtools_dir=$DIR/samtools/
+    mkdir -p $samtools_dir
+    cd $samtools_src
+    echo -n "[+] Configuring samtools-1.5..."
+    ./configure --prefix=$samtools_dir --quiet
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not configure samtools-1.5. Please install samtools-1.5 in $DIR/samtools/ (see http://www.htslib.org/download/) "
+        exit
+    fi
+    echo -n "[+] Compiling samtools-1.5..."
+    make --silent
+    make install --silent
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not compile samtools-1.5. Please install samtools-1.5 in $DIR/samtools/ (see http://www.htslib.org/download/) "
+        exit
+    fi
+    echo "[+] cleaning up..."
+    rm -f $DIR/samtools-1.5.tar.bz2
+    rm -rf $samtools_src
+    cd $DIR
+}
+
+function download_taxdump {
+    echo -n "[+] Downloading NCBI taxdump from ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz ..."
+    $wget -qN ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz -P $DIR/data/
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not download NCBI taxdump. Please follow installation steps on https://blobtools.readme.io/"
+        exit
+    fi
+}
+
+function unpack_taxdump {
+    echo -n "[+] Unpacking nodes/names.dmp ..."
+    $tar zxf $DIR/data/taxdump.tar.gz -C $DIR/data/ nodes.dmp names.dmp
+    if [ $? -eq 0 ]; then
+        echo "done."
+    else
+        echo "FAIL."
+        echo "[X] - Could not unpack nodes/names.dmp. Please follow installation steps on https://blobtools.readme.io/"
+        exit
+    fi
+}
+
+# install samtools
+samtools_tar=$DIR/samtools-1.5.tar.bz2
+if [ ! -f "$samtools_tar" ]; then
+    download_samtools
+install_samtools
+fi
+
+# get taxdump
+taxdump=$DIR/data/taxdump.tar.gz
+if [ ! -f "$taxdump" ]; then
+    download_taxdump
+unpack_taxdump
+fi
+
+# make nodesdb
+./blobtools nodesdb --nodes $DIR/data/nodes.dmp --names $DIR/data/names.dmp
+if [ $? -eq 0 ]; then
+    echo "[+] Removing intermediate files..."
+    rm -f $taxdump
+    rm -f $DIR/data/nodes.dmp
+    rm -f $DIR/data/names.dmp
+else
+    echo "[X] - Could not create nodesdb. Please follow installation steps on https://blobtools.readme.io/"
+    exit
+fi
+
+
+# Done
+echo "[+] BlobTools was installed successfully. Please run ./blobtools"

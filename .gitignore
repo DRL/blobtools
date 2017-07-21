@@ -1,8 +1,8 @@
 data/nodesDB.txt
-tests/
+samtools/
+example/
 *.pyc
 *.png
-test_files/blobDB.table.txt
 test.*
 *.gz
 *.fq

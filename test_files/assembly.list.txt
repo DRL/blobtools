@@ -1,2 +1,0 @@
-contig_1
-contig_2
