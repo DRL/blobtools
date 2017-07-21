@@ -1,6 +1,6 @@
 data/nodesDB.txt
 samtools/
-blobtools
+./blobtools
 *.pyc
 *.png
 test.*
