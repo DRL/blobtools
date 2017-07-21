@@ -40,8 +40,8 @@ from os.path import basename, isfile, join, dirname, abspath
 from sys import path
 path.append(dirname(dirname(abspath(__file__))))
 
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
 
 def main():
     args = docopt(__doc__)

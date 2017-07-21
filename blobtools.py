@@ -7,14 +7,14 @@ usage: blobtools <command> [<args>...] [--help] [--version]
 commands:
 
     create        create a BlobDB
-    view          print BlobDB as a table
-    blobplot      plot BlobDB as a blobplot
-    covplot       compare BlobDB cov(s) to additional cov file
+    view          generate tabular view/CONCOCT/COV files from BlobDB
+    plot          generate a BlobPlot from a BlobDB
+    covplot       generate a CovPlot from a BlobDB and a COV file
 
-    map2cov       generate cov file from bam file
-    seqfilter     filter FASTA sequences based on header in list
-    taxify        assign taxids to blast-results based on list
-    bamfilter     filter reads in a BAM file
+    map2cov       generate a COV file from BAM file
+    seqfilter     subset sequences in FASTA file based sequence IDs in list
+    taxify        generate a BlobTools compatible HITS file
+    bamfilter     subset paired-end reads in a BAM file
 
     -h, --help      show this
     -v, --version   show version number
@@ -44,10 +44,10 @@ except ImportError:
     sys.exit("[ERROR]\t: The module docopt is not installed. \n \tPlease run : pip install docopt")
 
 
-__version__ = "blobtools v0.9.19"
+__version__ = "blobtools v1.0"
 MAINDIR = join(dirname(__file__), '')
 DATADIR = join(MAINDIR, 'data/')
-LIBDIR = join(MAINDIR, 'bloblib/')
+LIBDIR = join(MAINDIR, 'lib/')
 
 if __name__ == '__main__':
     args = docopt(__doc__,

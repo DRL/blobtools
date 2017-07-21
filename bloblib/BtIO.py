@@ -14,7 +14,7 @@ import zlib
 from collections import defaultdict
 from os.path import basename, isfile, splitext, join, isdir
 import shutil
-import bloblib.BtLog as BtLog
+import lib.BtLog as BtLog
 
 # CONSTs
 COMPLEMENT = {'A':'T','C':'G','G':'C','T':'A','N':'N'}

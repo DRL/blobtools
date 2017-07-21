@@ -49,9 +49,9 @@ from sys import path
 path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
-import bloblib.BtCore as BtCore
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
+import lib.BtCore as BtCore
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
 
 def main():
 

@@ -7,9 +7,9 @@ Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
 from __future__ import division
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
-import bloblib.BtTax as BtTax
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
+import lib.BtTax as BtTax
 from os.path import abspath, isfile, basename, isdir, join
 from os import getcwd, mkdir
 import json

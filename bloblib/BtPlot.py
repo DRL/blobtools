@@ -9,9 +9,9 @@ Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 from __future__ import division
 from numpy import array, arange, logspace, mean, std
 import math
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
-import bloblib.BtTax as BtTax
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
+import lib.BtTax as BtTax
 import matplotlib as mat
 from matplotlib import cm
 from matplotlib.ticker import NullFormatter, MultipleLocator, AutoMinorLocator

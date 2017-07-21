@@ -24,9 +24,9 @@ from sys import path
 path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
-import bloblib.BtCore as BtCore
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
+import lib.BtCore as BtCore
 
 def main():
     args = docopt(__doc__)

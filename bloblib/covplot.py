@@ -72,10 +72,10 @@ from sys import path
 path.append(dirname(dirname(abspath(__file__))))
 
 import blobtools
-import bloblib.BtLog as BtLog
-import bloblib.BtIO as BtIO
-import bloblib.BtCore as Bt
-import bloblib.BtPlot as BtPlot
+import lib.BtLog as BtLog
+import lib.BtIO as BtIO
+import lib.BtCore as Bt
+import lib.BtPlot as BtPlot
 
 def main():
     args = docopt(__doc__)

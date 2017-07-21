@@ -8,7 +8,6 @@ Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 
 from __future__ import division
 import sys
-from os.path import basename
 
 def error(message, *argv):
     if argv is None:
