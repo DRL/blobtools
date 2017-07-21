@@ -24,13 +24,13 @@ See 'blobtools <command> --help' for more information on a specific command.
 
 examples:
 
-    # Create a BlobDB
-    ./blobtools create -i example/test.fna -b example/test.bam -t example/test.blast.out -o example/test
+    # 1. Create a BlobDB
+    ./blobtools create -i example/assembly.fna -b example/mapping_1.bam -t example/blast.out -o example/test
 
-    # Generate a tabular view
+    # 2. Generate a tabular view
     ./blobtools view -i example/test.blobDB.json
 
-    # Generate a blobplot
+    # 3. Generate a blobplot
     ./blobtools blobplot -i example/test.blobDB.json
 
 """

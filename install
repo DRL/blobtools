@@ -62,7 +62,7 @@ function install_samtools {
     mkdir -p $samtools_dir
     cd $samtools_src
     echo -n "[+] Configuring samtools-1.5..."
-    ./configure --prefix=$samtools_dir --quiet
+    ./configure --prefix=$samtools_dir --quiet > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "done."
     else
@@ -71,8 +71,8 @@ function install_samtools {
         exit
     fi
     echo -n "[+] Compiling samtools-1.5..."
-    make --silent
-    make install --silent
+    make --silent > /dev/null 2>&1
+    make install --silent > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "done."
     else
@@ -80,7 +80,7 @@ function install_samtools {
         echo "[X] - Could not compile samtools-1.5. Please install samtools-1.5 in $DIR/samtools/ (see http://www.htslib.org/download/) "
         exit
     fi
-    echo "[+] cleaning up..."
+    echo "[+] Cleaning up..."
     rm -f $DIR/samtools-1.5.tar.bz2
     rm -rf $samtools_src
     cd $DIR
