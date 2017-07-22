@@ -10,14 +10,14 @@ if [ -x "$wget" ] ; then
 fi
 tar=$(which tar)
 if [ -x "$tar" ] ; then
-    echo "    [+] [gunzip] $tar"; else
+    echo "    [+] [tar] $tar"; else
     echo "    [X] [tar] ... please install tar";
     exit
 fi
 pip=$(which pip)
 if [ -x "$pip" ] ; then
-    echo "    [+] [pip] $pip"; else
-    echo "    [X] [pip] ... please install pip";
+    echo "    [+] [pip] pip"; else
+    echo "    [X] [pip] ... there seems to be an issue with pip";
     exit
 fi
 python=$(which python)
@@ -33,6 +33,13 @@ fi
 # Install python dependencies
 echo "[+] Installing python dependencies..."
 $python setup.py install --quiet
+if [ $? -eq 0 ]; then
+        echo "[+] Python dependencies installed."
+    else
+        echo "FAIL."
+        echo "[X] - Python dependencies could not be installed. Make sure you are using Python 2.7 and have a functional installation of pip."
+        exit
+fi
 
 # Create executable
 echo -n "[+] Creating BlobTools executable..."
@@ -121,17 +128,17 @@ function unpack_taxdump {
 samtools_tar=$DIR/samtools-1.5.tar.bz2
 if [ ! -f "$samtools_tar" ]; then
     download_samtools
-install_samtools
 fi
+install_samtools
 
 # get taxdump
 taxdump=$DIR/data/taxdump.tar.gz
 if [ ! -f "$taxdump" ]; then
     download_taxdump
-unpack_taxdump
 fi
+unpack_taxdump
 
-# make nodesdb
+# nodesdb
 ./blobtools nodesdb --nodes $DIR/data/nodes.dmp --names $DIR/data/names.dmp
 if [ $? -eq 0 ]; then
     echo "[+] Removing intermediate files..."

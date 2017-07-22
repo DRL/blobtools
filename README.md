@@ -29,4 +29,4 @@ Usage
 Documentation
 -------------
 
-[blobtools.readme.io](https://blobtools.readme.io)
+[blobtools.readme.io](https://blobtools.readme.io) (under reconstruction)

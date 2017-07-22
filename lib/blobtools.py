@@ -7,15 +7,15 @@ usage: blobtools [<command>] [<args>...] [--help] [--version]
 commands:
 
     create        create a BlobDB
-    view          generate tabular view/CONCOCT/COV files from BlobDB
+    view          generate tabular view, CONCOCT input or COV files from BlobDB
     plot          generate a BlobPlot from a BlobDB
     covplot       generate a CovPlot from a BlobDB and a COV file
 
     map2cov       generate a COV file from BAM file
+    taxify        generate a BlobTools compatible HITS file (TSV)
+    bamfilter     subset paired-end reads from a BAM file
     seqfilter     subset sequences in FASTA file based sequence IDs in list
-    taxify        generate a BlobTools compatible HITS file
-    bamfilter     subset paired-end reads in a BAM file
-    nodesdb       create nodesdb based on names.dmp and nodes.dmp
+    nodesdb       create nodesdb based on NCBI Taxdump's names.dmp and nodes.dmp
 
     -h, --help      show this
     -v, --version   show version number
