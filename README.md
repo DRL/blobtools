@@ -4,12 +4,9 @@ A modular command-line solution for visualisation, quality control and taxonomic
 
 Dependencies
 ------------
-- UNIX system:
- - bash
- - wget
- - tar
- - Python 2.7+
- - pip
+- UNIX system
+- Python 2.7+
+- pip
 
 Installation
 ------------
