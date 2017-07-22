@@ -6,23 +6,30 @@ wget=$(which wget)
 if [ -x "$wget" ] ; then
     echo "    [+] [wget] $wget"; else
     echo "    [X] [wget] ... please install wget";
+    exit
 fi
 tar=$(which tar)
 if [ -x "$tar" ] ; then
     echo "    [+] [gunzip] $tar"; else
     echo "    [X] [tar] ... please install tar";
+    exit
 fi
 pip=$(which pip)
 if [ -x "$pip" ] ; then
     echo "    [+] [pip] $pip"; else
     echo "    [X] [pip] ... please install pip";
+    exit
 fi
 python=$(which python)
 if [ -x "$python" ] ; then
-    echo "    [+] [python] $python"; else
-    echo "    [X] [python] ... please install python2.7";
+    parsedVersion=$(python --version 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
+    if [[ "$parsedVersion" -eq "27" ]] ; then
+        echo "    [+] [python2.7] $python";
+    else
+        echo "    [X] [python] you are not using python v2.7... Please install python v2.7";
+        exit
+    fi
 fi
-
 # Install python dependencies
 echo "[+] Installing python dependencies..."
 $python setup.py install --quiet
