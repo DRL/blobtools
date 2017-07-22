@@ -5,11 +5,11 @@ A modular command-line solution for visualisation, quality control and taxonomic
 Dependencies
 ------------
 * functional UNIX installation with:
-- bash
-- wget
-- tar
-- Python2.7+
-- pip
+ - bash
+ - wget
+ - tar
+ - Python 2.7+
+ - pip
 
 Installation
 ------------
@@ -19,7 +19,7 @@ Installation
     $ ./install
 
 The installation script will:
-- install python dependencies through PIP
+- install Python dependencies through PIP
 - download and install a copy of [samtools-1.5](http://www.htslib.org/download/) into the folder ```blobtools/samtools/```
 - download a copy of [NCBI TaxDump](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) and create a nodesDB.txt file which BlobTools will use for linking TaxIDs to taxonomies
 - create a BlobTools executable
