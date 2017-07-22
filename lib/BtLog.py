@@ -11,10 +11,10 @@ import sys
 
 def error(message, *argv):
     if argv is None:
-        print error_d[message]
+        sys.exit(error_d[message])
     else:
-        print error_d[message] % (argv)
-    exit(1)  # change to exit with the actual ERROR number (different than 0)
+        sys.exit(error_d[message] % (argv))
+    #exit(1)  # change to exit with the actual ERROR number (different than 0)
 
 def progress(iteration, steps, max_value, no_limit=False):
     if steps == 0:
