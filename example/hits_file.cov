@@ -1,0 +1,17 @@
+## blobtools v0.9.19
+## Total Reads = 16000
+## Mapped Reads = 12000
+## Unmapped Reads = 14000
+## Source(s) : /Users/dominik/git/blobtools/test_files/mapping_2.bam
+# contig_id	read_cov	base_cov
+ECOLI.contig_16	1000	100.1
+ECOLI.contig_17	1000	11.1
+ECOLI.contig_18	1000	11.1
+ECOLI.contig_19	1000	11.1
+ECOLI.contig_20	1000	11.1
+ECOLI.contig_21	1000	11.1
+ECOLI.contig_22	1000	11.1
+ECOLI.contig_23	1000	11.1
+ECOLI.contig_24	1000	11.1
+ECOLI.contig_25	1000	11.1
+ECOLI.contig_26	1000	11.1
