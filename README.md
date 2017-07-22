@@ -1,33 +1,24 @@
 blobtools
 ===============================
-
-version number: 1.0
-author: Dominik R Laetsch
-
-Overview
---------
-
 A modular command-line solution for visualisation, quality control and taxonomic partitioning of genome datasets
 
-Installation / Usage
---------------------
+Dependencies
+------------
+* functional UNIX installation (bash, wget, gunzip, Python2.7+, pip)
 
-To install use pip:
-
-    $ pip install blobtools
-
-
-Or clone the repo:
-
-    $ git clone https://github.com/DRL/blobtools.git
-    $ python setup.py install
-    
-Contributing
+Installation
 ------------
 
-TBD
+    $ git clone https://github.com/DRL/blobtools.git
+    $ cd blobtools
+    $ ./install
 
-Example
--------
+Usage
+-----
 
-TBD
+    $ ./blobtools -h
+
+Documentation
+-------------
+
+[blobtools.readme.io](https://blobtools.readme.io)
