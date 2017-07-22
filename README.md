@@ -1,4 +1,4 @@
-BlobTools
+BlobTools v1.0
 ===============================
 A modular command-line solution for visualisation, quality control and taxonomic partitioning of genome datasets
 
