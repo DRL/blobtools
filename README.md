@@ -4,7 +4,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 
 Dependencies
 ------------
-* functional UNIX installation with:
+- UNIX system:
  - bash
  - wget
  - tar
