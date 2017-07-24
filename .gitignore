@@ -5,6 +5,7 @@
 !lib/*
 !data/
 !example/*
+example/*.stats.txt
 !setup*
 !requirements.txt
 !MANIFEST.in
