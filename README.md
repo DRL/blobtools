@@ -2,6 +2,10 @@ BlobTools v1.0
 ===============================
 A modular command-line solution for visualisation, quality control and taxonomic partitioning of genome datasets
 
+- Discussions, questions and answers: [BlobTools GoogleGroup](https://groups.google.com/forum/#!forum/blobtools)
+- Issues, bug reports and feature requests: [GitHub issues](https://github.com/DRL/blobtools/issues)
+- Documentation: [blobtools.readme.io](https://blobtools.readme.io) (under reconstruction)
+
 Dependencies
 ------------
 - UNIX system
@@ -25,8 +29,3 @@ Usage
 -----
 
     $ ./blobtools -h
-
-Documentation
--------------
-
-[blobtools.readme.io](https://blobtools.readme.io) (under reconstruction)
