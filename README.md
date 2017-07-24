@@ -4,7 +4,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 
 - Discussions, questions and answers: [BlobTools GoogleGroup](https://groups.google.com/forum/#!forum/blobtools)
 - Issues, bug reports and feature requests: [GitHub issues](https://github.com/DRL/blobtools/issues)
-- Documentation: [blobtools.readme.io](https://blobtools.readme.io) (under reconstruction)
+- Documentation: [blobtools.readme.io](https://blobtools.readme.io)
 
 Dependencies
 ------------
