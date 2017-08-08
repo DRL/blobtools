@@ -124,10 +124,10 @@ class BlobDb():
     def getCovLine(self, blob, cov_lib_names):
         if isinstance(blob, BlObj):
             # BlobObj
-            return "%s\t%s\t%s\n" % (blob.name, blob.read_cov[cov_lib_names[0]], blob.covs[cov_lib_names[0]])
+            return "%s\t%s\t%s\n" % (blob.name, blob.read_cov.get(cov_lib_names[0], 0), blob.covs.get(cov_lib_names[0], 0.0))
         else:
             # BlobObj turned dict
-            return "%s\t%s\t%s\n" % (blob['name'], blob['read_cov'][cov_lib_names[0]], blob['covs'][cov_lib_names[0]])
+            return "%s\t%s\t%s\n" % (blob['name'], blob['read_cov'].get(cov_lib_names[0], 0), blob['covs'].get(cov_lib_names[0], 0.0))
 
     def getConcoctCovHeader(self, cov_lib_names):
         return "contig\t%s\n" % "\t".join(cov_lib_names)
