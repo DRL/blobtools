@@ -10,7 +10,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 Dependencies
 ------------
 - UNIX system
-- Python 2.7+
+- Python 2.7
 - ```pip```
 
 Installation
