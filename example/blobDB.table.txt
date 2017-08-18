@@ -1,6 +1,6 @@
 ## blobtools v1.0
 ## assembly	: /Users/dom/git/blobtools/example/assembly.fna
-## coverage	: bam0 - /Users/dom/git/blobtools/example/mapping_1.bam
+## coverage	: cov0 - /Users/dom/git/blobtools/example/mapping_1.bam.cov
 ## taxonomy	: tax0 - /Users/dom/git/blobtools/example/blast.out
 ## nodesDB	: /Users/dom/git/blobtools/data/nodesDB.txt
 ## taxrule	: bestsum
@@ -8,7 +8,7 @@
 ## min_diff	: 0.0
 ## tax_collision_random	: False
 ##
-# name	length	GC	N	bam0	phylum.t.6	phylum.s.7	phylum.c.8
+# name	length	GC	N	cov0	phylum.t.6	phylum.s.7	phylum.c.8
 contig_1	756	0.2606	0	90.406	Actinobacteria	200.0	0
 contig_2	1060	0.2623	0	168.409	Actinobacteria	2300.0	0
 contig_3	602	0.2342	0	43.761	Actinobacteria	10000.0	0
