@@ -74,5 +74,5 @@ if __name__ == '__main__':
     elif args['<command>'] == 'nodesdb':
         exit(call(['python', LIBDIR + '/nodesdb.py'] + argv))
     else:
-        exit(call(['./blobtools', '-h']))
+        exit(call([os.path.join(MAINDIR, './blobtools'), '-h']))
 
