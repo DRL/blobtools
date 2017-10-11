@@ -9,7 +9,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 
 Dependencies
 ------------
-- UNIX system (bash, wget, tar) 
+- UNIX system (bash, wget, tar, make, gunzip) 
 - Python 2.7
 - ```pip```
 
