@@ -40,12 +40,19 @@ import sys
 from subprocess import call
 import os
 from docopt import docopt
+from distutils.spawn import find_executable
+
 
 __version__ = "blobtools v1.0"
 LIBDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ''))
 MAINDIR = os.path.abspath(os.path.join(LIBDIR, '../'))
 DATADIR = os.path.abspath(os.path.join(MAINDIR, 'data/'))
 SAMTOOLS = os.path.abspath(os.path.join(MAINDIR, 'samtools/bin/samtools'))
+
+if find_executable('python2') is not None:
+    PYTHON = 'python2'
+else:
+    PYTHON = PYTHON
 
 if __name__ == '__main__':
     args = docopt(__doc__,
@@ -54,25 +61,25 @@ if __name__ == '__main__':
 
     argv = [args['<command>']] + args['<args>']
     if args['<command>'] == 'create':
-        exit(call(['python', LIBDIR + '/create.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/create.py'] + argv))
     elif args['<command>'] == 'view':
-        exit(call(['python', LIBDIR + '/view.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/view.py'] + argv))
     elif args['<command>'] == 'blobplot' or args['<command>'] == 'plot':
         argv[0] = "blobplot"
-        exit(call(['python', LIBDIR + '/blobplot.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/blobplot.py'] + argv))
     elif args['<command>'] == 'map2cov':
-        exit(call(['python', LIBDIR + '/map2cov.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/map2cov.py'] + argv))
     elif args['<command>'] == 'covplot' or args['<command>'] == 'comparecov':
         argv[0] = "covplot"
-        exit(call(['python', LIBDIR + '/covplot.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/covplot.py'] + argv))
     elif args['<command>'] == 'seqfilter':
-        exit(call(['python', LIBDIR + '/seqfilter.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/seqfilter.py'] + argv))
     elif args['<command>'] == 'taxify':
-        exit(call(['python', LIBDIR + '/taxify.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/taxify.py'] + argv))
     elif args['<command>'] == 'bamfilter':
-        exit(call(['python', LIBDIR + '/bamfilter.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/bamfilter.py'] + argv))
     elif args['<command>'] == 'nodesdb':
-        exit(call(['python', LIBDIR + '/nodesdb.py'] + argv))
+        exit(call([PYTHON, LIBDIR + '/nodesdb.py'] + argv))
     else:
         exit(call([os.path.join(MAINDIR, './blobtools'), '-h']))
 
