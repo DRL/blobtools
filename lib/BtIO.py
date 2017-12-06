@@ -201,7 +201,7 @@ def checkBam(infile):
 
     # check whether there are reads in BAM
     if not reads_total or not reads_mapped:
-        BtLog.error('29' % infile)
+        BtLog.error('29', infile)
     print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), \
         '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
     return reads_total, reads_mapped
