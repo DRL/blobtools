@@ -727,51 +727,65 @@ class ExperimentalViewObj():
         self.meta = {}
         BtIO.create_dir(self.view_dir)
 
+    def _format_float(self,l,min_val=-float("inf")):
+        if min_val:
+           l = map(lambda x:max(x,min_val),l)
+        return map(lambda x:float("%.4f" % x),l)
 
     def get_meta(self):
         meta = {
-              "name": self.view_dir,
-              "datatypes":{
-                "identifiers": {"name" : "identifiers", "type" : "identifier"},
-                "len": {"name" : "length","type" : "integer", "min" : min(self.length), "max" : max(self.length)},
-                "gc": {"name" : "gc","type" : "percentage", "min" : min(self.gc), "max" : max(self.gc)},
-                "covs": {"name" : "covs","type" : "float", "min" : 0.02, "max" : max(self.covs["covsum"])},
-                "taxrule":{"name" : "taxrule","type" : "category"},
-              },
-              "hierarchy":{
-                "covs": [cov for cov in self.covs],
-                "taxrule": [taxrule for taxrule in self.tax],
-                "besthit": [rank for rank in BtTax.RANKS],
-                "bestsum": [rank for rank in BtTax.RANKS],
-                #"superkingdom":["bitscore","cindex","evalue"],
-                #"phylum":["bitscore","cindex","evalue"]
-              },
-              "rows" : len(self.names),
-              "mainplot":{
-                "type":"hexbin",
-                "x":{
-                  "datatype":["gc"],
-                  "bounds":[0,100],
-                  "scale":"linear"
-                },
-                "y":{
-                  "datatype": [cov_lib for cov_lib in self.covs],
-                  "bounds":[0.001,1000000],
-                  "scale":"log10"
-                },
-                "series":{
-                  "datatype":["taxrule","besthit","superkingdom"],
-                  "scale":"sqrt"
-                }
-              }
+              "id": self.name,
+              "name": self.name,
+              "records": len(self.names),
+              "record_type": "contigs",
+              "fields":[
+                { "id":"length", "name":"Length", "type":"variable", "datatype":"integer", "range":[min(self.length),max(self.length)], "scale":"scaleLog", "preload":True },
+                { "id":"gc", "name":"GC", "type":"variable", "datatype":"float", "range":self._format_float([min(self.gc),max(self.gc)]), "scale":"scaleLinear", "preload":True },
+              ],
+              #"besthit": [rank for rank in BtTax.RANKS],
+              #"bestsum": [rank for rank in BtTax.RANKS],
             }
-        for cov_lib in self.covs:
-            meta['datatypes'][cov_lib] = {"name" : cov_lib, "type" : "float"}
-        for taxrule in self.tax:
-            meta['datatypes'][taxrule] = {"name": taxrule, "type":"category"}
-        for rank in BtTax.RANKS:
-            meta['datatypes'][rank] = {"name": rank, "type":"category", "levels" : 7}
+	if len(self.covs) > 0:
+            cov_libs = []
+            for name in self.covs:
+                id = "%s_cov" % name
+                cov_lib_meta = {"id":id, "name":name }
+                if name == "cov0":
+                    cov_lib_meta["preload"] = True
+                cov_libs.append(cov_lib_meta)
+            cov_meta = {"id":"covs", "name":"Coverage", "type":"variable", "datatype":"float", "scale":"scaleLog", "range":self._format_float([0.02,max(self.covs["covsum"])])}
+            cov_meta['children'] = sorted(cov_libs, key=lambda k: k['name'])
+            meta['fields'].append(cov_meta)
+	if len(self.tax) > 0:
+            tax_rules = []
+            for taxrule in self.tax:
+                taxrule_meta = {"id":taxrule, "name":taxrule, "children":[] }
+                for rank in self.tax[taxrule]:
+                    id = "%s_%s" % (taxrule,rank)
+                    tax_rank_meta = { "id":id, "name":id }
+                    if rank == "phylum":
+                        tax_rank_meta["preload"] = True
+                    taxrule_meta['children'].append(tax_rank_meta)
+                tax_rules.append(taxrule_meta)
+            tax_meta = {"id":"taxonomy", "name":"Taxonomy", "type":"category", "datatype":"string"}
+            tax_meta['children'] = sorted(tax_rules, key=lambda k: k['name'])
+            meta['fields'].append(tax_meta)
+        #for taxrule in self.tax:
+        #    meta['datatypes'][taxrule] = {"name": taxrule, "type":"category"}
+        #for rank in BtTax.RANKS:
+        #    meta['datatypes'][rank] = {"name": rank, "type":"category", "levels" : 7}
         return meta
+
+    def _keyed_list(self,l):
+        d = {}
+        i = 0
+        o = []
+        for v in l:
+            if v not in d:
+                d[v] = i
+                i += 1
+            o.append(d[v])
+        return {'values':o,'keys':sorted(d, key=d.get)}
 
     def output(self):
         # meta
@@ -781,31 +795,25 @@ class ExperimentalViewObj():
         # gc
         gc_f = join(self.view_dir, "gc.json")
         print BtLog.status_d['13'] % (gc_f)
-        BtIO.writeJson(self.gc, gc_f, indent=1)
+        BtIO.writeJson({"values":self._format_float(self.gc)}, gc_f, indent=1)
         # length
         length_f = join(self.view_dir, "length.json")
         print BtLog.status_d['13'] % (length_f)
-        BtIO.writeJson(self.length, length_f, indent=1)
-        # names
-        names_f = join(self.view_dir, "names.json")
-        print BtLog.status_d['13'] % (names_f)
-        BtIO.writeJson(self.names, names_f, indent=1)
+        BtIO.writeJson({"values":self.length}, length_f, indent=1)
+        # identifiers
+        ids_f = join(self.view_dir, "identifiers.json")
+        print BtLog.status_d['13'] % (ids_f)
+        BtIO.writeJson(self.names, ids_f, indent=1)
         # cov
-        cov_d = join(self.view_dir, "covs")
-        BtIO.create_dir(directory=cov_d)
         for cov_lib, cov in self.covs.items():
-            cov_f = join(cov_d, "%s.json" % cov_lib)
+            cov_f = join(self.view_dir, "%s_cov.json" % cov_lib)
             print BtLog.status_d['13'] % (cov_f)
-            BtIO.writeJson(cov, cov_f, indent=1)
+            BtIO.writeJson({"values":self._format_float(cov,0.02)}, cov_f, indent=1)
         # tax
-        taxrule_d = join(self.view_dir, "taxrule")
-        BtIO.create_dir(directory=taxrule_d)
         for taxrule in self.tax:
-            tax_d = join(taxrule_d, taxrule)
-            BtIO.create_dir(directory=tax_d)
             for rank in self.tax[taxrule]:
-                tax = self.tax[taxrule][rank]
-                rank_f = join(tax_d, "%s.json" % rank)
+                tax = self._keyed_list(self.tax[taxrule][rank])
+                rank_f = join(self.view_dir, "%s_%s.json" % (taxrule,rank))
                 BtIO.writeJson(tax, rank_f, indent=1)
 
 
