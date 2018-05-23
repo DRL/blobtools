@@ -13,6 +13,8 @@ import lib.BtTax as BtTax
 from os.path import abspath, isfile, basename, isdir, join
 from os import getcwd, mkdir
 import json
+import re
+from collections import defaultdict
 
 class BlobDb():
     '''
@@ -716,7 +718,7 @@ class newBlobDb():
                 BtIO.writeJson(tax, rank_f, indent=1)
 
 class ExperimentalViewObj():
-    def __init__(self, name='experimental', view_dir=''):
+    def __init__(self, name='experimental', view_dir='',blobDb={},cov_meta={}):
         self.name = name
         self.view_dir = view_dir
         self.length = []
@@ -724,13 +726,25 @@ class ExperimentalViewObj():
         self.names = []
         self.tax = {}
         self.covs = {}
+        self.read_covs = defaultdict(list)
+        self.tax_scores = {}
+        self.cov_meta = cov_meta
+        self.blobDb = blobDb
         self.meta = {}
         BtIO.create_dir(self.view_dir)
 
     def _format_float(self,l,min_val=-float("inf")):
         if min_val:
-           l = map(lambda x:max(x,min_val),l)
+            l = map(lambda x:max(x,min_val),l)
         return map(lambda x:float("%.4f" % x),l)
+
+    def _remove_cov_suffix(self,id,meta):
+        rep_list = ['.bam','.bam.cov','.cas','.cas.cov','.cov','.sam','.sam.cov']
+        rep_list += list(map(lambda x: "%s." % x, self.view_dir.split('.')))
+        name = id
+        if id in meta:
+            name = re.sub("|".join(rep_list), "", basename(meta[id]['f']))
+        return name if name else id
 
     def get_meta(self):
         meta = {
@@ -742,29 +756,57 @@ class ExperimentalViewObj():
                 { "id":"length", "name":"Length", "type":"variable", "datatype":"integer", "range":[min(self.length),max(self.length)], "scale":"scaleLog", "preload":True },
                 { "id":"gc", "name":"GC", "type":"variable", "datatype":"float", "range":self._format_float([min(self.gc),max(self.gc)]), "scale":"scaleLinear", "preload":True },
               ],
+              "plot":{
+                  "x":"gc",
+                  "z":"length"
+              }
               #"besthit": [rank for rank in BtTax.RANKS],
               #"bestsum": [rank for rank in BtTax.RANKS],
             }
+        cov_names = filter(lambda name: name != "covsum",self.covs)
+        for taxrule in self.tax:
+            self.tax_scores[taxrule] = defaultdict(lambda: {'score':[],'c_index':[]})
+        for id in self.blobDb.order_of_blobs:
+            blob = self.blobDb.dict_of_blobs[id]
+            self.read_covs['covsum'].append(0)
+            for cov_name in cov_names:
+                self.read_covs[cov_name].append(blob['read_cov'][cov_name])
+                self.read_covs['covsum'][-1] += blob['read_cov'][cov_name]
+            for taxrule in self.tax:
+                for rank in self.tax[taxrule]:
+                    self.tax_scores[taxrule][rank]['score'].append(blob['taxonomy'][taxrule][rank]['score'])
+                    self.tax_scores[taxrule][rank]['c_index'].append(blob['taxonomy'][taxrule][rank]['c_index'])
 	if len(self.covs) > 0:
-            cov_libs = []
-            for name in self.covs:
-                id = "%s_cov" % name
-                cov_lib_meta = {"id":id, "name":name }
-                if name == "cov0":
-                    cov_lib_meta["preload"] = True
-                cov_libs.append(cov_lib_meta)
-            cov_meta = {"id":"covs", "name":"Coverage", "type":"variable", "datatype":"float", "scale":"scaleLog", "range":self._format_float([0.02,max(self.covs["covsum"])])}
-            cov_meta['children'] = sorted(cov_libs, key=lambda k: k['name'])
-            meta['fields'].append(cov_meta)
+            for cov in ['cov','read_cov']:
+                cov_libs = []
+                for cov_name in self.covs:
+                    name = self._remove_cov_suffix(cov_name,self.cov_meta)
+                    id = "%s_%s" % (name,cov)
+                    cov_lib_meta = {"id":id, "name":name }
+                    if cov_name == "cov0" and cov == "cov":
+                        cov_lib_meta["preload"] = True
+                        meta['plot']['y'] = id
+                    cov_libs.append(cov_lib_meta)
+                cov_meta = {"id":"%s" % cov, "name":"Coverage", "type":"variable", "datatype":"float", "scale":"scaleLog", "range":self._format_float([0.02,max(self.covs["covsum"])])}
+                if cov == 'read_cov':
+                    cov_meta['name'] = "Read coverage"
+                    cov_meta['datatype'] = "integer"
+                    cov_meta['range'] = [1,max(self.read_covs["covsum"])]
+                cov_meta['children'] = sorted(cov_libs, key=lambda k: k['name'])
+                meta['fields'].append(cov_meta)
 	if len(self.tax) > 0:
             tax_rules = []
             for taxrule in self.tax:
                 taxrule_meta = {"id":taxrule, "name":taxrule, "children":[] }
                 for rank in self.tax[taxrule]:
                     id = "%s_%s" % (taxrule,rank)
-                    tax_rank_meta = { "id":id, "name":id }
+                    tax_rank_data = []
+                    tax_rank_data.append({ "id":"%s_score" % id, "name":"%s score" % id, "type":"variable", "datatype":"float", "scale":"scaleLog", "range":[0.1,max(self.tax_scores[taxrule][rank]['score'])]})
+                    tax_rank_data.append({ "id":"%s_cindex" % id, "name":"%s c-index" % id, "type":"variable", "datatype":"integer", "scale":"scaleLinear", "range":[0,max(self.tax_scores[taxrule][rank]['c_index'])]})
+                    tax_rank_meta = { "id":id, "name":id, "data": tax_rank_data }
                     if rank == "phylum":
                         tax_rank_meta["preload"] = True
+                        meta['plot']['cat'] = id
                     taxrule_meta['children'].append(tax_rank_meta)
                 tax_rules.append(taxrule_meta)
             tax_meta = {"id":"taxonomy", "name":"Taxonomy", "type":"category", "datatype":"string"}
@@ -774,6 +816,7 @@ class ExperimentalViewObj():
         #    meta['datatypes'][taxrule] = {"name": taxrule, "type":"category"}
         #for rank in BtTax.RANKS:
         #    meta['datatypes'][rank] = {"name": rank, "type":"category", "levels" : 7}
+        print self.view_dir
         return meta
 
     def _keyed_list(self,l):
@@ -805,17 +848,29 @@ class ExperimentalViewObj():
         print BtLog.status_d['13'] % (ids_f)
         BtIO.writeJson(self.names, ids_f, indent=1)
         # cov
-        for cov_lib, cov in self.covs.items():
-            cov_f = join(self.view_dir, "%s_cov.json" % cov_lib)
+        for cov_name, cov in self.covs.items():
+            name = self._remove_cov_suffix(cov_name,self.cov_meta)
+            cov_f = join(self.view_dir, "%s_cov.json" % name)
             print BtLog.status_d['13'] % (cov_f)
             BtIO.writeJson({"values":self._format_float(cov,0.02)}, cov_f, indent=1)
+        # read_cov
+        for cov_name, cov in self.read_covs.items():
+            name = self._remove_cov_suffix(cov_name,self.cov_meta)
+            cov_f = join(self.view_dir, "%s_read_cov.json" % name)
+            print BtLog.status_d['13'] % (cov_f)
+            BtIO.writeJson({"values":map(lambda x:max(x,1),cov)}, cov_f, indent=1)
         # tax
         for taxrule in self.tax:
             for rank in self.tax[taxrule]:
                 tax = self._keyed_list(self.tax[taxrule][rank])
                 rank_f = join(self.view_dir, "%s_%s.json" % (taxrule,rank))
                 BtIO.writeJson(tax, rank_f, indent=1)
-
+                score = self.tax_scores[taxrule][rank]['score']
+                score_f = join(self.view_dir, "%s_%s_score.json" % (taxrule,rank))
+                BtIO.writeJson({"values":map(lambda x:max(x,0.1),score)}, score_f, indent=1)
+                cindex = self.tax_scores[taxrule][rank]['c_index']
+                cindex_f = join(self.view_dir, "%s_%s_cindex.json" % (taxrule,rank))
+                BtIO.writeJson({"values":cindex}, cindex_f, indent=1)
 
 if __name__ == '__main__':
     pass
