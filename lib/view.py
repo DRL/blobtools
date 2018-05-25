@@ -96,7 +96,7 @@ def main():
             tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
     if (experimental):
-        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f, blobDb=blobDb, cov_meta=blobDb.covLibs)
+        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f, blobDb=blobDb)
         viewObjs.append(experimentalView)
     if (concoct):
         concoctTaxView = None
