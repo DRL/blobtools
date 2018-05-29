@@ -3,7 +3,7 @@
 
 """usage: blobtools view    -i <BLOBDB> [-x <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>] [--notable]
-                            [--concoct] [--cov] [--experimental]
+                            [--concoct] [--cov] [--experimental <META>]
                             [--h|--help]
 
     Options:
@@ -21,7 +21,7 @@
                                     that contributed to the taxonomy.
         --concoct                   Generate concoct files [default: False]
         --cov                       Generate cov files [default: False]
-        --experimental              Experimental output [default: False]
+        --experimental <META>       Experimental output [default: False]
         -n, --notable               Do not generate table view [default: False]
 """
 
@@ -96,7 +96,10 @@ def main():
             tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
     if (experimental):
-        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f, blobDb=blobDb)
+        meta = {}
+        if isfile(experimental):
+            meta = BtIO.readYaml(experimental)
+        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f, blobDb=blobDb, meta=meta)
         viewObjs.append(experimentalView)
     if (concoct):
         concoctTaxView = None
