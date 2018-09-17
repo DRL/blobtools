@@ -79,8 +79,8 @@ error_d = {
     '43': '[ERROR:43] : %s could not be found.',
     '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.',
     '45': '[ERROR:45] : Both --min_score and --min_diff must be numbers.',
-    '46': '[ERROR:46] : Score in %s must be a float, not \'%s\'.'
-
+    '46': '[ERROR:46] : Score in %s must be a float, not \'%s\'.',
+    '47': '[ERROR:47] : Cannot create new "--db" file from "--names", "--nodes", "--db" file exists. %s'
 }
 
 warn_d = {
@@ -125,7 +125,9 @@ status_d = {
     '23': '[+] Filtered %s (pairs=%s) ...',
     '24': '[+] Writing %s',
     '25': '[+] Gzip\'ing %s',
-    '26': '[+] Reading %s'
+    '26': '[+] Reading %s',
+    '27': '[+] Creating nodesDB %s from %s and %s',
+    '28': '[+] Store nodesDB in %s',
 }
 
 info_d = {
