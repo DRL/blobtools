@@ -133,10 +133,10 @@ exit
 
 # get taxdump
 taxdump=$DIR/data/taxdump.tar.gz
-#if [ ! -f "$taxdump" ]; then
-#    download_taxdump
-#fi
-#unpack_taxdump
+if [ ! -f "$taxdump" ]; then
+    download_taxdump
+fi
+unpack_taxdump
 
 # nodesdb
 ./blobtools nodesdb --nodes $DIR/data/nodes.dmp --names $DIR/data/names.dmp
