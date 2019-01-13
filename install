@@ -23,12 +23,12 @@ fi
 python=$(which python)
 if [ -x "$python" ] ; then
     parsedVersion=$(python --version 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
-    if [[ "$parsedVersion" -eq "27" ]] ; then
-        echo "    [+] [python2.7] $python";
-    else
-        echo "    [X] [python] you are not using python v2.7... Please install python v2.7";
-        exit
-    fi
+    #if [[ "$parsedVersion" -eq "27" ]] ; then
+    #    echo "    [+] [python2.7] $python";
+    #else
+    #    echo "    [X] [python] you are not using python v2.7... Please install python v2.7";
+    #    exit
+    #fi
 fi
 # Install python dependencies
 echo "[+] Installing python dependencies..."
@@ -123,20 +123,20 @@ function unpack_taxdump {
         exit
     fi
 }
-
+exit
 # install samtools
-samtools_tar=$DIR/samtools-1.5.tar.bz2
-if [ ! -f "$samtools_tar" ]; then
-    download_samtools
-fi
-install_samtools
+#samtools_tar=$DIR/samtools-1.5.tar.bz2
+#if [ ! -f "$samtools_tar" ]; then
+#    download_samtools
+#fi
+#install_samtools
 
 # get taxdump
 taxdump=$DIR/data/taxdump.tar.gz
-if [ ! -f "$taxdump" ]; then
-    download_taxdump
-fi
-unpack_taxdump
+#if [ ! -f "$taxdump" ]; then
+#    download_taxdump
+#fi
+#unpack_taxdump
 
 # nodesdb
 ./blobtools nodesdb --nodes $DIR/data/nodes.dmp --names $DIR/data/names.dmp

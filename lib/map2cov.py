@@ -16,7 +16,7 @@
                                         can only be used for "blobtools blobplot --noblobs")
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import dirname, abspath

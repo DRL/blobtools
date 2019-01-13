@@ -60,7 +60,7 @@
 
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
@@ -113,13 +113,13 @@ def main():
     colour_dict = BtIO.parseColours(colour_f)
 
     # Load BlobDb
-    print BtLog.status_d['9'] % blobdb_f
+    print(BtLog.status_d['9'] % blobdb_f)
     blobDb = BtCore.BlobDb('blobplot')
     blobDb.version = blobtools.__version__
     blobDb.load(blobdb_f)
 
     # Generate plot data
-    print BtLog.status_d['18']
+    print(BtLog.status_d['18'])
     data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot', sort_first)
     plotObj.exclude_groups = exclude_groups

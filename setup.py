@@ -41,7 +41,7 @@ setup(
       'Operating System :: POSIX',
       'Topic :: Scientific/Engineering :: Bio-Informatics',
       'Topic :: Scientific/Engineering :: Visualization',
-      'Programming Language :: Python :: 2.7',
+      'Programming Language :: Python :: 3.5',
     ],
     keywords='Bioinformatics visualisation genome assembly QC',
     packages=find_packages(exclude=['docs', 'tests*']),

@@ -6,7 +6,7 @@ File        : BtCore.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
+#from __future__ import division
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 import lib.BtTax as BtTax
@@ -232,7 +232,7 @@ class BlobDb():
         blobDict = BtIO.parseJson(BlobDb_f)
         for k, v in blobDict.items():
             setattr(self, k, v)
-        self.set_of_taxIds = blobDict['lineages'].keys()
+        self.set_of_taxIds = list(blobDict['lineages'].keys())
 
     def getPlotData(self, rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict):
         data_dict = {}
@@ -240,7 +240,7 @@ class BlobDb():
         max_cov = 0.0
         min_cov = 1000.0
         cov_lib_dict = self.covLibs
-        cov_lib_names_l = self.covLibs.keys() # does not include cov_sum
+        cov_lib_names_l = list(self.covLibs.keys()) # does not include cov_sum
         if len(cov_lib_names_l) > 1:
             # more than one cov_lib, cov_sum_lib has to be created
             cov_lib_dict['covsum'] = CovLibObj('covsum', 'covsum', 'Sum of cov in %s' % basename(self.title)).__dict__ # ugly
@@ -323,7 +323,7 @@ class BlobDb():
             blObj.addCov(covLib.name, 0.0)
 
     def parseFasta(self, fasta_f, fasta_type):
-        print BtLog.status_d['1'] % ('FASTA', fasta_f)
+        print(BtLog.status_d['1'] % ('FASTA', fasta_f))
         self.assembly_f = abspath(fasta_f)
         if (fasta_type):
             # Set up CovLibObj for coverage in assembly header
@@ -356,7 +356,7 @@ class BlobDb():
 
         for covLib in covLibObjs:
             self.addCovLib(covLib)
-            print BtLog.status_d['1'] % (covLib.name, covLib.f)
+            print(BtLog.status_d['1'] % (covLib.name, covLib.f))
             if covLib.fmt == 'bam' or covLib.fmt == 'sam':
                 base_cov_dict = {}
                 if covLib.fmt == 'bam':
@@ -365,7 +365,7 @@ class BlobDb():
                     base_cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseSam(covLib.f, set(self.dict_of_blobs), no_base_cov)
 
                 if covLib.reads_total == 0:
-                    print BtLog.warn_d['4'] % covLib.f
+                    print(BtLog.warn_d['4'] % covLib.f)
 
                 for name, base_cov in base_cov_dict.items():
                     cov = base_cov / self.dict_of_blobs[name].agct_count
@@ -380,7 +380,7 @@ class BlobDb():
             elif covLib.fmt == 'cas':
                 cov_dict, covLib.reads_total, covLib.reads_mapped, read_cov_dict = BtIO.parseCas(covLib.f, self.order_of_blobs)
                 if covLib.reads_total == 0:
-                    print BtLog.warn_d['4'] % covLib.f
+                    print(BtLog.warn_d['4'] % covLib.f)
                 for name, cov in cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
@@ -393,7 +393,7 @@ class BlobDb():
                 base_cov_dict, covLib.reads_total, covLib.reads_mapped, covLib.reads_unmapped, read_cov_dict = BtIO.parseCov(covLib.f, set(self.dict_of_blobs))
                 #cov_dict = BtIO.readCov(covLib.f, set(self.dict_of_blobs))
                 if not len(base_cov_dict) == self.seqs:
-                    print BtLog.warn_d['4'] % covLib.f
+                    print(BtLog.warn_d['4'] % covLib.f)
                 for name, cov in base_cov_dict.items():
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
@@ -403,24 +403,24 @@ class BlobDb():
                 pass
             covLib.mean_cov = covLib.cov_sum/self.seqs
             if covLib.cov_sum == 0.0:
-                print BtLog.warn_d['6'] % (covLib.name)
+                print(BtLog.warn_d['6'] % (covLib.name))
             self.covLibs[covLib.name] = covLib
 
 
     def parseHits(self, hitLibs):
         for hitLib in hitLibs:
             self.hitLibs[hitLib.name] = hitLib
-            print BtLog.status_d['1'] % (hitLib.name, hitLib.f)
+            print(BtLog.status_d['1'] % (hitLib.name, hitLib.f))
             # only accepts format 'seqID\ttaxID\tscore'
             for hitDict in BtIO.readTax(hitLib.f, set(self.dict_of_blobs)):
                 if ";" in hitDict['taxId']:
                     hitDict['taxId'] = hitDict['taxId'].split(";")[0]
-                    #print BtLog.warn_d['5'] % (hitDict['name'], hitLib)
+                    #print(BtLog.warn_d['5'] % (hitDict['name'], hitLib))
                 self.set_of_taxIds.add(hitDict['taxId'])
                 self.dict_of_blobs[hitDict['name']].addHits(hitLib.name, hitDict)
 
     def computeTaxonomy(self, taxrules, nodesDB, min_score, min_bitscore_diff, tax_collision_random):
-        print BtLog.status_d['6'] % ",".join(taxrules)
+        print(BtLog.status_d['6'] % ",".join(taxrules))
         tree_lists = BtTax.getTreeList(self.set_of_taxIds, nodesDB)
         self.lineages = BtTax.getLineages(tree_lists, nodesDB)
         self.taxrules = taxrules
@@ -499,12 +499,12 @@ class ViewObj():
         if isinstance(self.body, dict):
             for category in self.body:
                 out_f = "%s.%s.%s" % (self.out_f, category, self.suffix)
-                print BtLog.status_d['13'] % (out_f)
+                print(BtLog.status_d['13'] % (out_f))
                 with open(out_f, "w") as fh:
                     fh.write(self.header + "".join(self.body[category]))
         elif isinstance(self.body, list):
             out_f = "%s.%s" % (self.out_f, self.suffix)
-            print BtLog.status_d['13'] % (out_f)
+            print(BtLog.status_d['13'] % (out_f))
             with open(out_f, "w") as fh:
                 fh.write(self.header + "".join(self.body))
         else:
@@ -689,22 +689,22 @@ class newBlobDb():
         BtIO.writeJson(meta, meta_f, indent=2)
         # gc
         gc_f = join(self.view_dir, "gc.json")
-        print BtLog.status_d['13'] % (gc_f)
+        print(BtLog.status_d['13'] % (gc_f))
         BtIO.writeJson(self.gc, gc_f, indent=1)
         # length
         length_f = join(self.view_dir, "length.json")
-        print BtLog.status_d['13'] % (length_f)
+        print(BtLog.status_d['13'] % (length_f))
         BtIO.writeJson(self.length, length_f, indent=1)
         # names
         names_f = join(self.view_dir, "names.json")
-        print BtLog.status_d['13'] % (names_f)
+        print(BtLog.status_d['13'] % (names_f))
         BtIO.writeJson(self.names, names_f, indent=1)
         # cov
         cov_d = join(self.view_dir, "covs")
         BtIO.create_dir(directory=cov_d)
         for cov_lib, cov in self.covs.items():
             cov_f = join(cov_d, "%s.json" % cov_lib)
-            print BtLog.status_d['13'] % (cov_f)
+            print(BtLog.status_d['13'] % (cov_f))
             BtIO.writeJson(cov, cov_f, indent=1)
         # tax
         taxrule_d = join(self.view_dir, "taxrule")
@@ -736,7 +736,7 @@ class ExperimentalViewObj():
     def _format_float(self,l,min_val=-float("inf")):
         if min_val:
             l = map(lambda x:max(x,min_val),l)
-        return map(lambda x:float("%.4f" % x),l)
+        return list(map(lambda x:float("%.4f" % x),l))
 
     def _remove_cov_suffix(self,id,meta):
         rep_list = ['.bam','.bam.cov','.cas','.cas.cov','.cov','.sam','.sam.cov']
@@ -779,7 +779,7 @@ class ExperimentalViewObj():
             self.n_count.append(blob['length']-blob['agct_count'])
         if max(self.n_count) > 0:
             meta['fields'].append({ "id":"ncount", "name":"N count", "type":"variable", "datatype":"integer", "range":[max(0.1,min(self.n_count)),max(self.n_count)], "scale":"scaleLinear"})
-	if len(self.covs) > 0:
+        if len(self.covs) > 0:
             for cov in ['cov','read_cov']:
                 cov_libs = []
                 for cov_name in self.covs:
@@ -797,7 +797,7 @@ class ExperimentalViewObj():
                     cov_meta['range'] = [0.2,max(self.read_covs["covsum"])]
                 cov_meta['children'] = sorted(cov_libs, key=lambda k: k['name'])
                 meta['fields'].append(cov_meta)
-	if len(self.tax) > 0:
+        if len(self.tax) > 0:
             tax_rules = []
             for taxrule in self.tax:
                 taxrule_meta = {"id":taxrule, "name":taxrule, "children":[] }
@@ -839,33 +839,33 @@ class ExperimentalViewObj():
         BtIO.writeJson(meta, meta_f, indent=2)
         # gc
         gc_f = join(self.view_dir, "gc.json")
-        print BtLog.status_d['13'] % (gc_f)
+        print(BtLog.status_d['13'] % (gc_f))
         BtIO.writeJson({"values":self._format_float(self.gc)}, gc_f, indent=1)
         # length
         length_f = join(self.view_dir, "length.json")
-        print BtLog.status_d['13'] % (length_f)
+        print(BtLog.status_d['13'] % (length_f))
         BtIO.writeJson({"values":self.length}, length_f, indent=1)
         # Ns
         if max(self.n_count) > 0:
             n_f = join(self.view_dir, "ncount.json")
-            print BtLog.status_d['13'] % (n_f)
-            BtIO.writeJson({"values":map(lambda x:max(x,0.2),self.n_count)}, n_f, indent=1)
+            print(BtLog.status_d['13'] % (n_f))
+            BtIO.writeJson({"values":list(map(lambda x:max(x,0.2),self.n_count))}, n_f, indent=1)
         # identifiers
         ids_f = join(self.view_dir, "identifiers.json")
-        print BtLog.status_d['13'] % (ids_f)
+        print(BtLog.status_d['13'] % (ids_f))
         BtIO.writeJson(self.names, ids_f, indent=1)
         # cov
         for cov_name, cov in self.covs.items():
             name = self._remove_cov_suffix(cov_name,self.blobDb.covLibs)
             cov_f = join(self.view_dir, "%s_cov.json" % name)
-            print BtLog.status_d['13'] % (cov_f)
+            print(BtLog.status_d['13'] % (cov_f))
             BtIO.writeJson({"values":self._format_float(cov,0.02)}, cov_f, indent=1)
         # read_cov
         for cov_name, cov in self.read_covs.items():
             name = self._remove_cov_suffix(cov_name,self.blobDb.covLibs)
             cov_f = join(self.view_dir, "%s_read_cov.json" % name)
-            print BtLog.status_d['13'] % (cov_f)
-            BtIO.writeJson({"values":map(lambda x:max(x,0.2),cov)}, cov_f, indent=1)
+            print(BtLog.status_d['13'] % (cov_f))
+            BtIO.writeJson({"values":list(map(lambda x:max(x,0.2),cov))}, cov_f, indent=1)
         # tax
         for taxrule in self.tax:
             for rank in self.tax[taxrule]:
@@ -874,7 +874,7 @@ class ExperimentalViewObj():
                 BtIO.writeJson(tax, rank_f, indent=1)
                 score = self.tax_scores[taxrule][rank]['score']
                 score_f = join(self.view_dir, "%s_%s_score.json" % (taxrule,rank))
-                BtIO.writeJson({"values":map(lambda x:max(x,0.2),score)}, score_f, indent=1)
+                BtIO.writeJson({"values":list(map(lambda x:max(x,0.2),score))}, score_f, indent=1)
                 cindex = self.tax_scores[taxrule][rank]['c_index']
                 cindex_f = join(self.view_dir, "%s_%s_cindex.json" % (taxrule,rank))
                 BtIO.writeJson({"values":cindex}, cindex_f, indent=1)

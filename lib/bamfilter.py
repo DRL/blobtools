@@ -24,7 +24,7 @@
         -o, --out PREFIX            Output prefix
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
@@ -50,7 +50,7 @@ def main():
     sort_threads = int(args['--threads'])
     out_f = BtIO.getOutFile(bam_f, out_prefix, None)
     if include_f and exclude_f:
-        print BtLog.error('43')
+        print(BtLog.error('43'))
     elif include_f:
         sequence_list = BtIO.parseList(include_f)
         BtIO.parseBamForFilter(bam_f, include_unmapped, out_f, sequence_list, None, gzip, do_sort, keep_sorted, sort_threads)

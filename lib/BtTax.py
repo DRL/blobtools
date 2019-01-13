@@ -6,7 +6,7 @@ File        : BtTax.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
+#from __future__ import division
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
 TAXRULES = ['bestsum', 'bestsumorder'] # this should be re-named colour rules at one point
 

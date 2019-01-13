@@ -32,7 +32,7 @@
         -o, --out <PREFIX>                  Output prefix
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 from collections import defaultdict
 
@@ -79,7 +79,7 @@ def main():
                 map_col_taxid = int(map_col_taxid)
             except ValueError:
                 BtLog.error('44')
-            print BtLog.status_d['1'] % ("Mapping file", map_f)
+            print(BtLog.status_d['1'] % ("Mapping file", map_f))
             taxid_d = BtIO.parseDict(map_f, map_col_sseqid, map_col_taxid)
             out_f = BtIO.getOutFile(hit_f, prefix, "taxified.out")
         else:
@@ -88,7 +88,7 @@ def main():
         BtLog.error('41')
 
     output = []
-    print BtLog.status_d['1'] % ("similarity search result", hit_f)
+    print(BtLog.status_d['1'] % ("similarity search result", hit_f))
     with open(hit_f) as fh:
         for idx, line in enumerate(fh):
             col = line.rstrip("\n").split()
@@ -105,7 +105,7 @@ def main():
             output.append("%s\t%s\t%s\t%s" % (qseqid, tax_id, score, sseqid))
     if output:
         with open(out_f, "w") as fh:
-            print BtLog.status_d['24'] % out_f
+            print(BtLog.status_d['24'] % out_f)
             fh.write("\n".join(output) + "\n")
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@
         --names <NAMES>                 NCBI names.dmp file.
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath

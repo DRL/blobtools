@@ -41,7 +41,7 @@
         --title TITLE                   Title of BlobDB [default: output prefix)
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
@@ -114,13 +114,13 @@ def main():
                 taxrules = ['bestsum']
         blobDb.computeTaxonomy(taxrules, nodesDB, min_score, min_bitscore_diff, tax_collision_random)
     else:
-        print BtLog.warn_d['0']
+        print(BtLog.warn_d['0'])
 
     # Parse coverage
     blobDb.parseCoverage(covLibObjs=cov_libs, no_base_cov=None, prefix=prefix)
 
     # Generating BlobDB and writing to file
-    print BtLog.status_d['7'] % out_f
+    print(BtLog.status_d['7'] % out_f)
     BtIO.writeJson(blobDb.dump(), out_f)
 
 if __name__ == '__main__':

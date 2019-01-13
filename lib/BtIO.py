@@ -6,7 +6,7 @@ File        : BtIO.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
+#from __future__ import division
 import re
 import subprocess
 import os
@@ -163,7 +163,10 @@ def runCmd(**kwargs):
         if p.returncode == 0:
             pass
     else:
-        return iter(p.stdout.readline, b'')
+        for line in p.stdout:
+            yield line
+        # return iter(p.stdout.readline, b'')
+    
 
 def which(program):
     def is_exe(fpath):
@@ -181,7 +184,7 @@ def which(program):
     return None
 
 def checkBam(infile):
-    print BtLog.status_d['10']
+    print(BtLog.status_d['10'])
     if not isfile(infile):
         BtLog.error('0', infile)
     reads_mapped_re = re.compile(r"(\d+)\s\+\s\d+\smapped")
@@ -192,6 +195,7 @@ def checkBam(infile):
     output = ''
     command = blobtools.SAMTOOLS + " flagstat " + infile
     for line in runCmd(command=command):
+        # print(line)
         output += line
     reads_mapped = int(reads_mapped_re.search(output).group(1))
     #reads_secondary = int(reads_secondary_re.search(output).group(1))
@@ -202,8 +206,8 @@ def checkBam(infile):
     # check whether there are reads in BAM
     if not reads_total or not reads_mapped:
         BtLog.error('29', infile)
-    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), \
-        '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    print(BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), \
+        '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total)))
     return reads_total, reads_mapped
 
 def parseSam(infile, set_of_blobs, no_base_cov_flag):
@@ -228,7 +232,7 @@ def parseSam(infile, set_of_blobs, no_base_cov_flag):
                             base_cov_dict[match[2]].append(sum([int(matching) for matching in cigar_match_re.findall(match[5])]))
                             read_cov_dict[match[2]] += 1
                         except:
-                            print BtLog.warn_d['2'] % (match[2])
+                            print(BtLog.warn_d['2'] % (match[2]))
     else:
         with open(infile) as fh:
             for line in fh:
@@ -242,18 +246,18 @@ def parseSam(infile, set_of_blobs, no_base_cov_flag):
                         try:
                             read_cov_dict[match[2]] += 1
                         except:
-                            print BtLog.warn_d['2'] % (match[2])
+                            print(BtLog.warn_d['2'] % (match[2]))
     base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 
 def write_read_pair_seqs(pair_count_by_type, pair_seqs_by_type, out_fs_by_type):
     for pair_type, pair_count in pair_count_by_type.items():
-        print BtLog.status_d['23'] % (pair_type, pair_count)
+        print(BtLog.status_d['23'] % (pair_type, pair_count))
         if pair_count:
             out_f = out_fs_by_type[pair_type]
             with open(out_f, 'w') as out_fh:
-                print BtLog.status_d['24'] % out_f
+                print(BtLog.status_d['24'] % out_f)
                 #out_fh.write("\n".join(pair_seqs_by_type[pair_type]) + "\n")
                 out_fh.write("\n".join([pair for pair in pair_seqs_by_type[pair_type]]) + "\n")
 
@@ -341,12 +345,12 @@ def parseBamForFilter(infile, include_unmapped, outfile, include, exclude, gzip,
     iterator = runCmd(command=command)
     seen_reads = 0
     sam_lines = []
-    print BtLog.status_d['26'] % infile
+    print(BtLog.status_d['26'] % infile)
     for sam_line in iterator:
         sam_lines.append(sam_line)
-    print BtLog.status_d['22'] % infile
+    print(BtLog.status_d['22'] % infile)
     reads_total = len(sam_lines)
-    for i in xrange(0, len(sam_lines), 2):
+    for i in range(0, len(sam_lines), 2):
         read1 = sam_lines[i].split()
         try:
             seen_reads += 2
@@ -358,7 +362,7 @@ def parseBamForFilter(infile, include_unmapped, outfile, include, exclude, gzip,
                 pair_seqs_by_type[read_pair_type].append(get_read_pair_seqs(read1, read2))
                 pair_count_by_type[read_pair_type] += 1
         except IndexError:
-            print BtLog.warn_d['11']
+            print(BtLog.warn_d['11'])
         #print_bam(read_pair_out_fs, read_pair_type, read1, read2) # this prints SAM files for debugging
     if not seen_reads == reads_total:
         BtLog.progress(reads_total, progress_unit, reads_total)
@@ -370,7 +374,7 @@ def parseBamForFilter(infile, include_unmapped, outfile, include, exclude, gzip,
         info_string.append((read_pair_type + ' pairs', "{:,}".format(count), '{0:.1%}'.format(count / int(seen_reads / 2))))
     info_out_f = getOutFile(outfile, None, "info.txt")
     with open(info_out_f, 'w') as info_fh:
-        print BtLog.status_d['24'] % info_out_f
+        print(BtLog.status_d['24'] % info_out_f)
         info_fh.write(get_table(info_string))
     if do_sort and not keep_sorted:
         os.remove(infile)
@@ -411,7 +415,7 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
                 #base_cov_dict[match[2]] += sum([int(matching) for matching in cigar_match_re.findall(match[5])])
                 read_cov_dict[match[2]] += 1
             except:
-                print BtLog.warn_d['2'] % (match[2])
+                print(BtLog.warn_d['2'] % (match[2]))
             BtLog.progress(seen_reads, progress_unit, reads_mapped)
     else:
         for line in runCmd(command=command):
@@ -420,14 +424,14 @@ def parseBam(infile, set_of_blobs, no_base_cov_flag):
             try:
                 read_cov_dict[match[2]] += 1
             except:
-                print BtLog.warn_d['2'] % (match[2])
+                print(BtLog.warn_d['2'] % (match[2]))
             BtLog.progress(seen_reads, progress_unit, reads_mapped)
     if not int(reads_mapped) == int(seen_reads):
-        print BtLog.warn_d['3'] % (reads_mapped, seen_reads)
+        print(BtLog.warn_d['3'] % (reads_mapped, seen_reads))
         reads_mapped = seen_reads
     base_cov_dict = {seq_name: sum(base_covs) for seq_name, base_covs in base_cov_dict.items()}
     #end = time.time()
-    #print (end-start)
+    #print((end-start))
     return base_cov_dict, reads_total, reads_mapped, read_cov_dict
 
 def parseCovFromHeader(fasta_type, header):
@@ -491,7 +495,7 @@ def parseCov(infile, set_of_blobs):
                         seqs_parsed += 1
                         name, read_cov, base_cov = match.group(1), int(match.group(2)), float(match.group(3))
                         if name not in set_of_blobs:
-                            print BtLog.warn_d['2'] % (name)
+                            print(BtLog.warn_d['2'] % (name))
                         else:
                             read_cov_dict[name] = read_cov
                             base_cov_dict[name] = base_cov
@@ -501,7 +505,7 @@ def parseCov(infile, set_of_blobs):
                     seqs_parsed += 1
                     name, base_cov = match.group(1), float(match.group(2))
                     if name not in set_of_blobs:
-                        print BtLog.warn_d['2'] % (name)
+                        print(BtLog.warn_d['2'] % (name))
                     else:
                         base_cov_dict[name] = base_cov
             BtLog.progress(seqs_parsed, progress_unit, len(set_of_blobs))
@@ -509,7 +513,7 @@ def parseCov(infile, set_of_blobs):
     return base_cov_dict, reads_total, reads_mapped, reads_unmapped, read_cov_dict
 
 def checkCas(infile):
-    print BtLog.status_d['12']
+    print(BtLog.status_d['12'])
     if not isfile(infile):
         BtLog.error('0', infile)
     if not (which('clc_mapping_info')):
@@ -525,7 +529,7 @@ def checkCas(infile):
     seqs_total = int(seqs_total_re.search(output).group(1))
     reads_mapped = int(reads_mapping_re.search(output).group(1))
     reads_total = int(reads_total_re.search(output).group(1))
-    print BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total))
+    print(BtLog.status_d['11'] % ('{:,}'.format(reads_mapped), '{:,}'.format(reads_total), '{0:.1%}'.format(reads_mapped/reads_total)))
     return seqs_total, reads_total, reads_mapped
 
 def parseCas(infile, order_of_blobs):
@@ -577,7 +581,7 @@ def readTax(infile, set_of_blobs):
             except ValueError:
                 BtLog.error('46', infile, col[2])
             if hitDict['name'] not in set_of_blobs:
-                #print BtLog.warn_d['13'] % (hitDict['name'], infile)
+                #print(BtLog.warn_d['13'] % (hitDict['name'], infile))
                 BtLog.error('19', hitDict['name'], infile)
             yield hitDict
                 #hitDict = {
@@ -586,7 +590,7 @@ def readTax(infile, set_of_blobs):
                 #    'score' : float(match.group(3))
                 #    }
                 #if hitDict['name'] not in set_of_blobs:
-                #    print BtLog.warn_d['13'] % (hitDict['name'], infile)
+                #    print(BtLog.warn_d['13'] % (hitDict['name'], infile))
                 #    #BtLog.error('19', hitDict['name'], infile)
                 #if hitDict['taxId'] == 'N/A':
                 #    BtLog.error('22', infile)
@@ -624,7 +628,7 @@ def parseNodesDB(**kwargs):
             BtLog.error('0', names_f)
         if not isfile(nodes_f):
             BtLog.error('0', nodes_f)
-        print BtLog.status_d['3'] % (nodes_f, names_f)
+        print(BtLog.status_d['3'] % (nodes_f, names_f))
         try:
             nodesDB = readNamesNodes(names_f, nodes_f)
         except:
@@ -632,7 +636,7 @@ def parseNodesDB(**kwargs):
     elif (nodesDB_f):
         if not isfile(nodesDB_f):
             BtLog.error('0', nodesDB_f)
-        print BtLog.status_d['4'] % (nodesDB_f)
+        print(BtLog.status_d['4'] % (nodesDB_f))
         try:
             nodesDB = readNodesDB(nodesDB_f)
         except:
@@ -640,7 +644,7 @@ def parseNodesDB(**kwargs):
     elif (nodesDB_default):
         if not isfile(nodesDB_default):
             BtLog.error('28')
-        print BtLog.status_d['4'] % (nodesDB_default)
+        print(BtLog.status_d['4'] % (nodesDB_default))
         try:
             nodesDB = readNodesDB(nodesDB_default)
         except:
@@ -691,7 +695,7 @@ def readNodesDB(nodesDB_f):
     return nodesDB
 
 def writeNodesDB(nodesDB, nodesDB_f):
-    print BtLog.status_d['5'] % nodesDB_f
+    print(BtLog.status_d['5'] % nodesDB_f)
     nodes_count = nodesDB['nodes_count']
     i = 0
     with open(nodesDB_f, 'w') as fh:
@@ -707,11 +711,11 @@ def byteify(input):
     http://stackoverflow.com/a/13105359
     '''
     if isinstance(input, dict):
-        return {byteify(key):byteify(value) for key, value in input.iteritems()}
+        return {byteify(key):byteify(value) for key, value in input.items()}
     elif isinstance(input, list):
         return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
+    #elif isinstance(input, unicode):
+    #    return input.encode('utf-8')
     else:
         return input
 
@@ -746,12 +750,12 @@ def parseJson(infile):
     start = time.time()
     json_parser = ''
     with open(infile, 'r') as fh:
-        print BtLog.status_d['15']
+        print(BtLog.status_d['15'])
         json_string = fh.read()
     try:
         import ujson as json # fastest
         json_parser = 'ujson'
-        print BtLog.status_d['16'] % json_parser
+        print(BtLog.status_d['16'] % json_parser)
     except ImportError:
         try:
             import simplejson as json # fast
@@ -759,13 +763,13 @@ def parseJson(infile):
         except ImportError:
             import json # default
             json_parser = 'json'
-        print BtLog.status_d['17'] % json_parser
+        print(BtLog.status_d['17'] % json_parser)
     try:
-        obj = json.loads(json_string.decode("ascii"))
+        obj = json.loads(json_string) # .decode("ascii"))
     except ValueError:
         BtLog.error('37', infile, "BlobDB")
     data = byteify(obj)
-    print BtLog.status_d['20'] % (time.time() - start)
+    print(BtLog.status_d['20'] % (time.time() - start))
     return data
 
 if __name__ == "__main__":

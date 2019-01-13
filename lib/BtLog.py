@@ -6,7 +6,7 @@ File        : BtLog.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
+#from __future__ import division
 import sys
 
 def error(message, *argv):
@@ -22,13 +22,13 @@ def progress(iteration, steps, max_value, no_limit=False):
     elif int(iteration) == max_value:
         if no_limit == True:
             sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100),
+            print("[%%] \t%d%%" % (100), end="")
         else:
             sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100)
+            print("[%%] \t%d%%" % (100))
     elif int(iteration) % steps == 0:
         sys.stdout.write('\r')
-        print "[%%] \t%d%%" % (float(int(iteration) / int(max_value)) * 100),
+        print("[%%] \t%d%%" % (float(int(iteration) / int(max_value)) * 100), end="")
         sys.stdout.flush()
     else:
         pass

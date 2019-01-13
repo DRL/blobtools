@@ -13,7 +13,7 @@
         -v, --invert                Invert filtering (Sequences w/ headers NOT in list)
 """
 
-from __future__ import division
+# from __future__ import division
 from docopt import docopt
 
 from os.path import basename, isfile, join, dirname, abspath
@@ -33,10 +33,10 @@ def main():
     output = []
     out_f = BtIO.getOutFile(fasta_f, prefix, "filtered.fna")
 
-    print BtLog.status_d['1'] % ("list", list_f)
+    print(BtLog.status_d['1'] % ("list", list_f))
     items = BtIO.parseSet(list_f)
     items_count = len(items)
-    print BtLog.status_d['22'] % fasta_f
+    print(BtLog.status_d['22'] % fasta_f)
     items_parsed = []
     sequences = 0
     for header, sequence in BtIO.readFasta(fasta_f):
@@ -56,10 +56,10 @@ def main():
 
     items_parsed_count_unique = len(set(items_parsed))
     if not items_parsed_count == items_parsed_count_unique:
-        print BtLog.warn_d['8'] % "\n\t\t\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1])))
+        print(BtLog.warn_d['8'] % "\n\t\t\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1]))))
 
     with open(out_f, "w") as fh:
-        print BtLog.status_d['24'] % out_f
+        print(BtLog.status_d['24'] % out_f)
         fh.write("".join(output))
 
 if __name__ == '__main__':

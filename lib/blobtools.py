@@ -35,7 +35,7 @@ examples:
 
 """
 
-from __future__ import division
+# from __future__ import division
 import sys
 from subprocess import call
 import os
@@ -45,7 +45,8 @@ __version__ = "blobtools v1.0"
 LIBDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ''))
 MAINDIR = os.path.abspath(os.path.join(LIBDIR, '../'))
 DATADIR = os.path.abspath(os.path.join(MAINDIR, 'data/'))
-SAMTOOLS = os.path.abspath(os.path.join(MAINDIR, 'samtools/bin/samtools'))
+# SAMTOOLS = os.path.abspath(os.path.join(MAINDIR, 'samtools/bin/samtools'))
+SAMTOOLS = "samtools"
 
 if __name__ == '__main__':
     args = docopt(__doc__,
