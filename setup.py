@@ -1,7 +1,7 @@
 import pip
 from setuptools import setup, find_packages
 from setuptools.command.install import install
-from pip.req import parse_requirements
+# from pip.req import parse_requirements
 from codecs import open
 from os import path
 
@@ -14,8 +14,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # get the dependencies and installs
-install_reqs = parse_requirements(path.join(here, 'requirements.txt'), session=False)
-reqs = [str(ir.req) for ir in install_reqs]
+# install_reqs = parse_requirements(path.join(here, 'requirements.txt'), session=False)
+reqs = [ir for ir in open(path.join(here, 'requirements.txt'))] #install_reqs]
 
 class OverrideInstall(install):
 
