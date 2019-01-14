@@ -50,9 +50,11 @@ def getSortedGroups(data_dict, sort_order, sort_first=()):
     """ Returns list of sorted groups based on span or count. """
     sorted_groups = []
     if sort_order == 'span':
-        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['span_visible'] if data_dict[x]['span_visible'] > 0 else None, reverse=True)
+        # sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['span_visible'] if data_dict[x]['span_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(data_dict, key = lambda x : max(data_dict[x]['span_visible'], 0), reverse=True)
     elif sort_order == 'count':
-        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else None, reverse=True)
+        # sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else None, reverse=True)
+        sorted_groups = sorted(data_dict, key = lambda x : max(data_dict[x]['count_visible'], 0), reverse=True)
     else:
         pass
 
