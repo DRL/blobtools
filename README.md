@@ -8,7 +8,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 - Citation: [Laetsch DR and Blaxter ML, 2017](https://f1000research.com/articles/6-1287/v1)
 
 
-**0. Obtaining BlobTools**
+Obtaining BlobTools
 ------------
 - **Option A**: Download latest [release](https://github.com/DRL/blobtools/releases/latest)
 - **Option B**: Clone repository
@@ -16,13 +16,13 @@ A modular command-line solution for visualisation, quality control and taxonomic
   git clone https://github.com/DRL/blobtools.git
   ```
 
-**1. Entering directory**
+Entering directory
 ------------
   ```
   cd blobtools
   ```
 
-**2. Install dependencies **
+Install dependencies
 ------------
 - **Option A**: Create [https://conda.io/en/latest/miniconda.html](Conda) environment
 
@@ -39,7 +39,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
   python setup.py install --user
   ```
 
-**3. Download NCBI taxdump and create nodesdb**
+Download NCBI taxdump and create nodesdb
 ------------
   ```
   wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz -P data/
