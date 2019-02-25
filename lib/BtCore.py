@@ -718,7 +718,7 @@ class ViewObj():
 #                BtIO.writeJson(tax, rank_f, indent=1)
 
 class ExperimentalViewObj():
-    def __init__(self, name='experimental', view_dir='',blobDb={}):
+    def __init__(self, name='experimental', view_dir='',blobDb={},meta={}):
         self.name = name
         self.view_dir = re.sub(".blobDB", "", view_dir)
         self.length = []
@@ -730,7 +730,7 @@ class ExperimentalViewObj():
         self.read_covs = defaultdict(list)
         self.tax_scores = {}
         self.blobDb = blobDb
-        self.meta = {}
+        self.meta = meta
         BtIO.create_dir(self.view_dir)
 
     def _format_float(self,l,min_val=-float("inf")):
@@ -747,22 +747,19 @@ class ExperimentalViewObj():
         return name if name else id
 
     def get_meta(self):
-        meta = {
-              "id": self.view_dir,
-              "name": self.view_dir,
-              "records": len(self.names),
-              "record_type": "contigs",
-              "fields":[
-                { "id":"length", "name":"Length", "type":"variable", "datatype":"integer", "range":[min(self.length),max(self.length)], "scale":"scaleLog", "preload":True },
-                { "id":"gc", "name":"GC", "type":"variable", "datatype":"float", "range":self._format_float([min(self.gc),max(self.gc)]), "scale":"scaleLinear", "preload":True },
-              ],
-              "plot":{
-                  "x":"gc",
-                  "z":"length"
-              }
-              #"besthit": [rank for rank in BtTax.RANKS],
-              #"bestsum": [rank for rank in BtTax.RANKS],
-            }
+        meta = self.meta
+        meta["id"] = self.view_dir
+        meta["name"] = self.view_dir
+        meta["records"] = len(self.names)
+        meta["record_type"] = "contigs"
+        meta["fields"] = [
+            { "id":"length", "name":"Length", "type":"variable", "datatype":"integer", "range":[min(self.length),max(self.length)], "scale":"scaleLog", "preload":True },
+            { "id":"gc", "name":"GC", "type":"variable", "datatype":"float", "range":self._format_float([min(self.gc),max(self.gc)]), "scale":"scaleLinear", "preload":True },
+        ]
+        meta["plot"] = {
+            "x":"gc",
+            "z":"length"
+        }
         cov_names = filter(lambda name: name != "covsum",self.covs)
         for taxrule in self.tax:
             self.tax_scores[taxrule] = defaultdict(lambda: {'score':[],'c_index':[]})

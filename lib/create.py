@@ -32,7 +32,8 @@
                                         taxonomies have equal scores (otherwise "unresolved") [default: False]
         --nodes <NODES>                 NCBI nodes.dmp file. Not required if '--db'
         --names <NAMES>                 NCBI names.dmp file. Not required if '--db'
-        --db <NODESDB>                  NodesDB file (default: $BLOBTOOLS/data/nodesDB.txt).
+        --db <NODESDB>                  NodesDB file (default: $BLOBTOOLS/data/nodesDB.txt).  If --nodes, --names and --db
+                                        are all given and NODESDB does not exist, create it from NODES and NAMES.
         -b, --bam <BAM>...              BAM file(s), can be specified multiple times
         -a, --cas <CAS>...              CAS file(s) (requires clc_mapping_info in $PATH), can be specified multiple times
         -c, --cov <COV>...              COV file(s), can be specified multiple times

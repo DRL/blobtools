@@ -17,6 +17,7 @@ import shutil
 import lib.BtLog as BtLog
 import sys
 from tqdm import tqdm
+import yaml
 # CONSTs
 COMPLEMENT = {'A':'T','C':'G','G':'C','T':'A','N':'N'}
 
@@ -564,7 +565,9 @@ def parseNodesDB(**kwargs):
     Parsing names.dmp and nodes.dmp into the 'nodes_db' dict of dicts that
     gets JSON'ed into blobtools/data/nodes_db.json if this file
     does not exist. Nodes_db.json is used if neither "--names" and "--nodes"
-    nor "--db" is specified.
+    nor "--db" is specified. If all three are specified and "--db" does not
+    exist, then write 'nodes_db' to file specified by "--db". If all three
+    are specified and "--db" exists, error out.
     '''
     nodesDB = {}
     names_f = kwargs['names']
@@ -577,7 +580,12 @@ def parseNodesDB(**kwargs):
             BtLog.error('0', names_f)
         if not isfile(nodes_f):
             BtLog.error('0', nodes_f)
-        print(BtLog.status_d['3'] % (nodes_f, names_f))
+        if (nodesDB_f):
+            if isfile(nodesDB_f):
+                BtLog.error('47', nodesDB_f)
+            BtLog.status_d['27'] % (nodesDB_f, nodes_f, names_f)
+        else:
+            print BtLog.status_d['3'] % (nodes_f, names_f)
         try:
             nodesDB = readNamesNodes(names_f, nodes_f)
         except:
@@ -598,11 +606,17 @@ def parseNodesDB(**kwargs):
             nodesDB = readNodesDB(nodesDB_default)
         except:
             BtLog.error('27', nodesDB_default)
-        nodesDB_f = nodesDB_default
 
-    # Write nodesDB if not available
-    if not isfile(nodesDB_default):
-        writeNodesDB(nodesDB, nodesDB_default)
+    # Write nodesDB if names, nodes, nodesDB all given and nodesDB does not
+    # exist.  Otherwise, write to nodesDB_default if it does not exist, unless
+    # nodesDB given, then do nothing with nodesDB_default.
+    if (nodes_f and names_f and nodesDB_f):
+        print BtLog.status_d['28'] % nodesDB_f
+        writeNodesDB(nodesDB, nodesDB_f)
+    elif (not nodesDB_f and not isfile(nodesDB_default)):
+        nodesDB_f = nodesDB_default
+        print BtLog.status_d['5'] % nodesDB_f
+        writeNodesDB(nodesDB, nodesDB_f)
 
     return nodesDB, nodesDB_f
 
@@ -642,7 +656,6 @@ def readNodesDB(nodesDB_f):
     return nodesDB
 
 def writeNodesDB(nodesDB, nodesDB_f):
-    print(BtLog.status_d['5'] % nodesDB_f)
     nodes_count = nodesDB['nodes_count']
     with open(nodesDB_f, 'w') as fh:
         fh.write("# nodes_count = %s\n" % nodes_count)
@@ -722,6 +735,17 @@ def parseJson(infile):
     #data = byteify(obj)
     data = obj
     print(BtLog.status_d['20'] % (time.time() - start))
+    return data
+
+def readYaml(infile):
+    if not isfile(infile):
+        BtLog.error('0', infile)
+    with open(infile) as fh:
+        str = "".join(fh.readlines())
+    try:
+        data = yaml.load(str)
+    except yaml.YAMLError, exc:
+        BtLog.error('37', infile, "yaml")
     return data
 
 if __name__ == "__main__":
