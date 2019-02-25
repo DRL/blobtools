@@ -7,6 +7,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 - Documentation: [blobtools.readme.io](https://blobtools.readme.io)
 - Citation: [Laetsch DR and Blaxter ML, 2017](https://f1000research.com/articles/6-1287/v1)
 
+![](https://github.com/DRL/blobtools/blob/master/example/blobplot.png)
 
 Obtaining BlobTools
 ------------
