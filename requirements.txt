@@ -1,3 +1,4 @@
 docopt==0.6.2
 matplotlib==2.0.2
 ujson==1.35
+pyyaml==3.12

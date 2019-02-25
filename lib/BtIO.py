@@ -16,6 +16,7 @@ import blobtools
 from os.path import basename, isfile, splitext, join, isdir
 import shutil
 import lib.BtLog as BtLog
+import yaml
 
 # CONSTs
 COMPLEMENT = {'A':'T','C':'G','G':'C','T':'A','N':'N'}
@@ -778,6 +779,17 @@ def parseJson(infile):
         BtLog.error('37', infile, "BlobDB")
     data = byteify(obj)
     print BtLog.status_d['20'] % (time.time() - start)
+    return data
+
+def readYaml(infile):
+    if not isfile(infile):
+        BtLog.error('0', infile)
+    with open(infile) as fh:
+        str = "".join(fh.readlines())
+    try:
+        data = yaml.load(str)
+    except yaml.YAMLError, exc:
+        BtLog.error('37', infile, "yaml")
     return data
 
 if __name__ == "__main__":
