@@ -6,13 +6,16 @@
 !data/
 !example/*
 example/*.stats.txt
+example/a*
+example/test*
 !setup*
 !requirements.txt
 !MANIFEST.in
-data/nodesDB.txt
+data/n*
 samtools/
 *.pyc
 *.gz
 *.fq
 *.png
 *.sam
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -6,7 +6,6 @@ File        : BtTax.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom']
 TAXRULES = ['bestsum', 'bestsumorder'] # this should be re-named colour rules at one point
 
@@ -60,7 +59,7 @@ def taxRuleBestSum(taxDict, taxonomy, min_bitscore, min_bitscore_diff, tax_colli
                 taxonomy[rank]['score'] = score
                 if score >= min_bitscore:
                     taxonomy[rank]['tax'] = tax
-                    taxonomy_assigned_in_hit_lib = lib
+                    #taxonomy_assigned_in_hit_lib = lib
             else:
                 if score == taxonomy[rank]['score']:  # equal score in subsequent hit
                     if not tax_collision_random:
