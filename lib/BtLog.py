@@ -16,23 +16,6 @@ def error(message, *argv):
         sys.exit(error_d[message] % (argv))
     #exit(1)  # change to exit with the actual ERROR number (different than 0)
 
-def progress(iteration, steps, max_value, no_limit=False):
-    if steps == 0:
-        pass
-    elif int(iteration) == max_value:
-        if no_limit == True:
-            sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100),
-        else:
-            sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100)
-    elif int(iteration) % steps == 0:
-        sys.stdout.write('\r')
-        print "[%%] \t%d%%" % (float(int(iteration) / int(max_value)) * 100),
-        sys.stdout.flush()
-    else:
-        pass
-
 error_d = {
     '0': '[ERROR:0]\t: File %s does not exist.',
     '1': '[ERROR:1]\t: Please provide coverage information.',

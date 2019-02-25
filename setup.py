@@ -1,11 +1,11 @@
 import pip
 from setuptools import setup, find_packages
 from setuptools.command.install import install
-from pip.req import parse_requirements
+from pip._internal.req import parse_requirements
 from codecs import open
 from os import path
 
-__version__ = '1.0'
+__version__ = '1.1'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -26,7 +26,7 @@ class OverrideInstall(install):
 
     def run(self):
         for req in reqs:
-            pip.main(["install", req])
+            pip._internal.main(["install", req])
 
 setup(
     name='blobtools',

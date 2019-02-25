@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""usage: blobtools blobplot  -i BLOBDB
+"""usage: blobtools plot -i <BLOBDB>
                                 [-p INT] [-l INT] [--cindex] [-n] [-s]
                                 [-r RANK] [-x TAXRULE] [--label GROUPS...]
                                 [--lib COVLIB] [-o PREFIX] [-m]
@@ -19,7 +19,7 @@
         --notitle                   Do not add filename as title to plot
         --filelabel                 Label axis based on filenames
         -p, --plotgroups INT        Number of (taxonomic) groups to plot, remaining
-                                     groups are placed in 'other' [default: 7]
+                                     groups are placed in 'other' [default: 8]
         -l, --length INT            Minimum sequence length considered for plotting [default: 100]
         --cindex                    Colour blobs by 'c index' [default: False]
         -n, --nohit                 Hide sequences without taxonomic annotation [default: False]
@@ -59,19 +59,15 @@
                                      (format : "seq\tcategory").
 
 """
-
-from __future__ import division
 from docopt import docopt
 
-from os.path import basename, isfile, join, dirname, abspath
-from sys import path
-path.append(dirname(dirname(abspath(__file__))))
-
-import lib.blobtools as blobtools
+from os.path import basename
+import sys
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 import lib.BtCore as BtCore
 import lib.BtPlot as BtPlot
+import lib.interface as interface
 
 def main():
     args = docopt(__doc__)
@@ -81,6 +77,8 @@ def main():
     rank = args['--rank']
     min_length = int(args['--length'])
     max_group_plot = int(args['--plotgroups'])
+    if max_group_plot > 8:
+        sys.exit("[X] '--plotgroups' must be less than 9.")
     hide_nohits = args['--nohit']
     taxrule = args['--taxrule']
     c_index = args['--cindex']
@@ -113,13 +111,13 @@ def main():
     colour_dict = BtIO.parseColours(colour_f)
 
     # Load BlobDb
-    print BtLog.status_d['9'] % blobdb_f
+    print(BtLog.status_d['9'] % blobdb_f)
     blobDb = BtCore.BlobDb('blobplot')
-    blobDb.version = blobtools.__version__
+    blobDb.version = interface.__version__
     blobDb.load(blobdb_f)
 
     # Generate plot data
-    print BtLog.status_d['18']
+    print(BtLog.status_d['18'])
     data_dict, min_cov, max_cov, cov_lib_dict = blobDb.getPlotData(rank, min_length, hide_nohits, taxrule, c_index, catcolour_dict)
     plotObj = BtPlot.PlotObj(data_dict, cov_lib_dict, cov_lib_selection, 'blobplot', sort_first)
     plotObj.exclude_groups = exclude_groups

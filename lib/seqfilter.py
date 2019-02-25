@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """usage: blobtools seqfilter       -i FASTA -l LIST [-o PREFIX] [-v]
@@ -15,10 +15,7 @@
 
 from __future__ import division
 from docopt import docopt
-
-from os.path import basename, isfile, join, dirname, abspath
-from sys import path
-path.append(dirname(dirname(abspath(__file__))))
+from tqdm import tqdm
 
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
@@ -33,33 +30,32 @@ def main():
     output = []
     out_f = BtIO.getOutFile(fasta_f, prefix, "filtered.fna")
 
-    print BtLog.status_d['1'] % ("list", list_f)
+    print(BtLog.status_d['1'] % ("list", list_f))
     items = BtIO.parseSet(list_f)
     items_count = len(items)
-    print BtLog.status_d['22'] % fasta_f
+    print(BtLog.status_d['22'] % fasta_f)
     items_parsed = []
-    sequences = 0
-    for header, sequence in BtIO.readFasta(fasta_f):
-        sequences += 1
-        if header in items:
-            if not (invert):
-                items_parsed.append(header)
-                output.append(">%s\n%s\n" % (header, sequence))
-        else:
-            if (invert):
-                items_parsed.append(header)
-                output.append(">%s\n%s\n" % (header, sequence))
-        BtLog.progress(len(output), 10, items_count, no_limit=True)
-    BtLog.progress(items_count, 10, items_count)
+    
+    with tqdm(total=items_count, desc="[%] ", ncols=200, unit_scale=True) as pbar:
+        for header, sequence in BtIO.readFasta(fasta_f):
+            if header in items:
+                if not (invert):
+                    items_parsed.append(header)
+                    output.append(">%s\n%s\n" % (header, sequence))
+            else:
+                if (invert):
+                    items_parsed.append(header)
+                    output.append(">%s\n%s\n" % (header, sequence))
+        pbar.update()
 
     items_parsed_count = len(items_parsed)
 
     items_parsed_count_unique = len(set(items_parsed))
     if not items_parsed_count == items_parsed_count_unique:
-        print BtLog.warn_d['8'] % "\n\t\t\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1])))
+        print(BtLog.warn_d['8'] % "\n\t\t\t".join(list(set([x for x in items_parsed if items_parsed.count(x) > 1]))))
 
     with open(out_f, "w") as fh:
-        print BtLog.status_d['24'] % out_f
+        print(BtLog.status_d['24'] % out_f)
         fh.write("".join(output))
 
 if __name__ == '__main__':
