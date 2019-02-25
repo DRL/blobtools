@@ -743,7 +743,7 @@ def readYaml(infile):
     with open(infile) as fh:
         str = "".join(fh.readlines())
     try:
-        data = yaml.load(str)
+        data = yaml.safeload(str)
     except yaml.YAMLError:
         BtLog.error('37', infile, "yaml")
     return data
