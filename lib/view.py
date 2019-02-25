@@ -92,7 +92,7 @@ def main():
         else:
             tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
-    if (experimental):
+    if not experimental == 'False':
         meta = {}
         if isfile(experimental):
             meta = BtIO.readYaml(experimental)
@@ -115,6 +115,8 @@ def main():
             covView = BtCore.ViewObj(name="covlib", out_f=out_f, suffix="cov", body=[])
             blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib_name], progressbar=True)
     if (viewObjs):
+        #for viewObj in viewObjs:
+        #    print(viewObj.name)
         blobDb.view(viewObjs=viewObjs, ranks=ranks, taxrule=taxrule, hits_flag=hits_flag, seqs=seqs, cov_libs=[], progressbar=True)
     print(BtLog.status_d['19'])
 

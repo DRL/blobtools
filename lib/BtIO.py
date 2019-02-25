@@ -585,7 +585,7 @@ def parseNodesDB(**kwargs):
                 BtLog.error('47', nodesDB_f)
             BtLog.status_d['27'] % (nodesDB_f, nodes_f, names_f)
         else:
-            print BtLog.status_d['3'] % (nodes_f, names_f)
+            print(BtLog.status_d['3'] % (nodes_f, names_f))
         try:
             nodesDB = readNamesNodes(names_f, nodes_f)
         except:
@@ -611,11 +611,11 @@ def parseNodesDB(**kwargs):
     # exist.  Otherwise, write to nodesDB_default if it does not exist, unless
     # nodesDB given, then do nothing with nodesDB_default.
     if (nodes_f and names_f and nodesDB_f):
-        print BtLog.status_d['28'] % nodesDB_f
+        print(BtLog.status_d['28'] % nodesDB_f)
         writeNodesDB(nodesDB, nodesDB_f)
     elif (not nodesDB_f and not isfile(nodesDB_default)):
         nodesDB_f = nodesDB_default
-        print BtLog.status_d['5'] % nodesDB_f
+        print(BtLog.status_d['5'] % nodesDB_f)
         writeNodesDB(nodesDB, nodesDB_f)
 
     return nodesDB, nodesDB_f
@@ -744,7 +744,7 @@ def readYaml(infile):
         str = "".join(fh.readlines())
     try:
         data = yaml.load(str)
-    except yaml.YAMLError, exc:
+    except yaml.YAMLError:
         BtLog.error('37', infile, "yaml")
     return data
 

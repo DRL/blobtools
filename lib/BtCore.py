@@ -57,7 +57,9 @@ class BlobDb():
         tax_lib_names = [taxLib for taxLib in sorted(self.hitLibs)]
         lineages = self.lineages
         # setup
+
         for viewObj in viewObjs:
+            #print("in view:", viewObj.name)
             if viewObj.name == 'table':
                 viewObj.header = self.getTableHeader(taxrule, ranks, hits_flag, cov_lib_names)
             if viewObj.name == 'concoct_cov':
@@ -100,6 +102,7 @@ class BlobDb():
                         viewObj.body.append(self.getCovLine(blob, cov_lib_names))
                 pbar.update()
         for viewObj in viewObjs:
+            #print(viewObj.name)
             viewObj.output()
 
     def getCovHeader(self, cov_lib_names):
@@ -763,8 +766,8 @@ class ExperimentalViewObj():
         cov_names = filter(lambda name: name != "covsum",self.covs)
         for taxrule in self.tax:
             self.tax_scores[taxrule] = defaultdict(lambda: {'score':[],'c_index':[]})
-        for id in self.blobDb.order_of_blobs:
-            blob = self.blobDb.dict_of_blobs[id]
+        for _id in self.blobDb.order_of_blobs:
+            blob = self.blobDb.dict_of_blobs[_id]
             self.read_covs['covsum'].append(0)
             for cov_name in cov_names:
                 self.read_covs[cov_name].append(blob['read_cov'][cov_name])
@@ -781,11 +784,11 @@ class ExperimentalViewObj():
                 cov_libs = []
                 for cov_name in self.covs:
                     name = self._remove_cov_suffix(cov_name,self.blobDb.covLibs)
-                    id = "%s_%s" % (name,cov)
-                    cov_lib_meta = {"id":id, "name":name }
+                    _id = "%s_%s" % (name,cov)
+                    cov_lib_meta = {"id": _id, "name":name }
                     if cov_name == "cov0" and cov == "cov":
                         cov_lib_meta["preload"] = True
-                        meta['plot']['y'] = id
+                        meta['plot']['y'] = _id
                     cov_libs.append(cov_lib_meta)
                 cov_meta = {"id":"%s" % cov, "name":"Coverage", "type":"variable", "datatype":"float", "scale":"scaleLog", "range":self._format_float([0.02,max(self.covs["covsum"])])}
                 if cov == 'read_cov':
@@ -799,14 +802,14 @@ class ExperimentalViewObj():
             for taxrule in self.tax:
                 taxrule_meta = {"id":taxrule, "name":taxrule, "children":[] }
                 for rank in self.tax[taxrule]:
-                    id = "%s_%s" % (taxrule,rank)
+                    _id = "%s_%s" % (taxrule,rank)
                     tax_rank_data = []
-                    tax_rank_data.append({ "id":"%s_score" % id, "name":"%s score" % id, "type":"variable", "datatype":"float", "scale":"scaleLog", "range":[0.2,max(self.tax_scores[taxrule][rank]['score'])], "preload":False, "active":False })
-                    tax_rank_data.append({ "id":"%s_cindex" % id, "name":"%s c-index" % id, "type":"variable", "datatype":"integer", "scale":"scaleLinear", "range":[0,max(self.tax_scores[taxrule][rank]['c_index'])], "preload":False, "active":False })
-                    tax_rank_meta = { "id":id, "name":id, "data": tax_rank_data }
+                    tax_rank_data.append({ "id":"%s_score" % _id, "name":"%s score" % _id, "type":"variable", "datatype":"float", "scale":"scaleLog", "range":[0.2,max(self.tax_scores[taxrule][rank]['score'])], "preload":False, "active":False })
+                    tax_rank_data.append({ "id":"%s_cindex" % _id, "name":"%s c-index" % _id, "type":"variable", "datatype":"integer", "scale":"scaleLinear", "range":[0,max(self.tax_scores[taxrule][rank]['c_index'])], "preload":False, "active":False })
+                    tax_rank_meta = { "id":_id, "name":_id, "data": tax_rank_data }
                     if rank == "phylum":
                         tax_rank_meta["preload"] = True
-                        meta['plot']['cat'] = id
+                        meta['plot']['cat'] = _id
                     taxrule_meta['children'].append(tax_rank_meta)
                 tax_rules.append(taxrule_meta)
             tax_meta = {"id":"taxonomy", "name":"Taxonomy", "type":"category", "datatype":"string"}
@@ -833,7 +836,7 @@ class ExperimentalViewObj():
         # meta
         meta = self.get_meta()
         meta_f = join(self.view_dir, "meta.json")
-        BtIO.writeJson(meta, meta_f, indent=2)
+        BtIO.writeJson(meta, meta_f)
         # gc
         gc_f = join(self.view_dir, "gc.json")
         print(BtLog.status_d['13'] % (gc_f))
