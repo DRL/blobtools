@@ -1,4 +1,4 @@
-BlobTools v1.0
+BlobTools v1.1
 ===============================
 A modular command-line solution for visualisation, quality control and taxonomic partitioning of genome datasets
 
@@ -7,26 +7,55 @@ A modular command-line solution for visualisation, quality control and taxonomic
 - Documentation: [blobtools.readme.io](https://blobtools.readme.io)
 - Citation: [Laetsch DR and Blaxter ML, 2017](https://f1000research.com/articles/6-1287/v1)
 
-Dependencies
+
+Obtaining BlobTools
 ------------
-- UNIX system (bash, wget, tar, make, gunzip) 
-- Python 2.7
-- ```pip```
+- **Option A**: Download latest [release](https://github.com/DRL/blobtools/releases/latest)
+- **Option B**: Clone repository
+  ```
+  git clone https://github.com/DRL/blobtools.git
+  ```
 
-Installation
+Entering directory
 ------------
+  ```
+  cd blobtools
+  ```
 
-    $ git clone https://github.com/DRL/blobtools.git
-    $ cd blobtools
-    $ ./install
+Install dependencies 
+------------
+- **Option A**: Create [https://conda.io/en/latest/miniconda.html](Conda) environment
 
-The installation script will:
-- install Python dependencies through ```pip```
-- download and install a copy of [samtools-1.5](http://www.htslib.org/download/) into the folder ```blobtools/samtools/```
-- download a copy of [NCBI TaxDump](ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) and create a nodesDB.txt file in ```blobtools/data/```. BlobTools will use this file for linking TaxIDs to NCBI taxonomies
-- create a BlobTools executable (```blobtools```) in the main directory
+  ```
+  conda create -n blobtools
+  conda activate blobtools
+  conda install -c anaconda matplotlib docopt tqdm wget pyyaml git
+  conda install -c bioconda pysam --update-deps
+  ```
+  *Tip*: Check if samtools exists by executing the command 'samtools' in the commandline. If samtools complains about dependencies, simply run the pysam install twice.
 
+- **Option B**: Install dependencies via PIP
+  ```
+  python setup.py install --user
+  ```
+
+Download NCBI taxdump and create nodesdb
+------------
+  ```
+  wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz -P data/
+  tar zxf data/taxdump.tar.gz -C data/ nodes.dmp names.dmp
+  ./blobtools nodesdb --nodes data/nodes.dmp --names data/names.dmp
+  ```
+
+Create blobplot
+------------
+  ```
+  ./blobtools create -i example/assembly.fna -b example/mapping_1.sorted.bam -t example/blast.out -o example/test && \
+  ./blobtools view -i example/test.blobDB.json && \
+  ./blobtools plot -i example/test.blobDB.json
+  ```
 Usage
 -----
-
-    $ ./blobtools -h
+  ```
+  ./blobtools --help
+  ```
