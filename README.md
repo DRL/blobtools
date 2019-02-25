@@ -25,7 +25,7 @@ Entering directory
 
 Install dependencies
 ------------
-- **Option A**: Create [https://conda.io/en/latest/miniconda.html](Conda) environment
+- **Option A**: Create [Conda](https://conda.io/en/latest/miniconda.html) environment
 
   ```
   conda create -n blobtools
