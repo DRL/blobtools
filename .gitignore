@@ -18,5 +18,6 @@ samtools/
 *.gz
 *.fq
 *.png
+!blobplot.png
 *.sam
 
