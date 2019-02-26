@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """usage: blobtools view    -i <BLOBDB> [-x <TAXRULE>] [--rank <TAXRANK>...] [--hits]
                             [--list <LIST>] [--out <OUT>] [--notable]
-                            [--concoct] [--cov] [--experimental]
+                            [--concoct] [--cov] [--experimental <META>]
                             [--h|--help]
 
     Options:
@@ -21,26 +21,23 @@
                                     that contributed to the taxonomy.
         --concoct                   Generate concoct files [default: False]
         --cov                       Generate cov files [default: False]
-        --experimental              Experimental output [default: False]
+        --experimental <META>       Experimental output [default: False]
         -n, --notable               Do not generate table view [default: False]
 """
 
 from __future__ import division
 from docopt import docopt
-from os.path import isfile, dirname, abspath
-from sys import path
-path.append(dirname(dirname(abspath(__file__))))
+from os.path import isfile
 
-import lib.blobtools as blobtools
 import lib.BtCore as BtCore
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
-
+import lib.interface as interface
 TAXRULES = ['bestsum', 'bestsumorder']
 RANKS = ['species', 'genus', 'family', 'order', 'phylum', 'superkingdom', 'all']
 
 def main():
-    #print data_dir
+    #print(data_dir)
     args = docopt(__doc__)
     blobdb_f = args['--input']
     prefix = args['--out']
@@ -77,9 +74,9 @@ def main():
 
     # Load BlobDb
     blobDb = BtCore.BlobDb('new')
-    print BtLog.status_d['9'] % (blobdb_f)
+    print(BtLog.status_d['9'] % (blobdb_f))
     blobDb.load(blobdb_f)
-    blobDb.version = blobtools.__version__
+    blobDb.version = interface.__version__
 
     # Is taxrule sane and was it computed?
     if (blobDb.hitLibs) and taxrule not in blobDb.taxrules:
@@ -87,7 +84,7 @@ def main():
 
     # view(s)
     viewObjs = []
-    print BtLog.status_d['14']
+    print(BtLog.status_d['14'])
     if not (notable):
         tableView = None
         if len(blobDb.hitLibs) > 1:
@@ -95,8 +92,11 @@ def main():
         else:
             tableView = BtCore.ViewObj(name="table", out_f=out_f, suffix="table.txt", body=[])
         viewObjs.append(tableView)
-    if (experimental):
-        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f)
+    if not experimental == 'False':
+        meta = {}
+        if isfile(experimental):
+            meta = BtIO.readYaml(experimental)
+        experimentalView = BtCore.ExperimentalViewObj(name = "experimental", view_dir=out_f, blobDb=blobDb, meta=meta)
         viewObjs.append(experimentalView)
     if (concoct):
         concoctTaxView = None
@@ -115,8 +115,10 @@ def main():
             covView = BtCore.ViewObj(name="covlib", out_f=out_f, suffix="cov", body=[])
             blobDb.view(viewObjs=[covView], ranks=None, taxrule=None, hits_flag=None, seqs=None, cov_libs=[cov_lib_name], progressbar=True)
     if (viewObjs):
+        #for viewObj in viewObjs:
+        #    print(viewObj.name)
         blobDb.view(viewObjs=viewObjs, ranks=ranks, taxrule=taxrule, hits_flag=hits_flag, seqs=seqs, cov_libs=[], progressbar=True)
-    print BtLog.status_d['19']
+    print(BtLog.status_d['19'])
 
 if __name__ == '__main__':
     main()

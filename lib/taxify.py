@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """usage: blobtools taxify          -f FILE [-a INT] [-b INT] [-c INT]
@@ -36,10 +36,6 @@ from __future__ import division
 from docopt import docopt
 from collections import defaultdict
 
-from os.path import basename, isfile, join, dirname, abspath
-from sys import path
-path.append(dirname(dirname(abspath(__file__))))
-
 import lib.BtLog as BtLog
 import lib.BtIO as BtIO
 
@@ -53,9 +49,9 @@ def main():
     map_f = args['--taxid_mapping_file']
     map_col_sseqid = args['--map_col_sseqid']
     map_col_taxid = args['--map_col_taxid']
-    custom_f = args['--custom']
+    #custom_f = args['--custom']
     custom_taxid = args['--custom_taxid']
-    custom_score = args['--custom_score']
+    #custom_score = args['--custom_score']
     prefix = args['--out']
 
     try:
@@ -79,7 +75,7 @@ def main():
                 map_col_taxid = int(map_col_taxid)
             except ValueError:
                 BtLog.error('44')
-            print BtLog.status_d['1'] % ("Mapping file", map_f)
+            print(BtLog.status_d['1'] % ("Mapping file", map_f))
             taxid_d = BtIO.parseDict(map_f, map_col_sseqid, map_col_taxid)
             out_f = BtIO.getOutFile(hit_f, prefix, "taxified.out")
         else:
@@ -88,7 +84,7 @@ def main():
         BtLog.error('41')
 
     output = []
-    print BtLog.status_d['1'] % ("similarity search result", hit_f)
+    print(BtLog.status_d['1'] % ("similarity search result", hit_f))
     with open(hit_f) as fh:
         for idx, line in enumerate(fh):
             col = line.rstrip("\n").split()
@@ -105,7 +101,7 @@ def main():
             output.append("%s\t%s\t%s\t%s" % (qseqid, tax_id, score, sseqid))
     if output:
         with open(out_f, "w") as fh:
-            print BtLog.status_d['24'] % out_f
+            print(BtLog.status_d['24'] % out_f)
             fh.write("\n".join(output) + "\n")
 
 if __name__ == '__main__':

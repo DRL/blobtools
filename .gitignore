@@ -1,4 +1,3 @@
-*
 !*.md
 !*.py
 !*install
@@ -6,13 +5,19 @@
 !data/
 !example/*
 example/*.stats.txt
+example/a*
+example/test*
+.DS_Store
 !setup*
 !requirements.txt
+!blobtools
 !MANIFEST.in
-data/nodesDB.txt
+data/n*
 samtools/
 *.pyc
 *.gz
 *.fq
 *.png
+!blobplot.png
 *.sam
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -6,11 +6,9 @@ File        : BtPlot.py
 Author      : Dominik R. Laetsch, dominik.laetsch at gmail dot com
 """
 
-from __future__ import division
 from numpy import array, arange, logspace, mean, std
 import math
 import lib.BtLog as BtLog
-import lib.BtIO as BtIO
 import lib.BtTax as BtTax
 import matplotlib as mat
 from matplotlib import cm
@@ -19,7 +17,8 @@ from matplotlib.lines import Line2D
 from matplotlib.colors import rgb2hex
 mat.use('agg')
 import matplotlib.pyplot as plt
-from itertools import izip
+from operator import itemgetter
+#from itertools import izip
 
 mat.rcParams.update({'font.size': 36})
 mat.rcParams['xtick.major.pad'] = '8'
@@ -27,8 +26,9 @@ mat.rcParams['ytick.major.pad'] = '8'
 mat.rcParams['lines.antialiased'] = True
 
 LEGEND_FONTSIZE = 20
-COLOURMAP = "Spectral" # "Set1", "Paired", "Set2", "Spectral"
-BLACK, GREY, BGGREY, WHITE, DGREY = unicode('#262626'), unicode('#d3d3d3'), unicode('#F0F0F5'), unicode('#ffffff'), unicode('#4d4d4d')
+COLOURMAP = "tab10" # "Set1", "Paired", "Set2", "Spectral"
+#GREY, BGGREY, WHITE, DGREY = '#d3d3d3', '#F0F0F5', '#ffffff', '#4d4d4d'
+GREY, BGGREY, BGCOLOUR, WHITE, DGREY = '#d3d3d3', '#F0F0F5', '#F8F8F8', '#ffffff', '#4d4d4d'
 nullfmt = NullFormatter()
 
 def n50(list_of_lengths):
@@ -49,12 +49,20 @@ def n50(list_of_lengths):
 def getSortedGroups(data_dict, sort_order, sort_first=()):
     """ Returns list of sorted groups based on span or count. """
     sorted_groups = []
+    visible_by_group = {}
     if sort_order == 'span':
-        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['span_visible'] if data_dict[x]['span_visible'] > 0 else None, reverse=True)
+        visible_by_group = {group: _dict['span_visible'] for group, _dict in data_dict.items()}
+        #sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['span_visible'] if data_dict[x]['span_visible'] > 0 else 0, reverse=True)
+        #sorted_groups = sorted(data_dict, key = lambda x : max(data_dict[x]['span_visible'], 0), reverse=True)
     elif sort_order == 'count':
-        sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else None, reverse=True)
+        visible_by_group = {group: _dict['count_visible'] for group, _dict in data_dict.items()}
+        #sorted_groups = sorted(data_dict, key = lambda x : data_dict[x]['count_visible'] if data_dict[x]['count_visible'] > 0 else 0, reverse=True)
+        #sorted_groups = sorted(data_dict, key = lambda x : max(data_dict[x]['count_visible'], 0), reverse=True)
     else:
         pass
+    for group, visible in sorted(visible_by_group.items(), key=itemgetter(1), reverse=True):
+        if visible > 0:
+            sorted_groups.append(group)
 
     # Now shuffle the stuff in sort_first to the front
     for sf in reversed(sort_first):
@@ -64,19 +72,26 @@ def getSortedGroups(data_dict, sort_order, sort_first=()):
         except ValueError:
             #It wasn't in the list then. No probs.
             pass
-
     return sorted_groups
 
-def generateColourDict(groups):
-    cmap = cm.get_cmap(name=COLOURMAP)
-    colour_groups = [group for group in groups if not group == 'no-hit' or not group == 'None']
-    n_tax = len(colour_groups)
-    breaks = [0.0 + x*(1.0-0.0)/n_tax for x in range(n_tax)]
-    colour_d = {group: rgb2hex(cmap(b)) for b, group in izip(breaks, colour_groups)}
-    if 'no-hit' in groups:
-        colour_d['no-hit'] = GREY
-    if 'None' in groups:
-        colour_d['None'] = GREY
+def generateColourDict(colour_groups, groups):
+    cmap = [rgb2hex(rgb) for rgb in cm.get_cmap(name=COLOURMAP).colors]
+    # remove green
+    del cmap[2]
+    # remove brown
+    del cmap[4]
+    colour_d = {}
+    idx_delay = 0
+    for idx, group in enumerate(groups):
+        if group in colour_groups:
+            #print(group,)
+            if group == 'no-hit' or group == 'None':
+                colour_d[group] = GREY
+                #print("GREY")
+                idx_delay -= 1
+            else:
+                colour_d[group] = cmap[idx+idx_delay]
+                #print(colour_d[group], idx+idx_delay)
     return colour_d
 
 def set_canvas():
@@ -110,7 +125,7 @@ def set_format_scatterplot(axScatter, **kwargs):
         BtLog.error('34' % kwargs['plot'])
     axScatter.set_xlim( (min_x, max_x) )
     axScatter.set_ylim( (min_y, max_y) ) # This sets the max-Coverage so that all libraries + sum are at the same scale
-    axScatter.grid(True, which="major", lw=2., color=WHITE, linestyle='-')
+    axScatter.grid(True, which="major", lw=2., color=BGGREY, linestyle='-')
     axScatter.set_axisbelow(True)
     axScatter.xaxis.labelpad = 20
     axScatter.yaxis.labelpad = 20
@@ -121,7 +136,7 @@ def set_format_scatterplot(axScatter, **kwargs):
 def set_format_hist_x(axHistx, axScatter):
     axHistx.set_xlim(axScatter.get_xlim())
     axHistx.set_xscale(axScatter.get_xscale())
-    axHistx.grid(True, which="major", lw=2., color= WHITE, linestyle='-')
+    axHistx.grid(True, which="major", lw=2., color=BGGREY, linestyle='-')
     axHistx.xaxis.set_major_locator(axScatter.xaxis.get_major_locator()) # no labels since redundant
     axHistx.xaxis.set_minor_locator(axScatter.xaxis.get_minor_locator())
     axHistx.xaxis.set_major_formatter(nullfmt) # no labels since redundant
@@ -133,7 +148,7 @@ def set_format_hist_x(axHistx, axScatter):
 def set_format_hist_y(axHisty, axScatter):
     axHisty.set_ylim(axScatter.get_ylim())
     axHisty.set_yscale(axScatter.get_yscale())
-    axHisty.grid(True, which="major", lw=2., color= WHITE, linestyle='-')
+    axHisty.grid(True, which="major", lw=2., color=BGGREY, linestyle='-')
     axHisty.yaxis.set_major_formatter(nullfmt) # no labels since redundant
     axHisty.set_axisbelow(True)
     axHisty.xaxis.labelpad = 20
@@ -152,46 +167,30 @@ def plot_ref_legend(axScatter, max_length, max_marker_size, ignore_contig_length
         ref2_length, ref2_string, ref2_markersize = get_ref_label(max_length, max_marker_size, 0.1)
         ref3_length, ref3_string, ref3_markersize = get_ref_label(max_length, max_marker_size, 0.25)
         # markersize in scatter is in "points^2", markersize in Line2D is in "points" ... that's why we need math.sqrt()
-        ref_1 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref1_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
-        ref_2 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref2_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
-        ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref3_markersize), markeredgecolor=BLACK, markerfacecolor=GREY))
+        ref_1 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref1_markersize), markeredgecolor=WHITE, markerfacecolor=GREY))
+        ref_2 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref2_markersize), markeredgecolor=WHITE, markerfacecolor=GREY))
+        ref_3 = (Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=math.sqrt(ref3_markersize), markeredgecolor=WHITE, markerfacecolor=GREY))
         axScatter.legend([ref_1,ref_2,ref_3], [ref1_string, ref2_string, ref3_string], numpoints=1, ncol = 3, loc = 8, fontsize=LEGEND_FONTSIZE, borderpad=1.2, labelspacing=1.8, handlelength=1, handletextpad=1)
 
 def plot_legend(fig, axLegend, out_f, legend_flag, format, cumulative_flag):
     if (legend_flag):
         extent = axLegend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
         legend_out_f = '%s.%s.%s' % (out_f, "legend", format)
-        print BtLog.status_d['8'] % legend_out_f
+        print(BtLog.status_d['8'] % legend_out_f)
         fig.savefig('%s' % legend_out_f, bbox_inches=extent, format=format)
         fig.delaxes(axLegend)
     return fig
 
 def check_input(args):
-    blobdb_f = args['--infile']
     rank = args['--rank']
     c_index = args['--cindex']
-    min_length = int(args['--length'])
     multiplot = args['--multiplot']
-    hide_nohits = args['--nohit']
-    out_prefix = args['--out']
-    max_group_plot = int(args['--plotgroups'])
     sort_order = args['--sort']
     sort_first = args['--sort_first']
     taxrule = args['--taxrule']
     hist_type = args['--hist']
-    no_title = args['--notitle']
-    ignore_contig_length = args['--noscale']
-    labels = args['--label']
-    colour_f = args['--colours']
-    exclude_groups = args['--exclude']
-    format = args['--format']
-    no_plot_blobs = args['--noblobs']
-    no_plot_reads = args['--noreads']
-    refcov_f = args['--refcov']
     catcolour_f = args['--catcolour']
-    legend_flag = args['--legend']
     cumulative_flag = args['--cumulative']
-    cov_lib_selection = args['--lib']
 
     #Convert sort_first to a list
     if sort_first:
@@ -337,7 +336,7 @@ class PlotObj():
             output.append("%s" % "\t".join(line))
         out_f = "%s.stats.txt" % out_f
         with open(out_f, 'w') as fh:
-            print BtLog.status_d['24'] % ("%s" % out_f)
+            print(BtLog.status_d['24'] % ("%s" % out_f))
             fh.write("\n".join(output))
 
     def compute_stats(self):
@@ -391,30 +390,29 @@ class PlotObj():
         self.stats = stats
 
     def relabel_and_colour(self, colour_dict, user_labels):
-        #print user_labels
+        #print(user_labels)
+        groups = self.group_order[0:self.max_group_plot]
         if (colour_dict):
-            groups = self.group_order[0:self.max_group_plot]
             groups_not_in_colour_dict = set(groups) - set(colour_dict.keys())
-            for group in groups_not_in_colour_dict:
-                colour_dict[group] = WHITE
+            for _group in groups_not_in_colour_dict:
+                colour_dict[_group] = WHITE
         else:
-            groups = self.group_order[0:self.max_group_plot]
-            #print groups
-            colour_groups = list(set([group if not (group in user_labels) else user_labels[group] for group in groups]))
-            #print colour_groups
-            colour_dict = generateColourDict(colour_groups)
-            #print colour_dict
+            #print(groups)
+            colour_groups = list(set([_group if not (_group in user_labels) else user_labels[_group] for _group in groups]))
+            #print(colour_groups)
+            colour_dict = generateColourDict(colour_groups, groups)
+            #print(colour_dict)
         for idx, group in enumerate(self.group_order):
             if group in self.exclude_groups:
                 pass
             elif group in user_labels:
-                #print group, "in user_labels"
+                #print(group, "in user_labels")
                 label = user_labels[group]
-                #print label
+                #print(label)
                 self.group_labels[group].add(label)
-                #print self.group_labels[group]
+                #print(self.group_labels[group])
                 self.group_labels[group].add(group)
-                #print self.group_labels[group]
+                #print(self.group_labels[group])
                 self.colours[label] = colour_dict[user_labels[group]]
                 if label not in self.plot_order:
                     self.plot_order.append(label)
@@ -458,18 +456,18 @@ class PlotObj():
             # Setting up plots and axes
             fig = plt.figure(1, figsize=self.scatter_size, dpi=self.dpi)
             try:
-                axScatter = plt.axes(rect_scatter, facecolor=BGGREY)
+                axScatter = plt.axes(rect_scatter, facecolor=BGCOLOUR)
             except AttributeError:
-                axScatter = plt.axes(rect_scatter, axisbg=BGGREY)
+                axScatter = plt.axes(rect_scatter, axisbg=BGCOLOUR)
             axScatter = set_format_scatterplot(axScatter, min_cov=self.min_cov, max_cov=self.max_cov, plot=plot)
             axScatter.set_xlabel(self.xlabel)
             axScatter.set_ylabel(self.ylabel)
             try:
-                axHistx = plt.axes(rect_histx, facecolor=BGGREY)
-                axHisty = plt.axes(rect_histy, facecolor=BGGREY)
+                axHistx = plt.axes(rect_histx, facecolor=BGCOLOUR)
+                axHisty = plt.axes(rect_histy, facecolor=BGCOLOUR)
             except AttributeError:
-                axHistx = plt.axes(rect_histx, axisbg=BGGREY)
-                axHisty = plt.axes(rect_histy, axisbg=BGGREY)
+                axHistx = plt.axes(rect_histx, axisbg=BGCOLOUR)
+                axHisty = plt.axes(rect_histy, axisbg=BGCOLOUR)
             axHistx = set_format_hist_x(axHistx, axScatter)
             axHisty = set_format_hist_y(axHisty, axScatter)
             if self.hist_type == "span":
@@ -520,21 +518,21 @@ class PlotObj():
 
             ax_main = plt.subplot(gs[0])
             try:
-                ax_main.set_facecolor(BGGREY)
+                ax_main.set_facecolor(WHITE)
             except AttributeError:
-                ax_main.set_color(BGGREY)
+                ax_main.set_color(WHITE)
             ax_main.set_ylim(0, 1.1)
             ax_main.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_main.get_yticks()])
-            ax_main.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
+            ax_main.grid(True,  axis='y', which="major", lw=2., color=BGGREY, linestyle='--')
 
             ax_group = plt.subplot(gs[1])
             try:
-                ax_group.set_facecolor(BGGREY)
+                ax_group.set_facecolor(WHITE)
             except AttributeError:
-                ax_group.set_color(BGGREY)
+                ax_group.set_color(WHITE)
             ax_group.set_ylim(0, 1.1)
             ax_group.set_yticklabels(['{:.0f}%'.format(x*100) for x in ax_group.get_yticks()])
-            ax_group.grid(True,  axis='y', which="major", lw=2., color=WHITE, linestyle='--')
+            ax_group.grid(True,  axis='y', which="major", lw=2., color=BGGREY, linestyle='--')
 
             x_pos_main = arange(main_columns)
             x_pos_group = arange(len(self.plot_order))
@@ -587,7 +585,7 @@ class PlotObj():
         ax_group.set_xticklabels(ax_group_data['labels'], rotation=45, ha='center', fontsize=LEGEND_FONTSIZE)
         #figsuptitle = fig.suptitle(out_f, verticalalignment='top')
         out_f = "%s.read_cov.%s" % (out_f, cov_lib)
-        print BtLog.status_d['8'] % "%s.%s" % (out_f, self.format)
+        print(BtLog.status_d['8'] % "%s.%s" % (out_f, self.format))
         fig.tight_layout()
         #fig.savefig("%s.%s" % (out_f, self.format), format=self.format,  bbox_extra_artists=(figsuptitle,))
         fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
@@ -638,8 +636,11 @@ class PlotObj():
                 fmt_n50 = "{:,}".format(group_n50)
                 label = "%s (%s;%sMB;%snt)" % (group, fmt_seqs, fmt_span, fmt_n50)
                 if (info_flag):
-                    print BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50)
-                legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=BLACK, markerfacecolor=colour))
+                    print(BtLog.info_d['0'] % (group, fmt_seqs, fmt_span, fmt_n50))
+                if group == "other":
+                    legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=DGREY, markerfacecolor=colour))
+                else:
+                    legend_handles.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=WHITE, markerfacecolor=colour))
                 legend_labels.append(label)
 
                 weights_array = None
@@ -648,23 +649,29 @@ class PlotObj():
 
                 axHistx.hist(group_x_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
                 axHisty.hist(group_y_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-                axScatter.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
+                if group == 'other':
+                    axScatter.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=DGREY, label=label)
+                else:
+                    axScatter.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=WHITE, label=label)
                 axLegend.axis('off')
                 if (self.multiplot):
                     fig_m, axScatter_m, axHistx_m, axHisty_m, axLegend_m, top_bins, right_bins = self.setupPlot(self.plot)
                     legend_handles_m = []
                     legend_labels_m = []
-                    legend_handles_m.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=BLACK, markerfacecolor=colour))
+                    legend_handles_m.append(Line2D([0], [0], linewidth = 0.5, linestyle="none", marker="o", alpha=1, markersize=24, markeredgecolor=WHITE, markerfacecolor=colour))
                     legend_labels_m.append(label)
                     axHistx_m.hist(group_x_array, weights=weights_array, color = colour, bins = top_bins, histtype='step', lw = 3)
                     axHisty_m.hist(group_y_array, weights=weights_array, color = colour, bins = right_bins, histtype='step', orientation='horizontal', lw = 3)
-                    axScatter_m.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=BLACK, label=label)
+                    if group == 'other':
+                        axScatter_m.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=DGREY, label=label)
+                    else:
+                        axScatter_m.scatter(group_x_array, group_y_array, color = colour, s = marker_size_array, lw = lw, alpha=alpha, edgecolor=WHITE, label=label)
                     axLegend_m.axis('off')
                     axLegend_m.legend(legend_handles_m, legend_labels_m, loc=6, numpoints=1, fontsize=LEGEND_FONTSIZE, frameon=True)
                     plot_ref_legend(axScatter_m, max_length, max_marker_size, self.ignore_contig_length)
                     m_out_f = "%s.%s.%s.%s" % (out_f, cov_lib, idx, group.replace("/", "_").replace(" ", "_"))
                     fig_m = plot_legend(fig_m, axLegend_m, m_out_f, self.legend_flag, self.format, self.cumulative_flag)
-                    print BtLog.status_d['8'] % "%s.%s" % (m_out_f, self.format)
+                    print(BtLog.status_d['8'] % "%s.%s" % (m_out_f, self.format))
                     fig_m.savefig("%s.%s" % (m_out_f, self.format), format=self.format)
                     plt.close(fig_m)
                 elif (self.cumulative_flag):
@@ -675,7 +682,7 @@ class PlotObj():
                     fig = plot_legend(fig, axLegend, m_out_f, self.legend_flag, self.format, self.cumulative_flag)
                     if not (self.no_title):
                         fig.suptitle(out_f, fontsize=35, verticalalignment='top')
-                    print BtLog.status_d['8'] % "%s.%s" % (m_out_f, self.format)
+                    print(BtLog.status_d['8'] % "%s.%s" % (m_out_f, self.format))
                     fig.savefig("%s.%s" % (m_out_f, self.format), format=self.format)
                 else:
                     pass
@@ -686,7 +693,7 @@ class PlotObj():
         fig = plot_legend(fig, axLegend, out_f, self.legend_flag, self.format, self.cumulative_flag)
         if not (self.no_title):
             fig.suptitle(out_f, fontsize=35, verticalalignment='top')
-        print BtLog.status_d['8'] % "%s.%s" % (out_f, self.format)
+        print(BtLog.status_d['8'] % "%s.%s" % (out_f, self.format))
         fig.savefig("%s.%s" % (out_f, self.format), format=self.format)
         plt.close(fig)
 

@@ -16,23 +16,6 @@ def error(message, *argv):
         sys.exit(error_d[message] % (argv))
     #exit(1)  # change to exit with the actual ERROR number (different than 0)
 
-def progress(iteration, steps, max_value, no_limit=False):
-    if steps == 0:
-        pass
-    elif int(iteration) == max_value:
-        if no_limit == True:
-            sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100),
-        else:
-            sys.stdout.write('\r')
-            print "[%%] \t%d%%" % (100)
-    elif int(iteration) % steps == 0:
-        sys.stdout.write('\r')
-        print "[%%] \t%d%%" % (float(int(iteration) / int(max_value)) * 100),
-        sys.stdout.flush()
-    else:
-        pass
-
 error_d = {
     '0': '[ERROR:0]\t: File %s does not exist.',
     '1': '[ERROR:1]\t: Please provide coverage information.',
@@ -79,8 +62,8 @@ error_d = {
     '43': '[ERROR:43] : %s could not be found.',
     '44': '[ERROR:44] : Please specify integers for --map_col_sseqid and --map_col_taxid.',
     '45': '[ERROR:45] : Both --min_score and --min_diff must be numbers.',
-    '46': '[ERROR:46] : Score in %s must be a float, not \'%s\'.'
-
+    '46': '[ERROR:46] : Score in %s must be a float, not \'%s\'.',
+    '47': '[ERROR:47] : Cannot create new "--db" file from "--names", "--nodes", "--db" file exists. %s'
 }
 
 warn_d = {
@@ -125,7 +108,9 @@ status_d = {
     '23': '[+] Filtered %s (pairs=%s) ...',
     '24': '[+] Writing %s',
     '25': '[+] Gzip\'ing %s',
-    '26': '[+] Reading %s'
+    '26': '[+] Reading %s',
+    '27': '[+] Creating nodesDB %s from %s and %s',
+    '28': '[+] Store nodesDB in %s',
 }
 
 info_d = {
