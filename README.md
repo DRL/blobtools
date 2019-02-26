@@ -9,7 +9,7 @@ A modular command-line solution for visualisation, quality control and taxonomic
 
 Dependencies
 ------------
-- UNIX system (bash, wget, tar, make, gunzip) 
+- UNIX system (bash, wget, tar, make, gunzip)
 - Python 2.7
 - ```pip```
 
@@ -30,3 +30,15 @@ Usage
 -----
 
     $ ./blobtools -h
+
+
+Docker
+------
+
+A docker container can be build using the following command:
+
+     $ docker build -t DRL/blobtools .
+
+The docker image can bee run with sample data as follows:
+
+     docker run -v $PWD/example:/example/  -t  DRL/blobtools ./blobtools create -i /example/assembly.fna -b /example/mapping_1.bam -t /example/blast.out -o /example/test
