@@ -57,17 +57,18 @@ Create blobplot
   ```
 Usage
 -----
-
+```
     ./blobtools --help
-
+```
 
 Docker
 ------
 
 A docker container can be build using the following command:
-
-     $ docker build -t drl/blobtools .
-
+```
+     docker build -t drl/blobtools .
+```
 This docker image can be run with sample data as follows:
-
+```
      docker run -v $PWD/example:/example/  -t  drl/blobtools ./blobtools create -i /example/assembly.fna -b /example/mapping_1.sorted.bam -t /example/blast.out -o /example/test
+```
