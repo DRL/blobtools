@@ -49,7 +49,7 @@
 
         --label GROUPS...           Relabel (taxonomic) groups, can be used several times.
                                      e.g. "A=Actinobacteria,Proteobacteria"
-        --colours COLOURFILE        File containing colours for (taxonomic) groups
+        --colours COLOURFILE        File containing colours for (taxonomic) groups. This allows having more than 9 colours.
         --exclude GROUPS            Exclude these (taxonomic) groups (also works for 'other')
                                      e.g. "Actinobacteria,Proteobacteria,other"
         --refcov <FILE>               File containing number of "total" and "mapped" reads
@@ -77,8 +77,9 @@ def main():
     rank = args['--rank']
     min_length = int(args['--length'])
     max_group_plot = int(args['--plotgroups'])
-    if max_group_plot > 8:
-        sys.exit("[X] '--plotgroups' must be less than 9.")
+    colour_f = args['--colours']
+    if max_group_plot > 8 and not colour_f:
+        sys.exit("[X] '--plotgroups' must be less than 9 for using automatic colour assignation.")
     hide_nohits = args['--nohit']
     taxrule = args['--taxrule']
     c_index = args['--cindex']

@@ -48,7 +48,6 @@ __version__ = '1.1.0'
 
 def main():
     try:
-        
         start_time = timer()
         try:
             args = docopt(__doc__, version=__version__, options_first=True)
@@ -56,7 +55,6 @@ def main():
             print(__doc__)
         else:
             if args['<module>']:
-
                 if args['<module>'] == 'create':
                     import lib.create as create
                     create.main()

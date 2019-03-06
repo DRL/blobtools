@@ -25,7 +25,6 @@
         -n, --notable               Do not generate table view [default: False]
 """
 
-from __future__ import division
 from docopt import docopt
 from os.path import isfile
 
