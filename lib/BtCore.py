@@ -371,7 +371,9 @@ class BlobDb():
                     print(BtLog.warn_d['4'] % covLib.f)
 
                 for name, base_cov in base_cov_dict.items():
-                    cov = base_cov / self.dict_of_blobs[name].agct_count
+                    cov = 0.0
+                    if not self.dict_of_blobs[name].agct_count == 0:
+                        cov = base_cov / self.dict_of_blobs[name].agct_count
                     covLib.cov_sum += cov
                     self.dict_of_blobs[name].addCov(covLib.name, cov)
                     self.dict_of_blobs[name].addReadCov(covLib.name, read_cov_dict[name])
