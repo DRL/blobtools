@@ -15,7 +15,7 @@
                                     - writes FASTAs of pairs where at least
                                         one read does not maps to sequences in list
                                         (InUn.fq, InIn.fq, ExIn.fq)
-        -U, --exclude_unmapped      Include pairs where both reads are unmapped
+        -U, --exclude_unmapped      Exclude pairs where both reads are unmapped
         -n, --noninterleaved        Use if fw and rev reads should be in separate files  
         -f, --read_format FORMAT    FASTQ = fq, FASTA = fa [default: fa]      
         -o, --out PREFIX            Output prefix
