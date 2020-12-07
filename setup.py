@@ -15,7 +15,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 # get the dependencies and installs
 install_reqs = parse_requirements(path.join(here, 'requirements.txt'), session=False)
-reqs = [str(ir.req) for ir in install_reqs]
+
+try:
+    reqs = [str(ir.req) for ir in install_reqs]
+except AttributeError:
+    reqs = [str(ir.requirement) for ir in install_reqs]
 
 class OverrideInstall(install):
 
