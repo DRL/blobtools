@@ -67,10 +67,10 @@ class BlobDb():
             if viewObj.name == 'covlib':
                 viewObj.header = self.getCovHeader(cov_lib_names)
             if viewObj.name == 'experimental':
-                viewObj.covs = {cov_lib : [] for cov_lib in cov_lib_names}
+                viewObj.covs = {cov_lib: [] for cov_lib in cov_lib_names}
                 viewObj.covs["covsum"] = []
                 for taxrule in self.taxrules:
-                    viewObj.tax[taxrule] = {rank : [] for rank in BtTax.RANKS}
+                    viewObj.tax[taxrule] = {rank: [] for rank in BtTax.RANKS}
         # bodies
         print("[+] Generating data for view")
         with tqdm(total=len(seqs), desc="[%] ", ncols=200, unit_scale=True) as pbar:
@@ -174,7 +174,7 @@ class BlobDb():
             col += 1
             main_header.append("%s" % "cov_sum")
         for rank in ranks:
-            main_header.append("%s" "\t".join([rank + ".t." + str(col + 1), rank + ".s." + str(col + 2), rank + ".c." + str(col + 3)]))
+            main_header.append("%s" % "\t".join([rank + ".t." + str(col + 1), rank + ".s." + str(col + 2), rank + ".c." + str(col + 3)]))
             col += 3
             if hits_flag:
                 main_header.append("%s" % rank + ".hits." + str(col + 1))
