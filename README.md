@@ -17,7 +17,7 @@ Obtaining BlobTools
   git clone https://github.com/DRL/blobtools.git
   ```
 
-Entering directory
+Enter directory
 ------------
   ```
   cd blobtools
@@ -25,21 +25,14 @@ Entering directory
 
 Install dependencies
 ------------
-- **Option A**: Create [Conda](https://conda.io/en/latest/miniconda.html) environment
+- Create [Conda](https://conda.io/en/latest/miniconda.html) environment and install dependencies
 
   ```
   conda create -n blobtools
   conda activate blobtools
-  conda install -c anaconda matplotlib docopt tqdm wget pyyaml git
-  conda install -c bioconda pysam --update-deps
+  conda install -c anaconda matplotlib docopt tqdm wget pyyaml git pysam
   ```
-  *Tip*: Check if samtools exists by executing the command 'samtools' in the commandline. If samtools complains about dependencies, simply run the pysam install twice.
-
-- **Option B**: Install dependencies via PIP
-  ```
-  python setup.py install --user
-  ```
-
+  
 Download NCBI taxdump and create nodesdb
 ------------
   ```
