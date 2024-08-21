@@ -30,7 +30,7 @@ Install dependencies
   ```
   conda create -n blobtools
   conda activate blobtools
-  conda install -c anaconda matplotlib docopt tqdm wget pyyaml git pysam
+  conda install -c anaconda -c bioconda matplotlib docopt tqdm wget pyyaml git pysam
   ```
   
 Download NCBI taxdump and create nodesdb
